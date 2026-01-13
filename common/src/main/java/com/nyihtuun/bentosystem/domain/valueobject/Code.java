@@ -11,9 +11,9 @@ import java.util.UUID;
 @Getter
 @EqualsAndHashCode
 public final class Code {
-    private UUID value;
+    private String value;
 
-    private Code(UUID value) {
+    private Code(String value) {
         this.value = value;
     }
 
@@ -21,7 +21,7 @@ public final class Code {
         return new Code(CodeGenerator.generate());
     }
 
-    public UUID value() {
+    public String value() {
         return value;
     }
 
@@ -30,14 +30,14 @@ public final class Code {
         private static final SecureRandom RANDOM = new SecureRandom();
 
         private static final char[] LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
-        private static final char[] ALPHANUM =
-                "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".toCharArray();
+        private static final char[] NUM =
+                "0123456789".toCharArray();
 
         private CodeGenerator() {
             // prevent instantiation
         }
 
-        public static UUID generate() {
+        public static String generate() {
             char[] code = new char[7];
 
             // 2 leading alphabets
@@ -47,10 +47,10 @@ public final class Code {
 
             // remaining 5 alphanumeric
             for (int i = 2; i < 7; i++) {
-                code[i] = ALPHANUM[RANDOM.nextInt(ALPHANUM.length)];
+                code[i] = NUM[RANDOM.nextInt(NUM.length)];
             }
 
-            return UUID.fromString(new String(code));
+            return new String(code);
         }
     }
 }

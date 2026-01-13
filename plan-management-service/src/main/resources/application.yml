@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: plan-management-service
+  messages:
+    basename: messages
+    encoding: UTF-8
+  datasource:
+    url: jdbc:postgresql://localhost:5432/bento_saas
+    username: postgres
+    password: admin
+    driver-class-name: org.postgresql.Driver

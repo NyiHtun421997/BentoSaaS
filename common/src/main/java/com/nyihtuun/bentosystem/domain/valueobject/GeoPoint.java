@@ -1,13 +1,17 @@
 package com.nyihtuun.bentosystem.domain.valueobject;
 
+import lombok.Getter;
+
+import java.math.BigDecimal;
 import java.util.Objects;
 
+@Getter
 public final class GeoPoint {
 
     private final double latitude;   // -90 .. +90
     private final double longitude;  // -180 .. +180
 
-    private GeoPoint(double latitude, double longitude) {
+    public GeoPoint(double latitude, double longitude) {
         validate(latitude, longitude);
         this.latitude = latitude;
         this.longitude = longitude;

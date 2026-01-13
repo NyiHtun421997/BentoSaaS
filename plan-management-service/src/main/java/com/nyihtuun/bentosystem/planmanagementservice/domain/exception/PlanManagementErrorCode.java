@@ -1,0 +1,16 @@
+package com.nyihtuun.bentosystem.planmanagementservice.domain.exception;
+
+public enum PlanManagementErrorCode {
+    EMPTY_MEALS, 
+    NO_PRIMARY_MEAL, 
+    INVALID_SUB_FEE, 
+    INVALID_CATEGORY_ID,
+    INVALID_CATEGORY_NAME,
+    DUPLICATED_CATEGORY_NAME,
+    INVALID_PLAN_ID,
+    NEGATIVE_PLANMEAL_PRICE,
+    NEGATIVE_PLANMEAL_MINSUBCOUNT,
+    INVALID_PLANMEAL_ID,
+    INVALID_SKIPDAYS,
+    INELIGIBLE_PLAN
+}

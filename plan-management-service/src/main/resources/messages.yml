@@ -1,0 +1,80 @@
+plan:
+  error:
+    empty-meals: "Plan must contain at least one meal."
+    no-primary-meal: "Plan must contain at least one primary meal."
+    invalid-sub-fee: "Display subscription fee must be equal to the total sum of each plan meal's monthly price."
+    invalid-category-id: "Category with provided id cannot be found."
+    invalid-category-name: "Please enter valid category name."
+    duplicated-category-name: "Category name must be unique."
+    invalid-plan-id: "Plan with provided id cannot be found."
+    negative-planmeal-price: "Meal price cannot be negative."
+    negative-planmeal-minsubcount: "Minimum subscriber count cannot be negative."
+    invalid-planmeal-id: "Planmeal with provided id cannot be found."
+    invalid-skipdays: "Skip days cannot be more than 2 days."
+
+# -----------------------------
+# Bean Validation messages (DTOs)
+# Key format follows Hibernate Validator defaults:
+#   <Constraint>.<objectName>.<fieldName>
+# -----------------------------
+
+NotBlank:
+  planRequestDto:
+    title: "Title is required."
+    description: "Description is required."
+  addressDto:
+    chomeBanGo: "Chome and street number are required."
+    district: "District is required."
+    postalCode: "Postal code is required."
+    city: "City is required."
+    prefecture: "Prefecture is required."
+  planMealRequestDto:
+    name: "Meal name is required."
+
+Size:
+  planRequestDto:
+    title: "Title must be at most {max} characters."
+    description: "Description must be at most {max} characters."
+  addressDto:
+    buildingNameRoomNo: "Building/Room must be at most {max} characters."
+    chomeBanGo: "Chome and street number must be at most {max} characters."
+    district: "District must be at most {max} characters."
+    city: "City must be at most {max} characters."
+    prefecture: "Prefecture must be at most {max} characters."
+  planMealRequestDto:
+    name: "Meal name must be at most {max} characters."
+    description: "Description must be at most {max} characters."
+    imageUrl: "Image URL must be at most {max} characters."
+
+NotNull:
+  planRequestDto:
+    categoryId: "Category is required."
+    address: "Address is required."
+    displaySubscriptionFee: "Display subscription fee is required."
+    skipDays: "Skip days is required."
+  addressDto:
+    location: "Location is required."
+  planMealRequestDto:
+    pricePerMonth: "Monthly price is required."
+
+Pattern:
+  addressDto:
+    postalCode: "Postal code must be in the format XXX-XXXX."
+  planMealRequestDto:
+    imageUrl: "Image URL must start with http:// or https://."
+
+DecimalMin:
+  planRequestDto:
+    displaySubscriptionFee: "Display subscription fee must be at least {value}."
+  planMealRequestDto:
+    pricePerMonth: "Monthly price must be at least {value}."
+
+Digits:
+  planRequestDto:
+    displaySubscriptionFee: "Display subscription fee must have at most {integer} digits and up to {fraction} decimal places."
+  planMealRequestDto:
+    pricePerMonth: "Monthly price must have at most {integer} digits and up to {fraction} decimal places."
+
+Min:
+  planMealRequestDto:
+    minSubCount: "Minimum subscription count must be {value} or greater."

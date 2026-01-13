@@ -1,13 +1,8 @@
 package com.nyihtuun.bentosystem.domain.valueobject;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-@Getter
 public record Money(BigDecimal amount) {
     public static final Money ZERO = new Money(BigDecimal.ZERO);
 
