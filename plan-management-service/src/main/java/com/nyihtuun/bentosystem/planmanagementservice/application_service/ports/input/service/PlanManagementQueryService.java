@@ -1,5 +1,6 @@
 package com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.input.service;
 
+import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.CategoryDto;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.response.PlanResponseDto;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.entity.Category;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.entity.DeliverySchedule;
@@ -10,17 +11,21 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface PlanManagementQueryService {
-    List<PlanResponseDto> getActivePlans();
+    List<PlanResponseDto> getActivePlans(int page, int size);
 
-    Optional<PlanResponseDto> getPlanByName(String planName);
+    Optional<PlanResponseDto> getPlanByTitleAndCode(String title, String code);
 
-    List<PlanResponseDto> getPlansByCategoryId(UUID categoryId);
+    List<PlanResponseDto> getPlansByCategoryId(UUID categoryId, int page, int size);
 
-    List<PlanResponseDto> getPlansByDate(LocalDate start, LocalDate end);
+    List<PlanResponseDto> getPlansByDate(LocalDate start, LocalDate end, int page, int size);
 
-    Category getCategoryById(UUID categoryId);
+    List<PlanResponseDto> getPlansByUserId(UUID userId);
 
-    List<Category> getCategories();
+    List<PlanResponseDto> getPlansNearMe(double latitude, double longitude, int page, int size);
 
-    List<DeliverySchedule> getDeliverySchedulesByPlanId(UUID planId);
+    List<CategoryDto> getCategories();
+
+    Optional<DeliverySchedule> getDeliverySchedulesByPlanIdAndDate(UUID planId, LocalDate start, LocalDate end);
+
+    Optional<PlanResponseDto> getPlanByPlanId(UUID planId);
 }

@@ -11,6 +11,7 @@ plan:
     negative-planmeal-minsubcount: "Minimum subscriber count cannot be negative."
     invalid-planmeal-id: "Planmeal with provided id cannot be found."
     invalid-skipdays: "Skip days cannot be more than 2 days."
+    invalid-params: "Data cannot be found with provided parameters."
 
 # -----------------------------
 # Bean Validation messages (DTOs)

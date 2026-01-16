@@ -9,3 +9,7 @@ spring:
     username: postgres
     password: admin
     driver-class-name: org.postgresql.Driver
+server:
+  port: 4000
+  servlet:
+    context-path: /plan-management

@@ -13,7 +13,7 @@ import java.util.UUID;
 public final class Code {
     private String value;
 
-    private Code(String value) {
+    public Code(String value) {
         this.value = value;
     }
 

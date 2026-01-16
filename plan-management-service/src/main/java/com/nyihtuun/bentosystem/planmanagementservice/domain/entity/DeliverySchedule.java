@@ -1,34 +1,31 @@
 package com.nyihtuun.bentosystem.planmanagementservice.domain.entity;
 
 import com.nyihtuun.bentosystem.domain.entity.AggregateRoot;
-import com.nyihtuun.bentosystem.domain.valueobject.Code;
 import com.nyihtuun.bentosystem.domain.valueobject.DeliveryScheduleId;
 import com.nyihtuun.bentosystem.domain.valueobject.PlanId;
 import com.nyihtuun.bentosystem.domain.valueobject.PlanMealId;
 import lombok.Getter;
 
 import java.time.LocalDate;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Getter
 public class DeliverySchedule extends AggregateRoot<DeliveryScheduleId> {
     private PlanId planId;
-    private Code code;
     private LocalDate periodStart;
     private LocalDate periodEnd;
-    private ZonedDateTime createAt;
-    private List<DeliveryScheduleDetail> deliverySchedules;
+    private LocalDateTime createdAt;
+    private List<DeliveryScheduleDetail> deliveryScheduleDetails;
 
     private DeliverySchedule(Builder builder) {
         super.setId(builder.deliveryScheduleId);
         planId = builder.planId;
-        code = builder.code;
         periodStart = builder.periodStart;
         periodEnd = builder.periodEnd;
-        createAt = builder.createAt;
-        deliverySchedules = builder.deliverySchedules;
+        createdAt = builder.createdAt;
+        deliveryScheduleDetails = builder.deliverySchedules;
     }
 
     public static Builder builder() {
@@ -36,20 +33,19 @@ public class DeliverySchedule extends AggregateRoot<DeliveryScheduleId> {
     }
 
     public Optional<PlanMealId> mealFor(LocalDate date) {
-        return this.deliverySchedules.stream()
-                                     .filter(deliveryScheduleDetail -> deliveryScheduleDetail.getDeliveryDate().equals(date))
-                                     .findFirst()
-                                     .map(DeliveryScheduleDetail::getPlanMealId);
+        return this.deliveryScheduleDetails.stream()
+                                           .filter(deliveryScheduleDetail -> deliveryScheduleDetail.getDeliveryDate().equals(date))
+                                           .findFirst()
+                                           .map(DeliveryScheduleDetail::getPlanMealId);
     }
 
 
     public static final class Builder {
         private DeliveryScheduleId deliveryScheduleId;
         private PlanId planId;
-        private Code code;
         private LocalDate periodStart;
         private LocalDate periodEnd;
-        private ZonedDateTime createAt;
+        private LocalDateTime createdAt;
         private List<DeliveryScheduleDetail> deliverySchedules;
 
         private Builder() {
@@ -65,11 +61,6 @@ public class DeliverySchedule extends AggregateRoot<DeliveryScheduleId> {
             return this;
         }
 
-        public Builder code(Code val) {
-            code = val;
-            return this;
-        }
-
         public Builder periodStart(LocalDate val) {
             periodStart = val;
             return this;
@@ -80,8 +71,8 @@ public class DeliverySchedule extends AggregateRoot<DeliveryScheduleId> {
             return this;
         }
 
-        public Builder createAt(ZonedDateTime val) {
-            createAt = val;
+        public Builder createdAt(LocalDateTime val) {
+            createdAt = val;
             return this;
         }
 

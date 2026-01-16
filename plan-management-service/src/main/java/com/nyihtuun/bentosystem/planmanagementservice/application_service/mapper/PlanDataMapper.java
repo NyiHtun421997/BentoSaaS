@@ -6,7 +6,6 @@ import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.re
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.request.PlanRequestDto;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.response.PlanMealResponseDto;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.response.PlanResponseDto;
-import com.nyihtuun.bentosystem.planmanagementservice.domain.entity.Category;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.entity.Plan;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.entity.PlanMeal;
 import org.springframework.stereotype.Component;

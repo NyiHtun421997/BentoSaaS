@@ -9,7 +9,7 @@ import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.util.*;
 
 
@@ -26,12 +26,12 @@ public class Plan extends AggregateRoot<PlanId> {
     private List<LocalDate> skipDays;
     private Address address;
     private Money displaySubscriptionFee;
-    private ZonedDateTime createdAt;
-    private ZonedDateTime updatedAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     private List<PlanMeal> planMeals = new ArrayList<>();
     private boolean deleteFlag;
-    private ZonedDateTime deletedAt;
+    private LocalDateTime deletedAt;
 
     private Plan(Builder builder) {
         super.setId(builder.planId);
@@ -87,8 +87,8 @@ public class Plan extends AggregateRoot<PlanId> {
     public void initializePlan() {
         super.setId(new PlanId(UUID.randomUUID()));
         this.code = Code.generate();
-        this.createdAt = ZonedDateTime.now();
-        this.updatedAt = ZonedDateTime.now();
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
         this.planMeals.forEach(planMeal -> planMeal.initializeMeal(super.getId()));
         status = PlanStatus.RECRUITING;
     }
@@ -108,11 +108,11 @@ public class Plan extends AggregateRoot<PlanId> {
         private List<LocalDate> skipDays;
         private Address address;
         private Money displaySubscriptionFee;
-        private ZonedDateTime createdAt;
-        private ZonedDateTime updatedAt;
+        private LocalDateTime createdAt;
+        private LocalDateTime updatedAt;
         private List<PlanMeal> planMeals;
         private boolean deleteFlag;
-        private ZonedDateTime deletedAt;
+        private LocalDateTime deletedAt;
 
         private Builder() {
         }
@@ -162,12 +162,12 @@ public class Plan extends AggregateRoot<PlanId> {
             return this;
         }
 
-        public Builder createdAt(ZonedDateTime val) {
+        public Builder createdAt(LocalDateTime val) {
             createdAt = val;
             return this;
         }
 
-        public Builder updatedAt(ZonedDateTime val) {
+        public Builder updatedAt(LocalDateTime val) {
             updatedAt = val;
             return this;
         }
@@ -182,7 +182,7 @@ public class Plan extends AggregateRoot<PlanId> {
             return this;
         }
 
-        public Builder deletedAt(ZonedDateTime val) {
+        public Builder deletedAt(LocalDateTime val) {
             deletedAt = val;
             return this;
         }

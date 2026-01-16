@@ -4,6 +4,7 @@ import com.nyihtuun.bentosystem.domain.valueobject.PlanId;
 import com.nyihtuun.bentosystem.domain.valueobject.PlanMealId;
 import com.nyihtuun.bentosystem.domain.valueobject.UserId;
 import com.nyihtuun.bentosystem.domain.valueobject.status.SubscriptionStatus;
+import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.CategoryDto;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.request.PlanRequestDto;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.request.PlanMealRequestDto;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.response.PlanResponseDto;
@@ -33,5 +34,5 @@ public interface PlanManagementCommandService {
 
     List<DeliverySchedule> generateSchedules();
 
-    void createCategory(String category);
+    CategoryDto createCategory(String category);
 }

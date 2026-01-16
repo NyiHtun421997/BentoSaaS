@@ -10,7 +10,6 @@ import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.re
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.mapper.PlanDataMapper;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.input.service.BusinessCalendarService;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.input.service.PlanManagementCommandService;
-import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.input.service.PlanManagementCommandServiceImpl;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.input.service.PlanManagementQueryService;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.output.repository.PlanManagementRepository;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.entity.Category;
@@ -266,8 +265,8 @@ public class PlanManagementServiceTest {
                 .minSubCount(new Threshold(1))
                 .currentSubCount(0)
                 .imageUrl("https://example.com/standard.jpg")
-                .createdAt(ZonedDateTime.now())
-                .updatedAt(ZonedDateTime.now())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
                 .build();
 
          dummyPlanMeal2 = PlanMeal.builder()
@@ -280,8 +279,8 @@ public class PlanManagementServiceTest {
                 .minSubCount(new Threshold(5))
                 .currentSubCount(0)
                 .imageUrl("https://example.com/premium.jpg")
-                .createdAt(ZonedDateTime.now())
-                .updatedAt(ZonedDateTime.now())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
                 .build();
 
         List<PlanMeal> dummyPlanMeals = new ArrayList<>();
@@ -307,8 +306,8 @@ public class PlanManagementServiceTest {
                         .location(GeoPoint.of(65.658034, 109.701636))
                         .build())
                         .displaySubscriptionFee(new Money(INITIAL_DISPLAY_SUBFEE))
-                        .createdAt(ZonedDateTime.now())
-                        .updatedAt(ZonedDateTime.now())
+                        .createdAt(LocalDateTime.now())
+                        .updatedAt(LocalDateTime.now())
                         .planMeals(dummyPlanMeals)
                         .build();
 
@@ -346,11 +345,11 @@ public class PlanManagementServiceTest {
 
         periodContext = new PeriodContext(startDate, endDate, businessDays);
 
-        when(planManagementRepository.findActivePlans()).thenReturn(List.of(dummyPlan));
+        when(planManagementRepository.findActivePlans(0, 5)).thenReturn(List.of(dummyPlan));
         when(planManagementRepository.findCategoryById(any())).thenReturn(Optional.of(category));
         when(planManagementRepository.save(any(Plan.class))).thenAnswer(inv -> inv.getArgument(0));
         when(planManagementRepository.findByPlanId(PLAN_ID_UUID)).thenReturn(Optional.of(dummyPlan));
-        when(planManagementRepository.findActivePlansBetweenDates(startDate, endDate)).thenReturn(List.of(dummyPlan));
+        when(planManagementRepository.findActivePlansBetweenDates(startDate, endDate, 0, 5)).thenReturn(List.of(dummyPlan));
         when(businessCalendarService.getCurrentMonthBusinessPeriod(any(YearMonth.class))).thenReturn(periodContext);
     }
 
@@ -532,8 +531,8 @@ public class PlanManagementServiceTest {
                                           .minSubCount(new Threshold(2))
                                           .currentSubCount(0)
                                           .imageUrl("https://example.com/standard.jpg")
-                                          .createdAt(ZonedDateTime.now())
-                                          .updatedAt(ZonedDateTime.now())
+                                          .createdAt(LocalDateTime.now())
+                                          .updatedAt(LocalDateTime.now())
                                           .build();
 
          dummyPlanMeal2 = PlanMeal.builder()
@@ -546,8 +545,8 @@ public class PlanManagementServiceTest {
                                           .minSubCount(new Threshold(5))
                                           .currentSubCount(0)
                                           .imageUrl("https://example.com/premium.jpg")
-                                          .createdAt(ZonedDateTime.now())
-                                          .updatedAt(ZonedDateTime.now())
+                                          .createdAt(LocalDateTime.now())
+                                          .updatedAt(LocalDateTime.now())
                                           .build();
 
         List<PlanMeal> dummyPlanMeals = new ArrayList<>();
@@ -573,8 +572,8 @@ public class PlanManagementServiceTest {
                                         .location(GeoPoint.of(65.658034, 109.701636))
                                         .build())
                         .displaySubscriptionFee(new Money(INITIAL_DISPLAY_SUBFEE))
-                        .createdAt(ZonedDateTime.now())
-                        .updatedAt(ZonedDateTime.now())
+                        .createdAt(LocalDateTime.now())
+                        .updatedAt(LocalDateTime.now())
                         .planMeals(dummyPlanMeals)
                         .build();
         
@@ -600,8 +599,8 @@ public class PlanManagementServiceTest {
                                           .minSubCount(new Threshold(1))
                                           .currentSubCount(1)
                                           .imageUrl("https://example.com/standard.jpg")
-                                          .createdAt(ZonedDateTime.now())
-                                          .updatedAt(ZonedDateTime.now())
+                                          .createdAt(LocalDateTime.now())
+                                          .updatedAt(LocalDateTime.now())
                                           .build();
 
         PlanMeal dummyPlanMeal2 = PlanMeal.builder()
@@ -614,8 +613,8 @@ public class PlanManagementServiceTest {
                                           .minSubCount(new Threshold(5))
                                           .currentSubCount(0)
                                           .imageUrl("https://example.com/premium.jpg")
-                                          .createdAt(ZonedDateTime.now())
-                                          .updatedAt(ZonedDateTime.now())
+                                          .createdAt(LocalDateTime.now())
+                                          .updatedAt(LocalDateTime.now())
                                           .build();
 
         List<PlanMeal> dummyPlanMeals = new ArrayList<>();
@@ -641,8 +640,8 @@ public class PlanManagementServiceTest {
                                         .location(GeoPoint.of(65.658034, 109.701636))
                                         .build())
                         .displaySubscriptionFee(new Money(new BigDecimal("2000.00")))
-                        .createdAt(ZonedDateTime.now())
-                        .updatedAt(ZonedDateTime.now())
+                        .createdAt(LocalDateTime.now())
+                        .updatedAt(LocalDateTime.now())
                         .planMeals(dummyPlanMeals)
                         .build();
         PlanResponseDto planResponseDto = planManagementCommandService.reflectUserSubscription(dummyPlanId,
@@ -667,8 +666,8 @@ public class PlanManagementServiceTest {
                                           .minSubCount(new Threshold(1))
                                           .currentSubCount(2)
                                           .imageUrl("https://example.com/standard.jpg")
-                                          .createdAt(ZonedDateTime.now())
-                                          .updatedAt(ZonedDateTime.now())
+                                          .createdAt(LocalDateTime.now())
+                                          .updatedAt(LocalDateTime.now())
                                           .build();
 
         PlanMeal dummyPlanMeal2 = PlanMeal.builder()
@@ -681,8 +680,8 @@ public class PlanManagementServiceTest {
                                           .minSubCount(new Threshold(5))
                                           .currentSubCount(0)
                                           .imageUrl("https://example.com/premium.jpg")
-                                          .createdAt(ZonedDateTime.now())
-                                          .updatedAt(ZonedDateTime.now())
+                                          .createdAt(LocalDateTime.now())
+                                          .updatedAt(LocalDateTime.now())
                                           .build();
 
         List<PlanMeal> dummyPlanMeals = new ArrayList<>();
@@ -708,8 +707,8 @@ public class PlanManagementServiceTest {
                                         .location(GeoPoint.of(65.658034, 109.701636))
                                         .build())
                         .displaySubscriptionFee(new Money(new BigDecimal("2000.00")))
-                        .createdAt(ZonedDateTime.now())
-                        .updatedAt(ZonedDateTime.now())
+                        .createdAt(LocalDateTime.now())
+                        .updatedAt(LocalDateTime.now())
                         .planMeals(dummyPlanMeals)
                         .build();
 
@@ -724,10 +723,12 @@ public class PlanManagementServiceTest {
 
     @Test
     void testReflectUserSubscription_invalidId_shouldThrow() {
-        when(planManagementRepository.findCategoryById(any())).thenReturn(Optional.empty());
+        when(planManagementRepository.findByPlanId(any())).thenReturn(Optional.empty());
         PlanManagementDomainException planManagementDomainException = assertThrows(PlanManagementDomainException.class,
-                                                                                   () -> planManagementQueryService.getCategoryById(
-                                                                                           CATEGORY_ID_UUID));
+                                                                                   () -> planManagementCommandService
+                                                                                           .reflectUserSubscription(dummyPlanId,
+                                                                                                                    List.of(dummyPlanMealId1, dummyPlanMealId2),
+                                                                                                                    SubscriptionStatus.APPLIED));
         assertEquals(PlanManagementErrorCode.INVALID_PLAN_ID, planManagementDomainException.getErrorCode());
 
     }
@@ -758,8 +759,8 @@ public class PlanManagementServiceTest {
                                           .minSubCount(new Threshold(1))
                                           .currentSubCount(1)
                                           .imageUrl("https://example.com/standard.jpg")
-                                          .createdAt(ZonedDateTime.now())
-                                          .updatedAt(ZonedDateTime.now())
+                                          .createdAt(LocalDateTime.now())
+                                          .updatedAt(LocalDateTime.now())
                                           .build();
 
         PlanMeal dummyPlanMeal2 = PlanMeal.builder()
@@ -772,8 +773,8 @@ public class PlanManagementServiceTest {
                                           .minSubCount(new Threshold(5))
                                           .currentSubCount(0)
                                           .imageUrl("https://example.com/premium.jpg")
-                                          .createdAt(ZonedDateTime.now())
-                                          .updatedAt(ZonedDateTime.now())
+                                          .createdAt(LocalDateTime.now())
+                                          .updatedAt(LocalDateTime.now())
                                           .build();
 
         List<PlanMeal> dummyPlanMeals = new ArrayList<>();
@@ -799,8 +800,8 @@ public class PlanManagementServiceTest {
                                         .location(GeoPoint.of(65.658034, 109.701636))
                                         .build())
                         .displaySubscriptionFee(new Money(new BigDecimal("2000.00")))
-                        .createdAt(ZonedDateTime.now())
-                        .updatedAt(ZonedDateTime.now())
+                        .createdAt(LocalDateTime.now())
+                        .updatedAt(LocalDateTime.now())
                         .planMeals(dummyPlanMeals)
                         .build();
         PlanResponseDto planResponseDto = planManagementCommandService.addMealToPlan(dummyPlanId, validPlanMealRequestDto);
@@ -900,8 +901,8 @@ public class PlanManagementServiceTest {
                                  .minSubCount(new Threshold(1))
                                  .currentSubCount(1)
                                  .imageUrl("https://example.com/standard.jpg")
-                                 .createdAt(ZonedDateTime.now())
-                                 .updatedAt(ZonedDateTime.now())
+                                 .createdAt(LocalDateTime.now())
+                                 .updatedAt(LocalDateTime.now())
                                  .build();
 
         dummyPlanMeal2 = PlanMeal.builder()
@@ -914,8 +915,8 @@ public class PlanManagementServiceTest {
                                  .minSubCount(new Threshold(5))
                                  .currentSubCount(5)
                                  .imageUrl("https://example.com/premium.jpg")
-                                 .createdAt(ZonedDateTime.now())
-                                 .updatedAt(ZonedDateTime.now())
+                                 .createdAt(LocalDateTime.now())
+                                 .updatedAt(LocalDateTime.now())
                                  .build();
 
         dummyPlan = Plan.builder()
@@ -937,25 +938,24 @@ public class PlanManagementServiceTest {
                                         .location(GeoPoint.of(65.658034, 109.701636))
                                         .build())
                         .displaySubscriptionFee(new Money(INITIAL_DISPLAY_SUBFEE))
-                        .createdAt(ZonedDateTime.of(LocalDateTime.of(2025, 1, 5, 1, 1), ZoneId.of("UTC")))
-                        .updatedAt(ZonedDateTime.of(LocalDateTime.of(2025, 1, 6, 1, 1), ZoneId.of("UTC")))
+                        .createdAt(LocalDateTime.of(2025, 1, 5, 1, 1))
+                        .updatedAt(LocalDateTime.of(2025, 1, 6, 1, 1))
                         .planMeals(dummyPlanMeals)
                         .build();
 
         List<DeliverySchedule> deliverySchedules = planManagementCommandService.generateSchedules();
         assertEquals(1, deliverySchedules.size());
         assertEquals(dummyPlan.getId(), deliverySchedules.getFirst().getPlanId());
-        assertEquals(dummyPlan.getCode(), deliverySchedules.getFirst().getCode());
         assertEquals(startDate, deliverySchedules.getFirst().getPeriodStart());
         assertEquals(endDate, deliverySchedules.getFirst().getPeriodEnd());
 
         // assert delivery schedule details are 6, 7
-        assertEquals(2, deliverySchedules.getFirst().getDeliverySchedules().size());
-        assertEquals(LocalDate.of(2026, 1, 6), deliverySchedules.getFirst().getDeliverySchedules().getFirst().getDeliveryDate());
-        assertEquals(LocalDate.of(2026, 1, 7), deliverySchedules.getFirst().getDeliverySchedules().getFirst().getDeliveryDate());
+        assertEquals(2, deliverySchedules.getFirst().getDeliveryScheduleDetails().size());
+        assertEquals(LocalDate.of(2026, 1, 6), deliverySchedules.getFirst().getDeliveryScheduleDetails().getFirst().getDeliveryDate());
+        assertEquals(LocalDate.of(2026, 1, 7), deliverySchedules.getFirst().getDeliveryScheduleDetails().getFirst().getDeliveryDate());
         // assert primary meal comes first
-        assertEquals(dummyPlanMealId1, deliverySchedules.getFirst().getDeliverySchedules().getFirst().getPlanMealId());
-        assertEquals(dummyPlanMealId2, deliverySchedules.getFirst().getDeliverySchedules().getLast().getPlanMealId());
+        assertEquals(dummyPlanMealId1, deliverySchedules.getFirst().getDeliveryScheduleDetails().getFirst().getPlanMealId());
+        assertEquals(dummyPlanMealId2, deliverySchedules.getFirst().getDeliveryScheduleDetails().getLast().getPlanMealId());
     }
 
     @Test
@@ -971,8 +971,8 @@ public class PlanManagementServiceTest {
                                  .minSubCount(new Threshold(1))
                                  .currentSubCount(1)
                                  .imageUrl("https://example.com/standard.jpg")
-                                 .createdAt(ZonedDateTime.now())
-                                 .updatedAt(ZonedDateTime.now())
+                                 .createdAt(LocalDateTime.now())
+                                 .updatedAt(LocalDateTime.now())
                                  .build();
 
         dummyPlanMeal2 = PlanMeal.builder()
@@ -985,8 +985,8 @@ public class PlanManagementServiceTest {
                                  .minSubCount(new Threshold(5))
                                  .currentSubCount(1)
                                  .imageUrl("https://example.com/premium.jpg")
-                                 .createdAt(ZonedDateTime.now())
-                                 .updatedAt(ZonedDateTime.now())
+                                 .createdAt(LocalDateTime.now())
+                                 .updatedAt(LocalDateTime.now())
                                  .build();
 
         dummyPlan = Plan.builder()
@@ -1008,31 +1008,30 @@ public class PlanManagementServiceTest {
                                         .location(GeoPoint.of(65.658034, 109.701636))
                                         .build())
                         .displaySubscriptionFee(new Money(INITIAL_DISPLAY_SUBFEE))
-                        .createdAt(ZonedDateTime.of(LocalDateTime.of(2025, 1, 5, 1, 1), ZoneId.of("UTC")))
-                        .updatedAt(ZonedDateTime.of(LocalDateTime.of(2025, 1, 6, 1, 1), ZoneId.of("UTC")))
+                        .createdAt(LocalDateTime.of(2025, 1, 5, 1, 1))
+                        .updatedAt(LocalDateTime.of(2025, 1, 6, 1, 1))
                         .planMeals(dummyPlanMeals)
                         .build();
 
         List<DeliverySchedule> deliverySchedules = planManagementCommandService.generateSchedules();
         assertEquals(1, deliverySchedules.size());
         assertEquals(dummyPlan.getId(), deliverySchedules.getFirst().getPlanId());
-        assertEquals(dummyPlan.getCode(), deliverySchedules.getFirst().getCode());
         assertEquals(startDate, deliverySchedules.getFirst().getPeriodStart());
         assertEquals(endDate, deliverySchedules.getFirst().getPeriodEnd());
 
         // assert delivery schedule details are 6, 7
-        assertEquals(2, deliverySchedules.getFirst().getDeliverySchedules().size());
-        assertEquals(LocalDate.of(2026, 1, 6), deliverySchedules.getFirst().getDeliverySchedules().getFirst().getDeliveryDate());
-        assertEquals(LocalDate.of(2026, 1, 7), deliverySchedules.getFirst().getDeliverySchedules().getFirst().getDeliveryDate());
+        assertEquals(2, deliverySchedules.getFirst().getDeliveryScheduleDetails().size());
+        assertEquals(LocalDate.of(2026, 1, 6), deliverySchedules.getFirst().getDeliveryScheduleDetails().getFirst().getDeliveryDate());
+        assertEquals(LocalDate.of(2026, 1, 7), deliverySchedules.getFirst().getDeliveryScheduleDetails().getFirst().getDeliveryDate());
 
         // assert only primary meal is present
-        assertEquals(dummyPlanMealId1, deliverySchedules.getFirst().getDeliverySchedules().getFirst().getPlanMealId());
-        assertEquals(dummyPlanMealId1, deliverySchedules.getFirst().getDeliverySchedules().getLast().getPlanMealId());
+        assertEquals(dummyPlanMealId1, deliverySchedules.getFirst().getDeliveryScheduleDetails().getFirst().getPlanMealId());
+        assertEquals(dummyPlanMealId1, deliverySchedules.getFirst().getDeliveryScheduleDetails().getLast().getPlanMealId());
     }
 
     @Test
      void testGetActivePlans() {
-        PlanResponseDto planResponseDto = planManagementQueryService.getActivePlans().getFirst();
+        PlanResponseDto planResponseDto = planManagementQueryService.getActivePlans(0, 5).getFirst();
         assertNotNull(planResponseDto);
         assertEquals(dummyPlanId.getValue(), planResponseDto.getPlanId());
         assertEquals("DummyPlan", planResponseDto.getTitle());
@@ -1049,15 +1048,6 @@ public class PlanManagementServiceTest {
         assertEquals(109.701636, planResponseDto.getAddress().getLocation().getLongitude());
         assertEquals(new BigDecimal("2000.00"), planResponseDto.getDisplaySubscriptionFee());
         assertEquals(2, planResponseDto.getPlanMealResponseDtos().size());
-    }
-
-    @Test
-    void testGetCategoryById_shouldThrow_whenInvalidId() {
-        when(planManagementRepository.findCategoryById(any())).thenReturn(Optional.empty());
-        PlanManagementDomainException planManagementDomainException = assertThrows(PlanManagementDomainException.class,
-                                                                                   () -> planManagementQueryService.getCategoryById(
-                                                                                           CATEGORY_ID_UUID));
-        assertEquals(PlanManagementErrorCode.INVALID_CATEGORY_ID, planManagementDomainException.getErrorCode());
     }
 
     @Test

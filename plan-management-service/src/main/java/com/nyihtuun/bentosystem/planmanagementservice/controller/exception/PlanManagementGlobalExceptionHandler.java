@@ -1,4 +1,4 @@
-package com.nyihtuun.bentosystem.planmanagementservice.controller;
+package com.nyihtuun.bentosystem.planmanagementservice.controller.exception;
 
 import com.nyihtuun.bentosystem.planmanagementservice.domain.exception.PlanManagementDomainException;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.exception.PlanManagementErrorCode;

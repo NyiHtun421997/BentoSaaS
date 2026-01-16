@@ -12,6 +12,7 @@ import com.nyihtuun.bentosystem.planmanagementservice.domain.exception.PlanManag
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -79,7 +80,7 @@ public class PlanManagementDomainServiceImpl implements PlanManagementDomainServ
                                                  .deliveryScheduleId(deliveryScheduleId)
                                                  .planId(plan.getId())
                                                  .code(plan.getCode())
-                                                 .createAt(ZonedDateTime.now())
+                                                 .createAt(LocalDateTime.now())
                                                  .periodStart(periodContext.periodStart())
                                                  .periodEnd(periodContext.periodEnd())
                                                  .deliverySchedules(deliveryScheduleDetails)

@@ -8,7 +8,7 @@ import com.nyihtuun.bentosystem.domain.valueobject.Threshold;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
@@ -24,13 +24,13 @@ public class PlanMeal extends BaseEntity<PlanMealId> {
 
     private String imageUrl;
 
-    private ZonedDateTime createdAt;
+    private LocalDateTime createdAt;
 
     @Setter
-    private ZonedDateTime updatedAt;
+    private LocalDateTime updatedAt;
 
     private boolean deleteFlag;
-    private ZonedDateTime deletedAt;
+    private LocalDateTime deletedAt;
 
     private PlanMeal(Builder builder) {
         super.setId(builder.planMealId);
@@ -56,8 +56,8 @@ public class PlanMeal extends BaseEntity<PlanMealId> {
         super.setId(new PlanMealId(UUID.randomUUID()));
         this.planId = planId;
         this.currentSubCount = 0;
-        this.createdAt = ZonedDateTime.now();
-        this.updatedAt = ZonedDateTime.now();
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
         this.deleteFlag = false;
     }
 
@@ -75,10 +75,10 @@ public class PlanMeal extends BaseEntity<PlanMealId> {
         private Threshold minSubCount;
         private int currentSubCount;
         private String imageUrl;
-        private ZonedDateTime createdAt;
-        private ZonedDateTime updatedAt;
+        private LocalDateTime createdAt;
+        private LocalDateTime updatedAt;
         private boolean deleteFlag;
-        private ZonedDateTime deletedAt;
+        private LocalDateTime deletedAt;
 
         private Builder() {
         }
@@ -128,12 +128,12 @@ public class PlanMeal extends BaseEntity<PlanMealId> {
             return this;
         }
 
-        public Builder createdAt(ZonedDateTime val) {
+        public Builder createdAt(LocalDateTime val) {
             createdAt = val;
             return this;
         }
 
-        public Builder updatedAt(ZonedDateTime val) {
+        public Builder updatedAt(LocalDateTime val) {
             updatedAt = val;
             return this;
         }
@@ -143,7 +143,7 @@ public class PlanMeal extends BaseEntity<PlanMealId> {
             return this;
         }
 
-        public Builder deletedAt(ZonedDateTime val) {
+        public Builder deletedAt(LocalDateTime val) {
             deletedAt = val;
             return this;
         }

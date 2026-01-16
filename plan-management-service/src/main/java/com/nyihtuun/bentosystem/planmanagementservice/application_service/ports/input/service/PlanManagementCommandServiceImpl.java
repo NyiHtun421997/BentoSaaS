@@ -4,6 +4,7 @@ import com.nyihtuun.bentosystem.domain.valueobject.PlanId;
 import com.nyihtuun.bentosystem.domain.valueobject.PlanMealId;
 import com.nyihtuun.bentosystem.domain.valueobject.UserId;
 import com.nyihtuun.bentosystem.domain.valueobject.status.SubscriptionStatus;
+import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.CategoryDto;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.request.PlanRequestDto;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.request.PlanMealRequestDto;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.response.PlanResponseDto;
@@ -54,7 +55,7 @@ public class PlanManagementCommandServiceImpl implements PlanManagementCommandSe
     @Override
     @Transactional
     public void deletePlan(PlanId planId) {
-
+        planManagementRepository.deleteByPlanId(planId.getValue());
     }
 
     @Override
@@ -89,7 +90,7 @@ public class PlanManagementCommandServiceImpl implements PlanManagementCommandSe
 
     @Override
     @Transactional
-    public void createCategory(String category) {
-
+    public CategoryDto createCategory(String category) {
+        return null;
     }
 }

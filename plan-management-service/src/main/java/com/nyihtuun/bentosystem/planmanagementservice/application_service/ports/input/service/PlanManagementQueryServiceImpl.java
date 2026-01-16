@@ -1,8 +1,10 @@
 package com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.input.service;
 
+import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.CategoryDto;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.response.PlanResponseDto;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.mapper.PlanDataMapper;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.output.repository.PlanManagementRepository;
+import com.nyihtuun.bentosystem.planmanagementservice.data_access.jpa_entity.CategoryEntity;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.entity.Category;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.entity.DeliverySchedule;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.exception.PlanManagementDomainException;
@@ -20,6 +22,7 @@ import java.util.UUID;
 @Service
 public class PlanManagementQueryServiceImpl implements PlanManagementQueryService {
 
+    private static final double FIVE_KILOMETER = 5000;
     private final PlanManagementRepository planManagementRepository;
     private final PlanDataMapper planDataMapper;
 
@@ -30,43 +33,61 @@ public class PlanManagementQueryServiceImpl implements PlanManagementQueryServic
 
     @Override
     @Transactional(readOnly = true)
-    public List<PlanResponseDto> getActivePlans() {
-        return planManagementRepository.findActivePlans().stream()
+    public List<PlanResponseDto> getActivePlans(int page, int size) {
+        return planManagementRepository.findActivePlans(page, size)
+                                       .stream()
                                        .map(planDataMapper::mapPlanToPlanDto)
                                        .toList();
     }
 
     @Override
-    public Optional<PlanResponseDto> getPlanByName(String planName) {
+    @Transactional(readOnly = true)
+    public Optional<PlanResponseDto> getPlanByTitleAndCode(String title, String code) {
         return Optional.empty();
     }
 
     @Override
-    public List<PlanResponseDto> getPlansByCategoryId(UUID categoryId) {
-        return List.of();
-    }
-
-    @Override
-    public List<PlanResponseDto> getPlansByDate(LocalDate start, LocalDate end) {
+    @Transactional(readOnly = true)
+    public List<PlanResponseDto> getPlansByCategoryId(UUID categoryId, int page, int size) {
         return List.of();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Category getCategoryById(UUID categoryId) {
-        return planManagementRepository.findCategoryById(categoryId)
-                                       .orElseThrow(() -> new PlanManagementDomainException(PlanManagementErrorCode.INVALID_CATEGORY_ID));
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Category> getCategories() {
+    public List<PlanResponseDto> getPlansByDate(LocalDate start, LocalDate end, int page, int size) {
         return List.of();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<DeliverySchedule> getDeliverySchedulesByPlanId(UUID planId) {
+    public List<PlanResponseDto> getPlansByUserId(UUID userId) {
         return List.of();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PlanResponseDto> getPlansNearMe(double latitude, double longitude, int page, int size) {
+        return planManagementRepository.findPlansNearMe(latitude, longitude, FIVE_KILOMETER, page, size)
+                                       .stream()
+                                       .map(planDataMapper::mapPlanToPlanDto)
+                                       .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CategoryDto> getCategories() {
+        return List.of();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<DeliverySchedule> getDeliverySchedulesByPlanIdAndDate(UUID planId, LocalDate start, LocalDate end) {
+        return Optional.empty();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<PlanResponseDto> getPlanByPlanId(UUID planId) {
+        return Optional.empty();
     }
 }

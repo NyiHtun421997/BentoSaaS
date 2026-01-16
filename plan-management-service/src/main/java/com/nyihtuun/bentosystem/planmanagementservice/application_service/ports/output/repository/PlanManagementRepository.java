@@ -10,16 +10,16 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface PlanManagementRepository {
-    List<Plan> findActivePlans();
-    Optional<Plan> findPlanByName(String planName);
-    List<Plan> findPlansByCategory(UUID categoryId);
-    List<Plan> findPlansBetweenDates(LocalDate start, LocalDate end);
-    List<Plan> findActivePlansBetweenDates(LocalDate start, LocalDate end);
-    Plan save(Plan plan);
+    List<Plan> findActivePlans(int page, int size);
+    Optional<Plan> findPlanByTitleAndCode(String planName, String code);
+    List<Plan> findPlansByCategory(UUID categoryId, int page, int size);
+    List<Plan> findActivePlansBetweenDates(LocalDate start, LocalDate end, int page, int size);
     Optional<Plan> findByPlanId(UUID planId);
+    List<Plan> findPlansByUserId(UUID userId);
+    List<Plan> findPlansNearMe(double latitude, double longitude, double radiusMeters, int page, int size);
+    Plan save(Plan plan);
     void deleteByPlanId(UUID planId);
-    Optional<Category> findCategoryById(UUID categoryId);
     Category saveCategory(Category category);
-    List<DeliverySchedule> findDeliverySchedulesByPlanId(UUID planId);
+    List<DeliverySchedule> findDeliverySchedulesByPlanIdAndDate(UUID planId, LocalDate start, LocalDate end);
     DeliverySchedule saveDeliverySchedule(DeliverySchedule deliverySchedule);
 }
