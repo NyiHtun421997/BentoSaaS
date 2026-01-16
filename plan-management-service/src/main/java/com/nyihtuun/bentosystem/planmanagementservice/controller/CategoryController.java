@@ -4,6 +4,7 @@ import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.Ca
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.input.service.PlanManagementCommandService;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.input.service.PlanManagementQueryService;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.entity.Category;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -37,10 +38,10 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<CategoryDto> createCategory(String category) {
-        log.info("Creating category: {}", category);
-        CategoryDto categoryDto = planManagementCommandService.createCategory(category);
-        log.info("Category created: {}", categoryDto);
-        return ResponseEntity.ok(categoryDto);
+    public ResponseEntity<CategoryDto> createCategory(@Valid CategoryDto categoryDto) {
+        log.info("Creating category: {}", categoryDto.getName());
+        CategoryDto saved = planManagementCommandService.createCategory(categoryDto);
+        log.info("Category created: {}", saved);
+        return ResponseEntity.ok(saved);
     }
 }

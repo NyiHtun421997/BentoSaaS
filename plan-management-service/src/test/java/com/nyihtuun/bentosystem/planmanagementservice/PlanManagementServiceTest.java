@@ -3,6 +3,7 @@ package com.nyihtuun.bentosystem.planmanagementservice;
 import com.nyihtuun.bentosystem.domain.valueobject.*;
 import com.nyihtuun.bentosystem.domain.valueobject.status.SubscriptionStatus;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.AddressDto;
+import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.CategoryDto;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.request.PlanMealRequestDto;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.request.PlanRequestDto;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.response.PlanMealResponseDto;
@@ -346,7 +347,6 @@ public class PlanManagementServiceTest {
         periodContext = new PeriodContext(startDate, endDate, businessDays);
 
         when(planManagementRepository.findActivePlans(0, 5)).thenReturn(List.of(dummyPlan));
-        when(planManagementRepository.findCategoryById(any())).thenReturn(Optional.of(category));
         when(planManagementRepository.save(any(Plan.class))).thenAnswer(inv -> inv.getArgument(0));
         when(planManagementRepository.findByPlanId(PLAN_ID_UUID)).thenReturn(Optional.of(dummyPlan));
         when(planManagementRepository.findActivePlansBetweenDates(startDate, endDate, 0, 5)).thenReturn(List.of(dummyPlan));
@@ -1053,7 +1053,7 @@ public class PlanManagementServiceTest {
     @Test
     void testCreateCategory() {
         // when
-        planManagementCommandService.createCategory("Japanese");
+        planManagementCommandService.createCategory(new CategoryDto("Japanese"));
 
         // then
         ArgumentCaptor<Category> planArgumentCaptor = ArgumentCaptor.forClass(Category.class);
@@ -1072,7 +1072,7 @@ public class PlanManagementServiceTest {
         )).thenThrow(new DataIntegrityViolationException("duplicate key"));
 
         PlanManagementDomainException planManagementDomainException = assertThrows(PlanManagementDomainException.class,
-                                                                                   () -> planManagementCommandService.createCategory("Healthy"));
+                                                                                   () -> planManagementCommandService.createCategory(new CategoryDto("Healthy")));
         assertEquals(PlanManagementErrorCode.DUPLICATED_CATEGORY_NAME, planManagementDomainException.getErrorCode());
     }
 
@@ -1086,7 +1086,7 @@ public class PlanManagementServiceTest {
     @Test
     void testCreateCategory_emptyCategory_shouldThrow() {
         PlanManagementDomainException planManagementDomainException = assertThrows(PlanManagementDomainException.class,
-                                                                                   () -> planManagementCommandService.createCategory(""));
+                                                                                   () -> planManagementCommandService.createCategory(new CategoryDto("")));
         assertEquals(PlanManagementErrorCode.INVALID_CATEGORY_NAME, planManagementDomainException.getErrorCode());
     }
 

@@ -7,6 +7,7 @@ import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.re
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.request.PlanRequestDto;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.response.PlanResponseDto;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.input.service.PlanManagementCommandService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +30,7 @@ public class PlanPlanMealCommandController {
     }
 
     @PostMapping
-    public ResponseEntity<PlanResponseDto> createPlan(@RequestBody PlanRequestDto planRequestDto) {
+    public ResponseEntity<PlanResponseDto> createPlan(@Valid @RequestBody PlanRequestDto planRequestDto) {
         // TODO : implement authentication and jwt related services
         // temporarily assume we will get user id from jwt
         UUID userId = UUID.randomUUID();
@@ -40,7 +41,8 @@ public class PlanPlanMealCommandController {
     }
 
     @PutMapping
-    public ResponseEntity<PlanResponseDto> updatePlan(UUID planId, @RequestBody PlanRequestDto planRequestDto) {
+    public ResponseEntity<PlanResponseDto> updatePlan(UUID planId,
+                                                      @Valid @RequestBody PlanRequestDto planRequestDto) {
         log.info("Updating plan with planId: {} : {}", planId, planRequestDto);
         PlanResponseDto planResponseDto = planManagementCommandService.validateAndUpdatePlanInfo(new PlanId(planId), planRequestDto);
         log.info("Plan with planId: {} updated: {}", planId, planResponseDto);
@@ -57,7 +59,7 @@ public class PlanPlanMealCommandController {
 
     @PostMapping(MEAL)
     public ResponseEntity<PlanResponseDto> addMeal(UUID planId,
-                                                   @RequestBody PlanMealRequestDto planMealRequestDto) {
+                                                   @Valid @RequestBody PlanMealRequestDto planMealRequestDto) {
         log.info("Adding meal with planId: {} : {}", planId, planMealRequestDto);
         PlanResponseDto planResponseDto = planManagementCommandService.addMealToPlan(new PlanId(planId), planMealRequestDto);
         log.info("PlanMeal added to Plan with planId: {} : {}", planId, planResponseDto);
@@ -67,7 +69,7 @@ public class PlanPlanMealCommandController {
     @PutMapping(MEAL)
     public ResponseEntity<PlanResponseDto> updateMeal(UUID planId,
                                                       UUID mealId,
-                                                      @RequestBody PlanMealRequestDto planMealRequestDto) {
+                                                      @Valid @RequestBody PlanMealRequestDto planMealRequestDto) {
         log.info("Updating meal with planId: {} and mealId: {} : {}", planId, mealId, planMealRequestDto);
         PlanResponseDto planResponseDto = planManagementCommandService.updateMealFromPlan(new PlanId(planId), new PlanMealId(mealId), planMealRequestDto);
         log.info("PlanMeal with id: {} updated from Plan with planId: {}: {}", mealId, planId, planResponseDto);

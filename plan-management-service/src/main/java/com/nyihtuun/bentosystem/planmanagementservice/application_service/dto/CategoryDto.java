@@ -1,5 +1,7 @@
 package com.nyihtuun.bentosystem.planmanagementservice.application_service.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.util.UUID;
@@ -7,5 +9,12 @@ import java.util.UUID;
 @Data
 public class CategoryDto {
     private UUID id;
-    private final String name;
+
+    @NotBlank
+    @Size(min = 2, max = 50)
+    private String name;
+
+    public CategoryDto(String name) {
+        this.name = name;
+    }
 }

@@ -34,5 +34,5 @@ public interface PlanManagementCommandService {
 
     List<DeliverySchedule> generateSchedules();
 
-    CategoryDto createCategory(String category);
+    CategoryDto createCategory(CategoryDto categoryDto);
 }

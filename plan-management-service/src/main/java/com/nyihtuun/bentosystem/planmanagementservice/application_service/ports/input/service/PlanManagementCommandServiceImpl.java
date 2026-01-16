@@ -90,7 +90,7 @@ public class PlanManagementCommandServiceImpl implements PlanManagementCommandSe
 
     @Override
     @Transactional
-    public CategoryDto createCategory(String category) {
+    public CategoryDto createCategory(CategoryDto categoryDto) {
         return null;
     }
 }
