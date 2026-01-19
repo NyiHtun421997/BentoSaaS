@@ -14,8 +14,8 @@ public record Money(BigDecimal amount) {
         return new Money(setScale(this.amount.add(money.amount())));
     }
 
-    public Money multiply(int multiplier) {
-        return new Money(setScale(this.amount.multiply(new BigDecimal(multiplier))));
+    public Money subtract(Money money) {
+        return new Money(setScale(this.amount.subtract(money.amount())));
     }
 
     private BigDecimal setScale(BigDecimal input) {

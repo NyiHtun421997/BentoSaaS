@@ -3,7 +3,6 @@ package com.nyihtuun.bentosystem.planmanagementservice.application_service.ports
 import com.nyihtuun.bentosystem.domain.valueobject.PlanId;
 import com.nyihtuun.bentosystem.domain.valueobject.PlanMealId;
 import com.nyihtuun.bentosystem.domain.valueobject.UserId;
-import com.nyihtuun.bentosystem.domain.valueobject.status.SubscriptionStatus;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.CategoryDto;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.request.PlanRequestDto;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.request.PlanMealRequestDto;
@@ -20,7 +19,7 @@ public interface PlanManagementCommandService {
 
     void deletePlan(PlanId planId);
 
-    PlanResponseDto reflectUserSubscription(PlanId planId, List<PlanMealId> planMealIds, SubscriptionStatus subscriptionStatus);
+    PlanResponseDto reflectUserSubscription(PlanId planId, List<PlanMealId> appliedPlanMealIds, List<PlanMealId> unappliedPlanMealIds);
 
     PlanResponseDto addMealToPlan(PlanId planId, PlanMealRequestDto planMealRequestDto);
 

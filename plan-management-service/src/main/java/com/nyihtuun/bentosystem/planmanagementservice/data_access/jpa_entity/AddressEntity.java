@@ -16,6 +16,7 @@ import java.util.UUID;
 public class AddressEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private UUID id;
 
     @Column(nullable = false)

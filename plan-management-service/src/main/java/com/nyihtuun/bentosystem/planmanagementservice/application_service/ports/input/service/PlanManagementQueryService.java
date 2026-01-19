@@ -2,7 +2,6 @@ package com.nyihtuun.bentosystem.planmanagementservice.application_service.ports
 
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.CategoryDto;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.response.PlanResponseDto;
-import com.nyihtuun.bentosystem.planmanagementservice.domain.entity.Category;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.entity.DeliverySchedule;
 
 import java.time.LocalDate;

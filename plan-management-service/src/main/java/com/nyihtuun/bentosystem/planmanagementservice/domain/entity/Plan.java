@@ -62,12 +62,16 @@ public class Plan extends AggregateRoot<PlanId> {
     }
 
     private void validateSubscriptionFee() {
-        Money totalPlanMealsPrice = this.planMeals.stream()
-                                     .map(PlanMeal::getPricePerMonth)
-                                     .reduce(new Money(BigDecimal.ZERO),
-                                             Money::add);
-        if (!totalPlanMealsPrice.equals(this.displaySubscriptionFee))
+        Money totalPlanMealsPrice = calculateDisplaySubscriptionFee();
+        if (!totalPlanMealsPrice.equals(this.displaySubscriptionFee) || !this.displaySubscriptionFee.isGreaterThanZero())
             throw new PlanManagementDomainException(PlanManagementErrorCode.INVALID_SUB_FEE);
+    }
+
+    private Money calculateDisplaySubscriptionFee() {
+        return this.planMeals.stream()
+                             .filter(planMeal -> !planMeal.isDeleteFlag())
+                             .map(PlanMeal::getPricePerMonth)
+                             .reduce(new Money(BigDecimal.ZERO), Money::add);
     }
 
     private void uniquifyAndValidateSkipDays() {
@@ -78,19 +82,111 @@ public class Plan extends AggregateRoot<PlanId> {
 
     public void validatePlan() {
         checkEmptyPlanMeals();
+        validateSubscriptionFee();
         checkAtLeasOnePrimaryMeal();
         this.planMeals.forEach(PlanMeal::validateMeal);
         validateSubscriptionFee();
         uniquifyAndValidateSkipDays();
     }
 
-    public void initializePlan() {
+    public void initializePlan(UserId userId) {
         super.setId(new PlanId(UUID.randomUUID()));
         this.code = Code.generate();
+        this.providerUserId = userId;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
         this.planMeals.forEach(planMeal -> planMeal.initializeMeal(super.getId()));
         status = PlanStatus.RECRUITING;
+    }
+
+    public void updatePlan(PlanUpdateCommand planUpdateCommand) {
+        this.title = planUpdateCommand.getTitle();
+        this.description = planUpdateCommand.getDescription();
+        this.categoryIds = planUpdateCommand.getCategoryIds();
+        this.skipDays = planUpdateCommand.getSkipDays();
+        this.address = planUpdateCommand.getAddress();
+        this.displaySubscriptionFee = planUpdateCommand.getDisplaySubscriptionFee();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void deletePlan() {
+        this.deleteFlag = true;
+        this.deletedAt = LocalDateTime.now();
+    }
+
+    public void reflectMealSelection(List<PlanMealId> appliedPlanMealIds,
+                                     List<PlanMealId> unappliedPlanMealIds) {
+
+        Set<PlanMealId> applied = new HashSet<>(appliedPlanMealIds);
+        Set<PlanMealId> unapplied = new HashSet<>(unappliedPlanMealIds);
+
+        for (PlanMeal meal : this.planMeals) {
+            PlanMealId id = meal.getId();
+
+            if (applied.contains(id)) {
+                meal.reflectUserSelection(true);
+            } else if (unapplied.contains(id)) {
+                meal.reflectUserSelection(false);
+            }
+        }
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void updatePlanStatus() {
+        boolean allMatched = this.planMeals.stream()
+                                           .filter(PlanMeal::isPrimary)
+                                           .allMatch(planMeal -> planMeal.getMinSubCount().isMetBy(planMeal.getCurrentSubCount()));
+        if (allMatched) {
+            this.status = PlanStatus.ACTIVE;
+            return;
+        }
+        if (!this.status.equals(PlanStatus.RECRUITING))
+            this.status = PlanStatus.SUSPENDED;
+    }
+
+    public void addMeal(PlanMeal planMeal) {
+        planMeal.validateMeal();
+        planMeal.initializeMeal(super.getId());
+        this.planMeals.add(planMeal);
+        this.displaySubscriptionFee = this.getDisplaySubscriptionFee().add(planMeal.getPricePerMonth());
+        this.updatedAt = LocalDateTime.now();
+
+        validateSubscriptionFee();
+    }
+
+    public void removeMeal(PlanMealId planMealId) {
+        PlanMeal planMealToRemove = this.getPlanMeals().stream()
+                                        .filter(planMeal -> planMeal.getId().equals(planMealId))
+                                        .findFirst()
+                                        .orElseThrow(() -> new PlanManagementDomainException(PlanManagementErrorCode.INVALID_PLANMEAL_ID));
+
+        long primaryMealCount = this.planMeals.stream()
+                                              .filter(PlanMeal::isPrimary)
+                                              .count();
+
+        if (primaryMealCount == 1 && planMealToRemove.isPrimary())
+            throw new PlanManagementDomainException(PlanManagementErrorCode.NO_PRIMARY_MEAL);
+
+        planMealToRemove.deleteMeal();
+        this.displaySubscriptionFee = this.getDisplaySubscriptionFee().subtract(planMealToRemove.getPricePerMonth());
+        this.updatedAt = LocalDateTime.now();
+
+        validateSubscriptionFee();
+        checkAtLeasOnePrimaryMeal();
+    }
+
+    public void updateMeal(PlanMealId planMealId, PlanMealUpdateCommand planMealUpdateCommand) {
+        PlanMeal planMealToUpdate = this.getPlanMeals().stream()
+                                        .filter(planMeal -> planMeal.getId().equals(planMealId))
+                                        .findFirst()
+                                        .orElseThrow(() -> new PlanManagementDomainException(PlanManagementErrorCode.INVALID_PLANMEAL_ID));
+        planMealToUpdate.updateMeal(planMealUpdateCommand);
+        planMealToUpdate.validateMeal();
+        this.displaySubscriptionFee = calculateDisplaySubscriptionFee();
+        this.updatedAt = LocalDateTime.now();
+
+        validateSubscriptionFee();
+        checkAtLeasOnePrimaryMeal();
     }
 
     public static Builder builder() {

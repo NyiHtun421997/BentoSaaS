@@ -1,10 +1,9 @@
 package com.nyihtuun.bentosystem.planmanagementservice.domain.entity;
 
 import com.nyihtuun.bentosystem.domain.entity.BaseEntity;
-import com.nyihtuun.bentosystem.domain.valueobject.Money;
-import com.nyihtuun.bentosystem.domain.valueobject.PlanId;
-import com.nyihtuun.bentosystem.domain.valueobject.PlanMealId;
-import com.nyihtuun.bentosystem.domain.valueobject.Threshold;
+import com.nyihtuun.bentosystem.domain.valueobject.*;
+import com.nyihtuun.bentosystem.planmanagementservice.domain.exception.PlanManagementDomainException;
+import com.nyihtuun.bentosystem.planmanagementservice.domain.exception.PlanManagementErrorCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -49,7 +48,14 @@ public class PlanMeal extends BaseEntity<PlanMealId> {
     }
 
      void validateMeal() {
-        // validation logic will be implemented later
+        if (!pricePerMonth.isGreaterThanZero())
+            throw new PlanManagementDomainException(PlanManagementErrorCode.NEGATIVE_PLANMEAL_PRICE);
+        if (minSubCount.isNegative())
+            throw new PlanManagementDomainException(PlanManagementErrorCode.NEGATIVE_PLANMEAL_MINSUBCOUNT);
+        if (isPrimary && !minSubCount.isGreaterThanZero())
+            throw new PlanManagementDomainException(PlanManagementErrorCode.PRIMARYMEAL_INVALID_THRESHOLD);
+        if (!imageUrl.startsWith("https"))
+            throw new PlanManagementDomainException(PlanManagementErrorCode.INVALID_IMAGE_URL);
     }
 
     void initializeMeal(PlanId planId) {
@@ -59,6 +65,33 @@ public class PlanMeal extends BaseEntity<PlanMealId> {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
         this.deleteFlag = false;
+    }
+
+    void reflectUserSelection(boolean apply) {
+        if (apply) {
+            this.currentSubCount++;
+            this.updatedAt = LocalDateTime.now();
+            return;
+        }
+        if (this.currentSubCount > 0) {
+            this.currentSubCount--;
+            this.updatedAt = LocalDateTime.now();
+        }
+    }
+
+    void deleteMeal() {
+        this.deleteFlag = true;
+        this.deletedAt = LocalDateTime.now();
+    }
+
+    void updateMeal(PlanMealUpdateCommand planMealUpdateCommand) {
+        this.name = planMealUpdateCommand.getName();
+        this.description = planMealUpdateCommand.getDescription();
+        this.pricePerMonth = planMealUpdateCommand.getPricePerMonth();
+        this.isPrimary = planMealUpdateCommand.isPrimary();
+        this.minSubCount = planMealUpdateCommand.getMinSubCount();
+        this.imageUrl = planMealUpdateCommand.getImageUrl();
+        this.updatedAt = LocalDateTime.now();
     }
 
     public static Builder builder() {

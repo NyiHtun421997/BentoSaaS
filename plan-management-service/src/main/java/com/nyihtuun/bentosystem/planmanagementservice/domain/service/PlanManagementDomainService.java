@@ -1,6 +1,5 @@
 package com.nyihtuun.bentosystem.planmanagementservice.domain.service;
 
-import com.nyihtuun.bentosystem.planmanagementservice.domain.entity.DeliverySchedule;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.entity.Plan;
 
 

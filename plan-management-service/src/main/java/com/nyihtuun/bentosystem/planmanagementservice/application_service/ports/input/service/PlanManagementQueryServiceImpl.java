@@ -4,11 +4,7 @@ import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.Ca
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.response.PlanResponseDto;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.mapper.PlanDataMapper;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.output.repository.PlanManagementRepository;
-import com.nyihtuun.bentosystem.planmanagementservice.data_access.jpa_entity.CategoryEntity;
-import com.nyihtuun.bentosystem.planmanagementservice.domain.entity.Category;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.entity.DeliverySchedule;
-import com.nyihtuun.bentosystem.planmanagementservice.domain.exception.PlanManagementDomainException;
-import com.nyihtuun.bentosystem.planmanagementservice.domain.exception.PlanManagementErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,25 +39,35 @@ public class PlanManagementQueryServiceImpl implements PlanManagementQueryServic
     @Override
     @Transactional(readOnly = true)
     public Optional<PlanResponseDto> getPlanByTitleAndCode(String title, String code) {
-        return Optional.empty();
+        return planManagementRepository.findPlanByTitleAndCode(title, code)
+                                       .map(planDataMapper::mapPlanToPlanDto);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<PlanResponseDto> getPlansByCategoryId(UUID categoryId, int page, int size) {
-        return List.of();
+        return planManagementRepository.findPlansByCategory(categoryId, page, size)
+                                       .stream()
+                                       .map(planDataMapper::mapPlanToPlanDto)
+                                       .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<PlanResponseDto> getPlansByDate(LocalDate start, LocalDate end, int page, int size) {
-        return List.of();
+        return planManagementRepository.findActivePlansBetweenDates(start, end, page, size)
+                                       .stream()
+                                       .map(planDataMapper::mapPlanToPlanDto)
+                                       .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<PlanResponseDto> getPlansByUserId(UUID userId) {
-        return List.of();
+        return planManagementRepository.findPlansByUserId(userId)
+                                       .stream()
+                                       .map(planDataMapper::mapPlanToPlanDto)
+                                       .toList();
     }
 
     @Override
@@ -76,18 +82,22 @@ public class PlanManagementQueryServiceImpl implements PlanManagementQueryServic
     @Override
     @Transactional(readOnly = true)
     public List<CategoryDto> getCategories() {
-        return List.of();
+        return planManagementRepository.findAllCategories()
+                                       .stream()
+                                       .map(category -> new CategoryDto(category.getId().getValue(), category.getName()))
+                                       .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<DeliverySchedule> getDeliverySchedulesByPlanIdAndDate(UUID planId, LocalDate start, LocalDate end) {
-        return Optional.empty();
+        return planManagementRepository.findDeliverySchedulesByPlanIdAndDate(planId, start, end);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<PlanResponseDto> getPlanByPlanId(UUID planId) {
-        return Optional.empty();
+        return planManagementRepository.findByPlanId(planId)
+                .map(planDataMapper::mapPlanToPlanDto);
     }
 }

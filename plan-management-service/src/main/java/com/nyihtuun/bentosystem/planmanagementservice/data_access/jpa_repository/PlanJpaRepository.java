@@ -22,6 +22,7 @@ public interface PlanJpaRepository extends JpaRepository<PlanEntity, UUID> {
     List<PlanEntity> findPlanEntityByCategoryId(@Param("categoryId") UUID categoryId);
 
     List<PlanEntity> findPlanEntitiesByDeleteFlagFalseAndCreatedAtBetween(LocalDateTime from, LocalDateTime to, Pageable pageable);
+    List<PlanEntity> findPlanEntitiesByDeleteFlagFalseAndCreatedAtBetween(LocalDateTime from, LocalDateTime to);
     List<PlanEntity> findPlanEntitiesByUserId(UUID userId);
 
     @NativeQuery(

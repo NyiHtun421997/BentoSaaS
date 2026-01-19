@@ -17,4 +17,9 @@ public class CategoryDto {
     public CategoryDto(String name) {
         this.name = name;
     }
+
+    public CategoryDto(UUID id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 }

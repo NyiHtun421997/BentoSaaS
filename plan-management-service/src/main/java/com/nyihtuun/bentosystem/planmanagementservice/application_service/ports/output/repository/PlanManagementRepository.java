@@ -14,12 +14,14 @@ public interface PlanManagementRepository {
     Optional<Plan> findPlanByTitleAndCode(String planName, String code);
     List<Plan> findPlansByCategory(UUID categoryId, int page, int size);
     List<Plan> findActivePlansBetweenDates(LocalDate start, LocalDate end, int page, int size);
+    List<Plan> findActivePlansBetweenDates(LocalDate start, LocalDate end);
     Optional<Plan> findByPlanId(UUID planId);
     List<Plan> findPlansByUserId(UUID userId);
     List<Plan> findPlansNearMe(double latitude, double longitude, double radiusMeters, int page, int size);
     Plan save(Plan plan);
-    void deleteByPlanId(UUID planId);
     Category saveCategory(Category category);
-    List<DeliverySchedule> findDeliverySchedulesByPlanIdAndDate(UUID planId, LocalDate start, LocalDate end);
+    List<Category> findAllCategories();
+    Optional<DeliverySchedule> findDeliverySchedulesByPlanIdAndDate(UUID planId, LocalDate start, LocalDate end);
     DeliverySchedule saveDeliverySchedule(DeliverySchedule deliverySchedule);
 }
+

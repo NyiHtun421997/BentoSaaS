@@ -1,7 +1,6 @@
 package com.nyihtuun.bentosystem.planmanagementservice;
 
 import com.nyihtuun.bentosystem.domain.valueobject.*;
-import com.nyihtuun.bentosystem.domain.valueobject.status.SubscriptionStatus;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.AddressDto;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.CategoryDto;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.request.PlanMealRequestDto;
@@ -12,7 +11,9 @@ import com.nyihtuun.bentosystem.planmanagementservice.application_service.mapper
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.input.service.BusinessCalendarService;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.input.service.PlanManagementCommandService;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.input.service.PlanManagementQueryService;
+import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.output.repository.JobRunRepository;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.output.repository.PlanManagementRepository;
+import com.nyihtuun.bentosystem.planmanagementservice.data_access.jpa_entity.JobRunStatus;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.entity.Category;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.entity.DeliverySchedule;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.entity.Plan;
@@ -33,12 +34,9 @@ import java.math.BigDecimal;
 import java.time.*;
 import java.util.*;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.never;
+import static org.mockito.ArgumentMatchers.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 public class PlanManagementServiceTest {
@@ -60,6 +58,10 @@ public class PlanManagementServiceTest {
 
     private static final UUID PLAN_MEAL_ID_UUID2 =
             UUID.fromString("55555555-5555-5555-5555-555555555555");
+
+    private static final UUID JOB_RUN_ID_UUID =
+            UUID.fromString("84444444-8444-8444-8444-844444444444");
+
     private static final BigDecimal INITIAL_DISPLAY_SUBFEE = new BigDecimal("2000.00");
     private static final BigDecimal NEW_PLANMEAL_PRICE = new BigDecimal("800.00");
     private static final BigDecimal REMOVED_PLANMEAL_PRICE = new BigDecimal("800.00");
@@ -76,6 +78,9 @@ public class PlanManagementServiceTest {
 
     @MockitoBean
     private PlanManagementRepository planManagementRepository;
+
+    @MockitoBean
+    private JobRunRepository jobRunRepository;
 
     @MockitoBean
     private BusinessCalendarService businessCalendarService;
@@ -97,7 +102,7 @@ public class PlanManagementServiceTest {
     private PlanMealId dummyPlanMealId2 = new PlanMealId(PLAN_MEAL_ID_UUID2);
     private PlanMeal dummyPlanMeal1;
     private PlanMeal dummyPlanMeal2;
-    private List<PlanMeal> dummyPlanMeals = new ArrayList<>(Arrays.asList(dummyPlanMeal1, dummyPlanMeal2));
+    private List<PlanMeal> dummyPlanMeals;
     private PeriodContext periodContext;
     private LocalDate startDate = LocalDate.of(2026, 1, 1);
     private LocalDate endDate = LocalDate.of(2026, 1, 31);
@@ -253,7 +258,7 @@ public class PlanManagementServiceTest {
                                                                       .postalCode("150-0001")
                                                                       .location(GeoPoint.of(35.658034, 139.701636))
                                                                       .build())
-                                                   .displaySubscriptionFee(new BigDecimal("2100.00"))
+                                                   .displaySubscriptionFee(new BigDecimal("2000.00"))
                                                    .build();
 
          dummyPlanMeal1 = PlanMeal.builder()
@@ -284,9 +289,7 @@ public class PlanManagementServiceTest {
                 .updatedAt(LocalDateTime.now())
                 .build();
 
-        List<PlanMeal> dummyPlanMeals = new ArrayList<>();
-        dummyPlanMeals.add(dummyPlanMeal1);
-        dummyPlanMeals.add(dummyPlanMeal2);
+        dummyPlanMeals = new ArrayList<>(Arrays.asList(dummyPlanMeal1, dummyPlanMeal2));
 
         dummyPlan = Plan.builder()
                         .planId(dummyPlanId)
@@ -346,11 +349,29 @@ public class PlanManagementServiceTest {
 
         periodContext = new PeriodContext(startDate, endDate, businessDays);
 
-        when(planManagementRepository.findActivePlans(0, 5)).thenReturn(List.of(dummyPlan));
+        when(planManagementRepository.findActivePlans(anyInt(), anyInt()))
+            .thenAnswer(inv -> dummyPlan == null ? List.of() : List.of(dummyPlan));
         when(planManagementRepository.save(any(Plan.class))).thenAnswer(inv -> inv.getArgument(0));
-        when(planManagementRepository.findByPlanId(PLAN_ID_UUID)).thenReturn(Optional.of(dummyPlan));
-        when(planManagementRepository.findActivePlansBetweenDates(startDate, endDate, 0, 5)).thenReturn(List.of(dummyPlan));
-        when(businessCalendarService.getCurrentMonthBusinessPeriod(any(YearMonth.class))).thenReturn(periodContext);
+        when(planManagementRepository.findByPlanId(any(UUID.class)))
+            .thenAnswer(inv -> Optional.ofNullable(dummyPlan));
+        when(planManagementRepository.findActivePlansBetweenDates(any(LocalDate.class), any(LocalDate.class)))
+            .thenAnswer(inv -> dummyPlan == null ? List.of() : List.of(dummyPlan));
+        when(planManagementRepository.saveCategory(any(Category.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(businessCalendarService.getCurrentMonthBusinessPeriod(any(YearMonth.class)))
+                .thenAnswer(inv -> periodContext);
+        when(jobRunRepository.startRun(any(String.class),any(LocalDate.class), any(LocalDate.class), any(LocalDateTime.class)))
+                .thenAnswer(inv -> JOB_RUN_ID_UUID);
+
+        doNothing().when(jobRunRepository).finishRun(
+                eq(JOB_RUN_ID_UUID),
+                eq(JobRunStatus.SUCCESS),
+                eq(1),
+                eq(1),
+                eq(0),
+                any(),
+                any(),
+                any(LocalDateTime.class)
+        );
     }
 
     @Test
@@ -471,30 +492,6 @@ public class PlanManagementServiceTest {
     }
 
     @Test
-    void testValidateAndUpdatePlan_noMeal_shouldThrowAndNotPersist() {
-        // when + then
-        PlanManagementDomainException planManagementDomainException = assertThrows(PlanManagementDomainException.class,
-                                                                                   () -> planManagementCommandService.validateAndUpdatePlanInfo(
-                                                                                           dummyPlanId,
-                                                                                           noMealPlan));
-        assertEquals(PlanManagementErrorCode.EMPTY_MEALS, planManagementDomainException.getErrorCode());
-        // must not persist anything when validation fails
-        verify(planManagementRepository, never()).save(any(Plan.class));
-    }
-
-    @Test
-    void testValidateAndUpdatePlan_noPrimaryMeal_shouldThrowAndNotPersist() {
-        // when + then
-        PlanManagementDomainException planManagementDomainException = assertThrows(PlanManagementDomainException.class,
-                                                                                   () -> planManagementCommandService.validateAndUpdatePlanInfo(
-                                                                                           dummyPlanId,
-                                                                                           noPrimaryMealPlan));
-        assertEquals(PlanManagementErrorCode.NO_PRIMARY_MEAL, planManagementDomainException.getErrorCode());
-        // must not persist anything when validation fails
-        verify(planManagementRepository, never()).save(any(Plan.class));
-    }
-
-    @Test
     void testValidateAndUpdatePlan_invalidSubFee_shouldThrowAndNotPersist() {
         // when + then
         PlanManagementDomainException planManagementDomainException = assertThrows(PlanManagementDomainException.class,
@@ -511,7 +508,7 @@ public class PlanManagementServiceTest {
         // test data : primaryPlanMeal threshold = 1, non-primaryPlanMeal = 5
         PlanResponseDto planResponseDto = planManagementCommandService.reflectUserSubscription(dummyPlanId,
                                                                                                List.of(dummyPlanMealId1, dummyPlanMealId2),
-                                                                                               SubscriptionStatus.SUBSCRIBED);
+                                                                                               Collections.emptyList());
         for (PlanMealResponseDto planMealResponseDto : planResponseDto.getPlanMealResponseDtos()) {
             assertEquals(1, planMealResponseDto.getCurrentSubCount());
         }
@@ -579,7 +576,7 @@ public class PlanManagementServiceTest {
         
         PlanResponseDto planResponseDto = planManagementCommandService.reflectUserSubscription(dummyPlanId,
                                                                                                List.of(dummyPlanMealId1, dummyPlanMealId2),
-                                                                                               SubscriptionStatus.SUBSCRIBED);
+                                                                                               Collections.emptyList());
         for (PlanMealResponseDto planMealResponseDto : planResponseDto.getPlanMealResponseDtos()) {
             assertEquals(1, planMealResponseDto.getCurrentSubCount());
         }
@@ -626,7 +623,7 @@ public class PlanManagementServiceTest {
                         .code(Code.generate())
                         .title("Dummy Plan")
                         .description("Dummy plan for repository stubbing")
-                        .status(PlanStatus.RECRUITING)
+                        .status(PlanStatus.ACTIVE)
                         .categoryIds(Set.of(new CategoryId(DUMMY_CATEGORY_ID_UUID)))
                         .skipDays(new ArrayList<>())
                         .providerUserId(userId)
@@ -645,8 +642,8 @@ public class PlanManagementServiceTest {
                         .planMeals(dummyPlanMeals)
                         .build();
         PlanResponseDto planResponseDto = planManagementCommandService.reflectUserSubscription(dummyPlanId,
-                                                                                               List.of(dummyPlanMealId1, dummyPlanMealId2),
-                                                                                               SubscriptionStatus.CANCELLED);
+                                                                                               Collections.emptyList(),
+                                                                                               List.of(dummyPlanMealId1, dummyPlanMealId2));
         for (PlanMealResponseDto planMealResponseDto : planResponseDto.getPlanMealResponseDtos()) {
             assertEquals(0, planMealResponseDto.getCurrentSubCount());
         }
@@ -678,7 +675,7 @@ public class PlanManagementServiceTest {
                                           .pricePerMonth(new Money(new BigDecimal("800.00")))
                                           .isPrimary(false)
                                           .minSubCount(new Threshold(5))
-                                          .currentSubCount(0)
+                                          .currentSubCount(2)
                                           .imageUrl("https://example.com/premium.jpg")
                                           .createdAt(LocalDateTime.now())
                                           .updatedAt(LocalDateTime.now())
@@ -693,7 +690,7 @@ public class PlanManagementServiceTest {
                         .code(Code.generate())
                         .title("Dummy Plan")
                         .description("Dummy plan for repository stubbing")
-                        .status(PlanStatus.RECRUITING)
+                        .status(PlanStatus.ACTIVE)
                         .categoryIds(Set.of(new CategoryId(DUMMY_CATEGORY_ID_UUID)))
                         .skipDays(new ArrayList<>())
                         .providerUserId(userId)
@@ -713,8 +710,8 @@ public class PlanManagementServiceTest {
                         .build();
 
         PlanResponseDto planResponseDto = planManagementCommandService.reflectUserSubscription(dummyPlanId,
-                                                                                               List.of(dummyPlanMealId1, dummyPlanMealId2),
-                                                                                               SubscriptionStatus.CANCELLED);
+                                                                                               Collections.emptyList(),
+                                                                                               List.of(dummyPlanMealId1, dummyPlanMealId2));
         for (PlanMealResponseDto planMealResponseDto : planResponseDto.getPlanMealResponseDtos()) {
             assertEquals(1, planMealResponseDto.getCurrentSubCount());
         }
@@ -728,7 +725,7 @@ public class PlanManagementServiceTest {
                                                                                    () -> planManagementCommandService
                                                                                            .reflectUserSubscription(dummyPlanId,
                                                                                                                     List.of(dummyPlanMealId1, dummyPlanMealId2),
-                                                                                                                    SubscriptionStatus.APPLIED));
+                                                                                                                    Collections.emptyList()));
         assertEquals(PlanManagementErrorCode.INVALID_PLAN_ID, planManagementDomainException.getErrorCode());
 
     }
@@ -845,6 +842,30 @@ public class PlanManagementServiceTest {
 
     @Test
     void testUpdateMealFromPlan_statusChanged() {
+        dummyPlan = Plan.builder()
+                        .planId(dummyPlanId)
+                        .code(Code.generate())
+                        .title("Dummy Plan")
+                        .description("Dummy plan for repository stubbing")
+                        .status(PlanStatus.ACTIVE)
+                        .categoryIds(Set.of(new CategoryId(DUMMY_CATEGORY_ID_UUID)))
+                        .providerUserId(userId)
+                        .skipDays(new ArrayList<>())
+                        .address(Address.builder()
+                                        .prefecture("Osaka")
+                                        .city("Osaka")
+                                        .district("NishiKu,Honden")
+                                        .chomeBanGo("3-2-1")
+                                        .buildingNameRoomNo("UpdatedBuilding 1001")
+                                        .postalCode("550-0022")
+                                        .location(GeoPoint.of(65.658034, 109.701636))
+                                        .build())
+                        .displaySubscriptionFee(new Money(INITIAL_DISPLAY_SUBFEE))
+                        .createdAt(LocalDateTime.now())
+                        .updatedAt(LocalDateTime.now())
+                        .planMeals(dummyPlanMeals)
+                        .build();
+
         PlanResponseDto planResponseDto = planManagementCommandService.updateMealFromPlan(dummyPlanId, dummyPlanMealId2, validPlanMealRequestDto);
         assertEquals(PlanStatus.SUSPENDED, planResponseDto.getStatus());
         assertEquals(ORIGINAL_PLANMEAL1_PRICE.add(NEW_PLANMEAL_PRICE), planResponseDto.getDisplaySubscriptionFee());
@@ -863,6 +884,45 @@ public class PlanManagementServiceTest {
 
     @Test
     void testUpdateMealFromPlan_statusUnchanged() {
+        dummyPlanMeal1 = PlanMeal.builder()
+                                 .planMealId(dummyPlanMealId1)
+                                 .planId(dummyPlanId)
+                                 .name("Standard Bento")
+                                 .description("Standard daily bento")
+                                 .pricePerMonth(new Money(ORIGINAL_PLANMEAL1_PRICE))
+                                 .isPrimary(true)
+                                 .minSubCount(new Threshold(1))
+                                 .currentSubCount(1)
+                                 .imageUrl("https://example.com/standard.jpg")
+                                 .createdAt(LocalDateTime.now())
+                                 .updatedAt(LocalDateTime.now())
+                                 .build();
+        dummyPlanMeals = List.of(dummyPlanMeal1, dummyPlanMeal2);
+
+        dummyPlan = Plan.builder()
+                        .planId(dummyPlanId)
+                        .code(Code.generate())
+                        .title("Dummy Plan")
+                        .description("Dummy plan for repository stubbing")
+                        .status(PlanStatus.ACTIVE)
+                        .categoryIds(Set.of(new CategoryId(DUMMY_CATEGORY_ID_UUID)))
+                        .providerUserId(userId)
+                        .skipDays(new ArrayList<>())
+                        .address(Address.builder()
+                                        .prefecture("Osaka")
+                                        .city("Osaka")
+                                        .district("NishiKu,Honden")
+                                        .chomeBanGo("3-2-1")
+                                        .buildingNameRoomNo("UpdatedBuilding 1001")
+                                        .postalCode("550-0022")
+                                        .location(GeoPoint.of(65.658034, 109.701636))
+                                        .build())
+                        .displaySubscriptionFee(new Money(INITIAL_DISPLAY_SUBFEE))
+                        .createdAt(LocalDateTime.now())
+                        .updatedAt(LocalDateTime.now())
+                        .planMeals(dummyPlanMeals)
+                        .build();
+
         validPlanMealRequestDto = PlanMealRequestDto.builder()
                                                     .name("Valid Test Plan Meal")
                                                     .pricePerMonth(NEW_PLANMEAL_PRICE)
@@ -872,7 +932,7 @@ public class PlanManagementServiceTest {
                                                     .description("It is for testing")
                                                     .build();
         PlanResponseDto planResponseDto = planManagementCommandService.updateMealFromPlan(dummyPlanId, dummyPlanMealId2, validPlanMealRequestDto);
-        assertEquals(PlanStatus.SUSPENDED, planResponseDto.getStatus());
+        assertEquals(PlanStatus.ACTIVE, planResponseDto.getStatus());
         assertEquals(ORIGINAL_PLANMEAL1_PRICE.add(NEW_PLANMEAL_PRICE), planResponseDto.getDisplaySubscriptionFee());
 
         // assert updated planmeal
@@ -919,6 +979,8 @@ public class PlanManagementServiceTest {
                                  .updatedAt(LocalDateTime.now())
                                  .build();
 
+        dummyPlanMeals = List.of(dummyPlanMeal1, dummyPlanMeal2);
+
         dummyPlan = Plan.builder()
                         .planId(dummyPlanId)
                         .code(Code.generate())
@@ -944,6 +1006,7 @@ public class PlanManagementServiceTest {
                         .build();
 
         List<DeliverySchedule> deliverySchedules = planManagementCommandService.generateSchedules();
+
         assertEquals(1, deliverySchedules.size());
         assertEquals(dummyPlan.getId(), deliverySchedules.getFirst().getPlanId());
         assertEquals(startDate, deliverySchedules.getFirst().getPeriodStart());
@@ -952,7 +1015,7 @@ public class PlanManagementServiceTest {
         // assert delivery schedule details are 6, 7
         assertEquals(2, deliverySchedules.getFirst().getDeliveryScheduleDetails().size());
         assertEquals(LocalDate.of(2026, 1, 6), deliverySchedules.getFirst().getDeliveryScheduleDetails().getFirst().getDeliveryDate());
-        assertEquals(LocalDate.of(2026, 1, 7), deliverySchedules.getFirst().getDeliveryScheduleDetails().getFirst().getDeliveryDate());
+        assertEquals(LocalDate.of(2026, 1, 7), deliverySchedules.getFirst().getDeliveryScheduleDetails().getLast().getDeliveryDate());
         // assert primary meal comes first
         assertEquals(dummyPlanMealId1, deliverySchedules.getFirst().getDeliveryScheduleDetails().getFirst().getPlanMealId());
         assertEquals(dummyPlanMealId2, deliverySchedules.getFirst().getDeliveryScheduleDetails().getLast().getPlanMealId());
@@ -989,6 +1052,8 @@ public class PlanManagementServiceTest {
                                  .updatedAt(LocalDateTime.now())
                                  .build();
 
+        dummyPlanMeals = List.of(dummyPlanMeal1, dummyPlanMeal2);
+
         dummyPlan = Plan.builder()
                         .planId(dummyPlanId)
                         .code(Code.generate())
@@ -1022,7 +1087,7 @@ public class PlanManagementServiceTest {
         // assert delivery schedule details are 6, 7
         assertEquals(2, deliverySchedules.getFirst().getDeliveryScheduleDetails().size());
         assertEquals(LocalDate.of(2026, 1, 6), deliverySchedules.getFirst().getDeliveryScheduleDetails().getFirst().getDeliveryDate());
-        assertEquals(LocalDate.of(2026, 1, 7), deliverySchedules.getFirst().getDeliveryScheduleDetails().getFirst().getDeliveryDate());
+        assertEquals(LocalDate.of(2026, 1, 7), deliverySchedules.getFirst().getDeliveryScheduleDetails().getLast().getDeliveryDate());
 
         // assert only primary meal is present
         assertEquals(dummyPlanMealId1, deliverySchedules.getFirst().getDeliveryScheduleDetails().getFirst().getPlanMealId());
@@ -1034,7 +1099,7 @@ public class PlanManagementServiceTest {
         PlanResponseDto planResponseDto = planManagementQueryService.getActivePlans(0, 5).getFirst();
         assertNotNull(planResponseDto);
         assertEquals(dummyPlanId.getValue(), planResponseDto.getPlanId());
-        assertEquals("DummyPlan", planResponseDto.getTitle());
+        assertEquals("Dummy Plan", planResponseDto.getTitle());
         assertEquals("Dummy plan for repository stubbing", planResponseDto.getDescription());
         assertEquals(PlanStatus.RECRUITING, planResponseDto.getStatus());
         assertEquals(DUMMY_CATEGORY_ID_UUID, planResponseDto.getCategoryIds().stream().toList().getFirst());

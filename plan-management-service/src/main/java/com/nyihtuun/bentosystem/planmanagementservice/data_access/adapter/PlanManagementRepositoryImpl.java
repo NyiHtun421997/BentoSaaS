@@ -20,7 +20,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -81,6 +80,15 @@ public class PlanManagementRepositoryImpl implements PlanManagementRepository {
     }
 
     @Override
+    public List<Plan> findActivePlansBetweenDates(LocalDate start, LocalDate end) {
+        return planJpaRepository.findPlanEntitiesByDeleteFlagFalseAndCreatedAtBetween(start.atStartOfDay(),
+                                                                                      end.atStartOfDay())
+                                .stream()
+                                .map(planEntity -> mapper.planEntityToPlan(planEntity, false))
+                                .toList();
+    }
+
+    @Override
     public Optional<Plan> findByPlanId(UUID planId) {
         return planJpaRepository.findById(planId)
                                 .map(planEntity -> mapper.planEntityToPlan(planEntity, true));
@@ -114,15 +122,6 @@ public class PlanManagementRepositoryImpl implements PlanManagementRepository {
     }
 
     @Override
-    public void deleteByPlanId(UUID planId) {
-        planJpaRepository.findById(planId).ifPresent(planEntity -> {
-            planEntity.setDeleteFlag(true);
-            planEntity.setDeletedAt(LocalDateTime.now());
-            planJpaRepository.save(planEntity);
-        });
-    }
-
-    @Override
     public Category saveCategory(Category category) {
         CategoryEntity categoryEntity = mapper.categoryToCategoryEntity(category);
         CategoryEntity savedCategoryEntity = categoryJpaRepository.save(categoryEntity);
@@ -130,13 +129,19 @@ public class PlanManagementRepositoryImpl implements PlanManagementRepository {
     }
 
     @Override
-    public List<DeliverySchedule> findDeliverySchedulesByPlanIdAndDate(UUID planId, LocalDate start, LocalDate end) {
+    public List<Category> findAllCategories() {
+        return categoryJpaRepository.findAll()
+                                    .stream()
+                                    .map(mapper::categoryEntityToCategory)
+                                    .toList();
+    }
+
+    @Override
+    public Optional<DeliverySchedule> findDeliverySchedulesByPlanIdAndDate(UUID planId, LocalDate start, LocalDate end) {
         return deliveryScheduleJpaRepository.findDeliveryScheduleByPlanIdAndCreatedAtBetween(planId,
                                                                                              start.atStartOfDay(),
                                                                                              end.atStartOfDay())
-                                            .stream()
-                                            .map(mapper::deliveryScheduleEntityToDeliverySchedule)
-                                            .toList();
+                                            .map(mapper::deliveryScheduleEntityToDeliverySchedule);
     }
 
     @Override
