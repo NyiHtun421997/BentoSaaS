@@ -1,0 +1,492 @@
+{
+  "info": {
+    "_postman_id": "811d89c4-fc1d-417f-a517-ab0a8fa4a43f",
+    "name": "BentoSaaS",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "PlanManagement",
+      "item": [
+        {
+          "name": "Cateogory",
+          "item": [
+            {
+              "name": "New Request",
+              "id": "a4a220ab-f82f-4374-a4ef-315504bcd14d",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}category",
+                  "host": [
+                    "{{base_url}}{{plan_management_sub_path}}{{api_version}}category"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "New Request",
+              "id": "9d846eea-0f35-4c64-bae5-81bb7ca001ba",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Seafood\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}category",
+                  "host": [
+                    "{{base_url}}{{plan_management_sub_path}}{{api_version}}category"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ],
+          "id": "43aa78b6-7a32-4d7d-ae96-494fe3e4e476",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "id": "0a965b23-491c-4659-94c6-f759ae25c910",
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {},
+                "exec": [
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "id": "3e8b90bb-f177-468d-879f-06ebac2c9303",
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {},
+                "exec": [
+                  ""
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Plan",
+          "item": [
+            {
+              "name": "DeliverySchedule",
+              "item": [
+                {
+                  "name": "New Request",
+                  "id": "0b208bf5-8c18-4444-bc26-962bbd90bddd",
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "url": {
+                      "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{plan}}delivery-schedule?planId&start&end",
+                      "host": [
+                        "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{plan}}delivery-schedule"
+                      ],
+                      "query": [
+                        {
+                          "key": "planId",
+                          "value": null
+                        },
+                        {
+                          "key": "start",
+                          "value": null
+                        },
+                        {
+                          "key": "end",
+                          "value": null
+                        }
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ],
+              "id": "747cdb92-e14f-428f-8abb-e3f7f1e6880d"
+            },
+            {
+              "name": "New Request",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "id": "14d42f15-c853-4812-b20d-405686094a66",
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "id": "ee58efae-86a4-42f8-8572-07d25884ee82",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{plan}}",
+                  "host": [
+                    "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{plan}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "New Request",
+              "id": "5607fab1-ed7f-49b7-bacf-5c3b7702adf8",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{plan}}bytitleandcode?title=spicy&code=AA00006",
+                  "host": [
+                    "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{plan}}bytitleandcode"
+                  ],
+                  "query": [
+                    {
+                      "key": "title",
+                      "value": "spicy"
+                    },
+                    {
+                      "key": "code",
+                      "value": "AA00006"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "New Request",
+              "id": "26594856-5168-45e9-8293-d36793a22540",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{plan}}bycategory?categoryId=c0000000-0000-0000-0000-000000000001",
+                  "host": [
+                    "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{plan}}bycategory"
+                  ],
+                  "query": [
+                    {
+                      "key": "categoryId",
+                      "value": "c0000000-0000-0000-0000-000000000001"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "New Request",
+              "id": "8de83179-2cc0-42a1-bff2-66614a70fb24",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{plan}}nearby?latitude=34.6687&longitude=135.5016",
+                  "host": [
+                    "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{plan}}nearby"
+                  ],
+                  "query": [
+                    {
+                      "key": "latitude",
+                      "value": "34.6687"
+                    },
+                    {
+                      "key": "longitude",
+                      "value": "135.5016"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "New Request",
+              "id": "d0a0a723-cd97-42db-be99-d33ef5c784e1",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{plan}}10000000-0000-0000-0000-000000000002",
+                  "host": [
+                    "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{plan}}10000000-0000-0000-0000-000000000002"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "New Request",
+              "id": "ea1a5795-2928-4496-821d-dae9ea2fef2b",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{plan}}byuserid?userId=ac42f897-33e4-41c0-be98-d37f3c7908cc",
+                  "host": [
+                    "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{plan}}byuserid"
+                  ],
+                  "query": [
+                    {
+                      "key": "userId",
+                      "value": "ac42f897-33e4-41c0-be98-d37f3c7908cc"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ],
+          "id": "78789544-6ac3-4c9f-859f-f609acbeaacd"
+        },
+        {
+          "name": "ProviderPlan",
+          "item": [
+            {
+              "name": "Meal",
+              "item": [
+                {
+                  "name": "New Request",
+                  "id": "d51429be-60a0-4e7e-b16b-4f6c094657a7",
+                  "request": {
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n    \"name\": \"STEAMED SALMON\",\n    \"description\": \"Salmon + rice + lemon\",\n    \"pricePerMonth\": 5000.00,\n    \"primary\": true,\n    \"minSubCount\": 10,\n    \"imageUrl\": \"https://media.istockphoto.com/id/1264952430/photo/roasted-salmon-steak-served-with-lemon-and-onion-on-wooden-table.jpg?s=612x612&w=0&k=20&c=AVQROUlUwd3FPaAKIJ6r2Jd6TeEklpKHeb2f7FkmYkE=\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{provider_plan}}{{meal}}/241b94bd-c942-4a28-9850-4a0ac6cdb802",
+                      "host": [
+                        "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{provider_plan}}{{meal}}"
+                      ],
+                      "path": [
+                        "241b94bd-c942-4a28-9850-4a0ac6cdb802"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "New Request",
+                  "id": "f98c8b4d-f239-4bc9-aa22-411930ee9426",
+                  "request": {
+                    "method": "PUT",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n    \"name\": \"THAI STEAMED SALMON\",\n    \"description\": \"Salmon + rice + lemon + chillies\",\n    \"pricePerMonth\": 4000.00,\n    \"primary\": false,\n    \"minSubCount\": 6,\n    \"imageUrl\": \"https://media.istockphoto.com/id/1264952430/photo/roasted-salmon-steak-served-with-lemon-and-onion-on-wooden-table.jpg?s=612x612&w=0&k=20&c=AVQROUlUwd3FPaAKIJ6r2Jd6TeEklpKHeb2f7FkmYkE=\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{provider_plan}}{{meal}}?planId=241b94bd-c942-4a28-9850-4a0ac6cdb802&mealId=55679910-c28b-47dd-a877-f10a36d83508",
+                      "host": [
+                        "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{provider_plan}}{{meal}}"
+                      ],
+                      "query": [
+                        {
+                          "key": "planId",
+                          "value": "241b94bd-c942-4a28-9850-4a0ac6cdb802"
+                        },
+                        {
+                          "key": "mealId",
+                          "value": "55679910-c28b-47dd-a877-f10a36d83508"
+                        }
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ],
+              "id": "5b40c2d9-8e63-483e-90a7-7dd7a815d29f"
+            },
+            {
+              "name": "New Request",
+              "id": "356f8f17-c169-4112-87b6-617072d49950",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"OSAKA BENTO\",\n  \"description\": \"Healthy lunch plan\",\n  \"categoryIds\": [\n    \"c0000000-0000-0000-0000-000000000002\"\n  ],\n  \"address\": {\n    \"buildingNameRoomNo\": \"Namba Skyo 10F\",\n    \"chomeBanGo\": \"1-2-3\",\n    \"district\": \"NAMBA\",\n    \"postalCode\": \"542-0076\",\n    \"city\": \"OSAKA\",\n    \"prefecture\": \"OSAKA\",\n    \"location\": {\n      \"latitude\": 34.6687,\n      \"longitude\": 135.5016\n    }\n  },\n  \"displaySubscriptionFee\": 9800.00,\n  \"skipDays\": [\n    \"2026-01-25\"\n  ],\n  \"planMealRequestDtos\": [\n    {\n      \"name\": \"GRILLED SALMON\",\n      \"description\": \"Salmon + rice + pickles\",\n      \"pricePerMonth\": 4900.00,\n      \"primary\": true,\n      \"minSubCount\": 10,\n      \"imageUrl\": \"https://images.unsplash.com/photo-1546069901-ba9599a7e63c\"\n    },\n    {\n      \"name\": \"CHICKEN TERIYAKI\",\n      \"description\": \"Teriyaki chicken bento\",\n      \"pricePerMonth\": 4900.00,\n      \"primary\": false,\n      \"minSubCount\": 5,\n      \"imageUrl\": \"https://images.unsplash.com/photo-1555939594-58d7cb561ad1\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{provider_plan}}",
+                  "host": [
+                    "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{provider_plan}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "New Request",
+              "id": "341f7ca8-39bf-431f-bfe9-13e19af62f74",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"OSAKA BENTO\",\n  \"description\": \"Healthy lunch plan\",\n  \"categoryIds\": [\n    \"c0000000-0000-0000-0000-000000000001\",\n    \"c0000000-0000-0000-0000-000000000002\"\n  ],\n  \"address\": {\n    \"buildingNameRoomNo\": \"Namba Skyo 13F\",\n    \"chomeBanGo\": \"1-2-3\",\n    \"district\": \"NAMBA\",\n    \"postalCode\": \"542-0076\",\n    \"city\": \"OSAKA\",\n    \"prefecture\": \"OSAKA\",\n    \"location\": {\n      \"latitude\": 34.6687,\n      \"longitude\": 135.5016\n    }\n  },\n  \"displaySubscriptionFee\": 9800.00,\n  \"skipDays\": [\n    \"2026-01-25\"\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{provider_plan}}/cbcc8100-fc7b-4146-b2a3-8126431a51c3",
+                  "host": [
+                    "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{provider_plan}}"
+                  ],
+                  "path": [
+                    "cbcc8100-fc7b-4146-b2a3-8126431a51c3"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "New Request",
+              "id": "313996d6-57c7-4e66-a833-6373b15d969d",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{provider_plan}}/9ac66791-453e-4072-93b1-b5c33e7122aa",
+                  "host": [
+                    "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{provider_plan}}"
+                  ],
+                  "path": [
+                    "9ac66791-453e-4072-93b1-b5c33e7122aa"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ],
+          "id": "fb8e9785-3bb2-47e3-8747-5c5bdfe575b6"
+        }
+      ],
+      "id": "c9a00dfe-43ae-4adb-a4b6-2145ff674006",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "id": "74d1b0df-7bea-4af8-9b56-41821d02931c",
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "id": "7eb6ca42-dab9-461b-92f3-ab37b1ea5f44",
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "id": "b6b65b53-deef-4abe-96c2-d8378c67df28",
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "id": "33cbceda-337c-4acf-8ee1-975dcd182429",
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "id": "0d95ff5b-44dd-4890-844c-51abc582ea05",
+      "key": "base_url",
+      "value": ""
+    },
+    {
+      "id": "dcabf73e-0086-480f-bc09-9fe641bc6a37",
+      "key": "plan_management_sub_path",
+      "value": ""
+    },
+    {
+      "id": "8f3675a1-71ca-4c7e-bfab-9ded4617fe6e",
+      "key": "api_version",
+      "value": ""
+    },
+    {
+      "id": "98ec9042-1aed-4ded-a71f-8d8d97795451",
+      "key": "plan",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "id": "80929867-8b7c-40cc-a336-35b37efc9711",
+      "key": "provider_plan",
+      "value": "",
+      "type": "default"
+    },
+    {
+      "id": "d9128eee-0054-418f-ab13-6f97302d94d0",
+      "key": "meal",
+      "value": "",
+      "type": "default"
+    }
+  ]
+}

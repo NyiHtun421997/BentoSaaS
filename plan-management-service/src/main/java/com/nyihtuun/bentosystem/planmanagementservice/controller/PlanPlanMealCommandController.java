@@ -7,10 +7,13 @@ import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.re
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.request.PlanRequestDto;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.response.PlanResponseDto;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.input.service.PlanManagementCommandService;
+import com.nyihtuun.bentosystem.planmanagementservice.controller.validation.CreatePlanValidationGroup;
 import jakarta.validation.Valid;
+import jakarta.validation.groups.Default;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -30,7 +33,7 @@ public class PlanPlanMealCommandController {
     }
 
     @PostMapping
-    public ResponseEntity<PlanResponseDto> createPlan(@Valid @RequestBody PlanRequestDto planRequestDto) {
+    public ResponseEntity<PlanResponseDto> createPlan(@Validated({Default.class, CreatePlanValidationGroup.class}) @RequestBody PlanRequestDto planRequestDto) {
         // TODO : implement authentication and jwt related services
         // temporarily assume we will get user id from jwt
         UUID userId = UUID.randomUUID();
@@ -40,25 +43,25 @@ public class PlanPlanMealCommandController {
         return ResponseEntity.ok(planResponseDto);
     }
 
-    @PutMapping
-    public ResponseEntity<PlanResponseDto> updatePlan(UUID planId,
-                                                      @Valid @RequestBody PlanRequestDto planRequestDto) {
+    @PutMapping(PLAN_ID)
+    public ResponseEntity<PlanResponseDto> updatePlan(@PathVariable UUID planId,
+                                                      @Validated({Default.class}) @RequestBody PlanRequestDto planRequestDto) {
         log.info("Updating plan with planId: {} : {}", planId, planRequestDto);
         PlanResponseDto planResponseDto = planManagementCommandService.validateAndUpdatePlanInfo(new PlanId(planId), planRequestDto);
         log.info("Plan with planId: {} updated: {}", planId, planResponseDto);
         return ResponseEntity.ok(planResponseDto);
     }
 
-    @DeleteMapping
-    public ResponseEntity<?> deletePlan(UUID planId) {
+    @DeleteMapping(PLAN_ID)
+    public ResponseEntity<?> deletePlan(@PathVariable UUID planId) {
         log.info("Deleting plan with planId: {}", planId);
         planManagementCommandService.deletePlan(new PlanId(planId));
         log.info("Plan with planId: {} deleted", planId);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping(MEAL)
-    public ResponseEntity<PlanResponseDto> addMeal(UUID planId,
+    @PostMapping(MEAL + PLAN_ID)
+    public ResponseEntity<PlanResponseDto> addMeal(@PathVariable UUID planId,
                                                    @Valid @RequestBody PlanMealRequestDto planMealRequestDto) {
         log.info("Adding meal with planId: {} : {}", planId, planMealRequestDto);
         PlanResponseDto planResponseDto = planManagementCommandService.addMealToPlan(new PlanId(planId), planMealRequestDto);
@@ -67,8 +70,8 @@ public class PlanPlanMealCommandController {
     }
 
     @PutMapping(MEAL)
-    public ResponseEntity<PlanResponseDto> updateMeal(UUID planId,
-                                                      UUID mealId,
+    public ResponseEntity<PlanResponseDto> updateMeal(@RequestParam UUID planId,
+                                                      @RequestParam UUID mealId,
                                                       @Valid @RequestBody PlanMealRequestDto planMealRequestDto) {
         log.info("Updating meal with planId: {} and mealId: {} : {}", planId, mealId, planMealRequestDto);
         PlanResponseDto planResponseDto = planManagementCommandService.updateMealFromPlan(new PlanId(planId), new PlanMealId(mealId), planMealRequestDto);
@@ -77,7 +80,7 @@ public class PlanPlanMealCommandController {
     }
 
     @DeleteMapping(MEAL)
-    public ResponseEntity<?> deleteMeal(UUID planId, UUID mealId) {
+    public ResponseEntity<?> deleteMeal(@RequestParam UUID planId, @RequestParam UUID mealId) {
         log.info("Deleting meal with planId: {} and mealId: {}", planId, mealId);
         planManagementCommandService.removeMealFromPlan(new PlanId(planId), new PlanMealId(mealId));
         log.info("PlanMeal with id: {} deleted from Plan with planId: {}", mealId, planId);

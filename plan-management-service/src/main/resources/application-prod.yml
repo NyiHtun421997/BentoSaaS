@@ -1,0 +1,15 @@
+spring:
+  jpa:
+    open-in-view: false
+    show-sql: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:init-schema.sql
+
+logging:
+  level:
+    com.food.ordering.system: INFO

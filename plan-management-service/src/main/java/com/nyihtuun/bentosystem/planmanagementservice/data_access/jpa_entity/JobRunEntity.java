@@ -37,6 +37,7 @@ public class JobRunEntity {
     private LocalDate periodEnd;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "status", nullable = false)
     private JobRunStatus status;
 

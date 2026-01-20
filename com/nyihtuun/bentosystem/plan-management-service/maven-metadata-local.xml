@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>com.nyihtuun.bentosystem</groupId>
+  <artifactId>plan-management-service</artifactId>
+  <versioning>
+    <versions>
+      <version>1.0-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20260120022222</lastUpdated>
+  </versioning>
+</metadata>

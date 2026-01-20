@@ -12,7 +12,11 @@ import java.util.List;
 
 @Component
 public class BusinessCalendarServiceImpl implements BusinessCalendarService {
-    private final HolidayManager manager = HolidayManager.getInstance(ManagerParameters.create(HolidayCalendar.JAPAN));
+    private final HolidayManager manager;
+
+    public BusinessCalendarServiceImpl(HolidayManager manager) {
+        this.manager = manager;
+    }
 
     public PeriodContext getCurrentMonthBusinessPeriod(YearMonth yearMonth) {
         List<LocalDate> businessDays = yearMonth.atDay(1)

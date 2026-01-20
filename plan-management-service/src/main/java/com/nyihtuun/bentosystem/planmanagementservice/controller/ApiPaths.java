@@ -9,4 +9,5 @@ public final class ApiPaths {
     static final String PLAN = "/plan";
     static final String PROVIDER_PLAN = "/provider/plan";
     static final String CATEGORY = "/category";
+    static final String PLAN_ID = "/{planId}";
 }

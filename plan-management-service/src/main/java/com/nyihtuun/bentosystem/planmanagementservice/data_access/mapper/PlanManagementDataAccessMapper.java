@@ -30,8 +30,13 @@ public class PlanManagementDataAccessMapper {
                    .updatedAt(planEntity.getUpdatedAt())
                    .skipDays(planEntity.getSkipDates())
                    .address(addressEntityToAddress(planEntity.getAddressEntity()))
+                   .categoryIds(planEntity.getCategoryEntities().stream()
+                                          .map(categoryEntity -> new CategoryId(categoryEntity.getId()))
+                                          .collect(Collectors.toSet()))
+                   .providerUserId(new UserId(planEntity.getUserId()))
                    .displaySubscriptionFee(new Money(planEntity.getDisplaySubscriptionFee()))
-                   .planMeals(planMealEntitiesToPlanMeals(mapPlanMealEntities ? planEntity.getPlanMealEntities() : new ArrayList<>(), planId))
+                   .planMeals(planMealEntitiesToPlanMeals(mapPlanMealEntities ? planEntity.getPlanMealEntities() : new ArrayList<>(),
+                                                          planId))
                    .deleteFlag(planEntity.getDeleteFlag())
                    .deletedAt(planEntity.getDeletedAt())
                    .build();
@@ -68,7 +73,7 @@ public class PlanManagementDataAccessMapper {
                                                     .deleteFlag(planMealEntity.getDeleteFlag())
                                                     .deletedAt(planMealEntity.getDeletedAt())
                                                     .build())
-                               .toList();
+                               .collect(Collectors.toCollection(ArrayList::new));
 
     }
 

@@ -84,8 +84,12 @@ public class PlanManagementCommandServiceImpl implements PlanManagementCommandSe
         plan.initializePlan(userId);
         log.info("Plan with id: {} is validated and initiated", plan.getId().getValue());
 
-        Plan savedPlan = persistPlan(plan);
-        return planDataMapper.mapPlanToPlanDto(savedPlan);
+        try {
+            Plan savedPlan = persistPlan(plan, true);
+            return planDataMapper.mapPlanToPlanDto(savedPlan);
+        } catch (DataIntegrityViolationException e) {
+            throw new PlanManagementDomainException(PlanManagementErrorCode.PLAN_ALREADY_EXISTS);
+        }
     }
 
     @Override
@@ -101,7 +105,7 @@ public class PlanManagementCommandServiceImpl implements PlanManagementCommandSe
         plan.validatePlan();
         log.info("Plan with id: {} is updated and validated", planId.getValue());
 
-        Plan updatedPlan = persistPlan(plan);
+        Plan updatedPlan = persistPlan(plan, false);
         return planDataMapper.mapPlanToPlanDto(updatedPlan);
     }
 
@@ -114,7 +118,7 @@ public class PlanManagementCommandServiceImpl implements PlanManagementCommandSe
                                                     PlanManagementErrorCode.INVALID_PLAN_ID));
         plan.deletePlan();
         log.info("Plan with id: {} is deleted", planId.getValue());
-        persistPlan(plan);
+        persistPlan(plan, false);
     }
 
     @Override
@@ -130,7 +134,7 @@ public class PlanManagementCommandServiceImpl implements PlanManagementCommandSe
         plan.updatePlanStatus();
         log.info("Plan with id: {} is reflected with new user selections", planId.getValue());
 
-        Plan updatedPlan = persistPlan(plan);
+        Plan updatedPlan = persistPlan(plan, false);
         return planDataMapper.mapPlanToPlanDto(updatedPlan);
     }
 
@@ -146,7 +150,7 @@ public class PlanManagementCommandServiceImpl implements PlanManagementCommandSe
         plan.updatePlanStatus();
         log.info("Plan with id: {} is added to meals", planId.getValue());
 
-        Plan updatedPlan = persistPlan(plan);
+        Plan updatedPlan = persistPlan(plan, false);
         return planDataMapper.mapPlanToPlanDto(updatedPlan);
     }
 
@@ -161,7 +165,7 @@ public class PlanManagementCommandServiceImpl implements PlanManagementCommandSe
         plan.updatePlanStatus();
         log.info("Plan Meal with id: {} is removed from Plan with id: {}", planMealId, planId.getValue());
 
-        Plan updatedPlan = persistPlan(plan);
+        Plan updatedPlan = persistPlan(plan, false);
         return planDataMapper.mapPlanToPlanDto(updatedPlan);
     }
 
@@ -178,12 +182,12 @@ public class PlanManagementCommandServiceImpl implements PlanManagementCommandSe
         plan.updatePlanStatus();
         log.info("Plan Meal with id: {} is updated", planMealId.getValue());
 
-        Plan updatedPlan = persistPlan(plan);
+        Plan updatedPlan = persistPlan(plan, false);
         return planDataMapper.mapPlanToPlanDto(updatedPlan);
     }
 
-    private Plan persistPlan(Plan plan) {
-        Plan savedPlan = planManagementRepository.save(plan);
+    private Plan persistPlan(Plan plan, boolean flush) {
+        Plan savedPlan = planManagementRepository.save(plan, flush);
         log.info("Plan with id: {} is persisted", plan.getId().getValue());
         return savedPlan;
     }
@@ -290,10 +294,8 @@ public class PlanManagementCommandServiceImpl implements PlanManagementCommandSe
             Category savedCategory = planManagementRepository.saveCategory(new Category(new CategoryId(UUID.randomUUID()),
                                                                                categoryDto.getName()));
             return new CategoryDto(savedCategory.getId().getValue(), savedCategory.getName());
-        } catch (Exception e) {
-            if (e instanceof DataIntegrityViolationException)
-                throw new PlanManagementDomainException(PlanManagementErrorCode.DUPLICATED_CATEGORY_NAME);
-            throw e;
+        } catch (DataIntegrityViolationException e) {
+            throw new PlanManagementDomainException(PlanManagementErrorCode.DUPLICATED_CATEGORY_NAME);
         }
     }
 }

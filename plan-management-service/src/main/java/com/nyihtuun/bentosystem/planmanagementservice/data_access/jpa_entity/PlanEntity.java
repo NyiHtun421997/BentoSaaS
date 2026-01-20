@@ -25,7 +25,8 @@ public class PlanEntity {
     @Id
     private UUID id;
 
-    @Column(length = 7, nullable = false)
+    @JdbcTypeCode(SqlTypes.CHAR)
+    @Column(name = "code", columnDefinition = "char(7)", length = 7, nullable = false)
     private String code;
 
     @Column(nullable = false)
@@ -35,6 +36,7 @@ public class PlanEntity {
     private String description;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "plan_status", nullable = false)
     private PlanStatus planStatus;
 
@@ -57,6 +59,7 @@ public class PlanEntity {
 
     @ManyToMany
     @JoinTable(
+            schema = "planmanagement",
             name = "plan_category",
             joinColumns = @JoinColumn(name = "plan_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id")

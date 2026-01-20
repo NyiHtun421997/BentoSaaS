@@ -13,27 +13,25 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 public abstract class AbstractPlanMealDto {
-    @NotBlank
-    @Size(max = 20)
+    @NotBlank(message = "{NotBlank.planMealRequestDto.name}")
+    @Size(max = 20, message = "{Size.planMealRequestDto.name}")
     private String name;
 
-    @NotBlank
-    @Size(max = 50)
+    @NotBlank(message = "{NotBlank.planMealRequestDto.description}")
+    @Size(max = 50, message = "{Size.planMealRequestDto.description}")
     private String description;
 
-    @NotNull
-    @DecimalMin(value = "0.00", inclusive = true)
-    @Digits(integer = 10, fraction = 2)
+    @NotNull(message = "{NotNull.planMealRequestDto.pricePerMonth}")
+    @DecimalMin(value = "0.00", inclusive = true, message = "{DecimalMin.planMealRequestDto.pricePerMonth}")
+    @Digits(integer = 10, fraction = 2, message = "{Digits.planMealRequestDto.pricePerMonth}")
     private BigDecimal pricePerMonth;
 
-    private boolean isPrimary;
+    private boolean primary;
 
-    @Min(0)
+    @Min(value = 0, message = "{Min.planMealRequestDto.minSubCount}")
     private int minSubCount;
 
-    @Size(max = 255)
-    @Pattern(
-            regexp = "^(https?://).*$"
-    )
+    @Size(max = 255, message = "{Size.planMealRequestDto.imageUrl}")
+    @Pattern(regexp = "^(https?://).*$", message = "{Pattern.planMealRequestDto.imageUrl}")
     private String imageUrl;
 }

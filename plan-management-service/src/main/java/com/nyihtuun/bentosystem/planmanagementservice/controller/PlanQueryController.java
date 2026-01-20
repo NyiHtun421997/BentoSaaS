@@ -2,6 +2,7 @@ package com.nyihtuun.bentosystem.planmanagementservice.controller;
 
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.response.PlanResponseDto;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.input.service.PlanManagementQueryService;
+import com.nyihtuun.bentosystem.planmanagementservice.domain.entity.DeliverySchedule;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.exception.PlanManagementDomainException;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.exception.PlanManagementErrorCode;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -87,7 +89,7 @@ public class PlanQueryController {
         return ResponseEntity.ok(plansByUserId);
     }
 
-    @GetMapping(path = "/{planId}")
+    @GetMapping("/{planId}")
     public ResponseEntity<PlanResponseDto> findPlanDetails(@PathVariable UUID planId) {
         log.info("Fetching active plan details for planId: {}", planId);
         return planManagementQueryService.getPlanByPlanId(planId)
@@ -102,5 +104,14 @@ public class PlanQueryController {
                                              return new PlanManagementDomainException(PlanManagementErrorCode.INVALID_PARAMS);
                                          });
 
+    }
+
+    @GetMapping("/delivery-schedule")
+    public ResponseEntity<DeliverySchedule> getDeliverySchedulesByPlanIdAndDate(@RequestParam UUID planId, @RequestParam
+    LocalDate start, @RequestParam LocalDate end) {
+        log.info("Fetching delivery schedule for planId: {} between dates: {} and {}", planId, start, end);
+        return planManagementQueryService.getDeliverySchedulesByPlanIdAndDate(planId, start, end)
+                                         .map(ResponseEntity::ok)
+                                         .orElseThrow(() -> new PlanManagementDomainException(PlanManagementErrorCode.INVALID_PARAMS));
     }
 }

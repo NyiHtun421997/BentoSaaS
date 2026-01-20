@@ -37,7 +37,7 @@ public class AddressEntity {
     @Column(nullable = false)
     private String prefecture;
 
-    @Column(name = "geo_point", columnDefinition = "geography(Point,4326)")
+    @Column(name = "location", columnDefinition = "geography(Point,4326)")
     private Point location;
 
     @OneToOne(mappedBy = "addressEntity")

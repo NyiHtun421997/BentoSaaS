@@ -18,7 +18,7 @@ public interface PlanManagementRepository {
     Optional<Plan> findByPlanId(UUID planId);
     List<Plan> findPlansByUserId(UUID userId);
     List<Plan> findPlansNearMe(double latitude, double longitude, double radiusMeters, int page, int size);
-    Plan save(Plan plan);
+    Plan save(Plan plan, boolean flush);
     Category saveCategory(Category category);
     List<Category> findAllCategories();
     Optional<DeliverySchedule> findDeliverySchedulesByPlanIdAndDate(UUID planId, LocalDate start, LocalDate end);

@@ -16,7 +16,7 @@ import java.util.UUID;
 @Repository
 public interface PlanJpaRepository extends JpaRepository<PlanEntity, UUID> {
     public List<PlanEntity> findPlanEntitiesByDeleteFlag(Boolean deleteFlag, Pageable pageable);
-    public Optional<PlanEntity> findEntityByTitleAndCode(String title, String code);
+    public Optional<PlanEntity> findPlanEntityByTitleContainingIgnoreCaseAndCode(String title, String code);
 
     @Query("select distinct p from PlanEntity p join p.categoryEntities c where c.id = :categoryId and p.deleteFlag = false")
     List<PlanEntity> findPlanEntityByCategoryId(@Param("categoryId") UUID categoryId);

@@ -58,7 +58,7 @@ public class PlanManagementRepositoryImpl implements PlanManagementRepository {
 
     @Override
     public Optional<Plan> findPlanByTitleAndCode(String title, String code) {
-        return planJpaRepository.findEntityByTitleAndCode(title, code)
+        return planJpaRepository.findPlanEntityByTitleContainingIgnoreCaseAndCode(title, code)
                                 .map(planEntity -> mapper.planEntityToPlan(planEntity, true));
     }
 
@@ -111,20 +111,23 @@ public class PlanManagementRepositoryImpl implements PlanManagementRepository {
     }
 
     @Override
-    public Plan save(Plan plan) {
+    public Plan save(Plan plan, boolean flush) {
         List<CategoryEntity> categoryEntities = categoryJpaRepository.findAllById(plan.getCategoryIds()
                                                                                       .stream()
                                                                                       .map(CategoryId::getValue)
                                                                                       .toList());
         PlanEntity planEntity = mapper.planToPlanEntity(plan, categoryEntities);
         PlanEntity savedPlanEntity = planJpaRepository.save(planEntity);
+        if (flush) {
+            planJpaRepository.flush();
+        }
         return mapper.planEntityToPlan(savedPlanEntity, true);
     }
 
     @Override
     public Category saveCategory(Category category) {
         CategoryEntity categoryEntity = mapper.categoryToCategoryEntity(category);
-        CategoryEntity savedCategoryEntity = categoryJpaRepository.save(categoryEntity);
+        CategoryEntity savedCategoryEntity = categoryJpaRepository.saveAndFlush(categoryEntity);
         return mapper.categoryEntityToCategory(savedCategoryEntity);
     }
 

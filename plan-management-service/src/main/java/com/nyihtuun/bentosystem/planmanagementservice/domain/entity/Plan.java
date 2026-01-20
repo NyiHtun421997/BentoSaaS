@@ -29,7 +29,7 @@ public class Plan extends AggregateRoot<PlanId> {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    private List<PlanMeal> planMeals = new ArrayList<>();
+    private List<PlanMeal> planMeals;
     private boolean deleteFlag;
     private LocalDateTime deletedAt;
 

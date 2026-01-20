@@ -80,7 +80,7 @@ public class PlanDataMapper {
                                                                .name(planMeal.getName())
                                                                .description(planMeal.getDescription())
                                                                .pricePerMonth(planMeal.getPricePerMonth().amount())
-                                                               .isPrimary(planMeal.isPrimary())
+                                                               .primary(planMeal.isPrimary())
                                                                .minSubCount(planMeal.getMinSubCount().min())
                                                                .currentSubCount(planMeal.getCurrentSubCount())
                                                                .imageUrl(planMeal.getImageUrl())

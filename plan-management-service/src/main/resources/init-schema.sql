@@ -12,7 +12,7 @@ DROP TABLE IF EXISTS "planmanagement".address CASCADE;
 
 CREATE TABLE "planmanagement".address
 (
-    id                    uuid    NOT NULL,
+    id                    uuid    NOT NULL DEFAULT gen_random_uuid(),
     building_name_room_no VARCHAR NOT NULL,
     chome_ban_go          VARCHAR NOT NULL,
     district              VARCHAR NOT NULL,
@@ -34,24 +34,25 @@ DROP TABLE IF EXISTS "planmanagement".plan CASCADE;
 CREATE TABLE "planmanagement".plan
 (
     id                       uuid           NOT NULL,
-    code                     CHAR(7)        NOT NULL,
+    code                     CHAR(7)        NOT NULL UNIQUE,
     title                    VARCHAR        NOT NULL,
     description              VARCHAR,
     plan_status              plan_status    NOT NULL,
     created_at               TIMESTAMP      NOT NULL,
     updated_at               TIMESTAMP      NOT NULL,
     user_id                  uuid           NOT NULL,
-    skip_days                jsonb          NOT NULL DEFAULT '[]',
+    skip_dates                jsonb          NOT NULL DEFAULT '[]',
     address_id               uuid           NOT NULL,
     display_subscription_fee NUMERIC(10, 2) NOT NULL CHECK ( display_subscription_fee > 0 ),
     delete_flag              BOOLEAN                 DEFAULT FALSE,
     deleted_at               TIMESTAMP,
     CONSTRAINT plan_pk PRIMARY KEY (id),
+    CONSTRAINT plan_title_description_unique UNIQUE (title, description),
     CONSTRAINT plan_address_fk FOREIGN KEY (address_id)
         REFERENCES "planmanagement".address (id)
         ON UPDATE NO ACTION
         ON DELETE RESTRICT,
-    CONSTRAINT plan_skipdays_max2days CHECK ( json_array_length(skip_days) <= 2 )
+    CONSTRAINT plan_skipdates_max2days CHECK ( jsonb_array_length(skip_dates) <= 2 )
 );
 
 DROP TABLE IF EXISTS "planmanagement".plan_meal CASCADE;
@@ -81,7 +82,7 @@ CREATE TABLE "planmanagement".plan_meal
 CREATE TABLE "planmanagement".category
 (
     id   uuid    NOT NULL,
-    name VARCHAR NOT NULL,
+    name VARCHAR NOT NULL UNIQUE,
     CONSTRAINT category_pkey PRIMARY KEY (id)
 );
 

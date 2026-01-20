@@ -37,7 +37,7 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<CategoryDto> createCategory(@Valid CategoryDto categoryDto) {
+    public ResponseEntity<CategoryDto> createCategory(@Valid @RequestBody CategoryDto categoryDto) {
         log.info("Creating category: {}", categoryDto.getName());
         CategoryDto saved = planManagementCommandService.createCategory(categoryDto);
         log.info("Category created: {}", saved);

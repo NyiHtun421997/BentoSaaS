@@ -28,6 +28,7 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.math.BigDecimal;
@@ -39,6 +40,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
+@ActiveProfiles("test")
 public class PlanManagementServiceTest {
 
     private static final UUID USER_ID_UUID =
@@ -117,7 +119,7 @@ public class PlanManagementServiceTest {
                 .name("Standard Bento")
                 .pricePerMonth(new BigDecimal("800.00"))
                 .minSubCount(10)
-                .isPrimary(true)
+                .primary(true)
                 .imageUrl("https://example.com/bento-standard.jpg")
                 .description("Standard healthy bento meal")
                 .build();
@@ -126,7 +128,7 @@ public class PlanManagementServiceTest {
                 .name("Premium Bento")
                 .pricePerMonth(new BigDecimal("1200.00"))
                 .minSubCount(5)
-                .isPrimary(false)
+                .primary(false)
                 .imageUrl("https://example.com/bento-premium.jpg")
                 .description("Premium bento with higher quality ingredients")
                 .build();
@@ -186,7 +188,7 @@ public class PlanManagementServiceTest {
                 .name("Standard Bento")
                 .pricePerMonth(new BigDecimal("800.00"))
                 .minSubCount(10)
-                .isPrimary(false)
+                .primary(false)
                 .imageUrl("https://example.com/bento-standard.jpg")
                 .description("Standard healthy bento meal")
                 .build();
@@ -195,7 +197,7 @@ public class PlanManagementServiceTest {
                 .name("Premium Bento")
                 .pricePerMonth(new BigDecimal("1200.00"))
                 .minSubCount(5)
-                .isPrimary(false)
+                .primary(false)
                 .imageUrl("https://example.com/bento-premium.jpg")
                 .description("Premium bento with higher quality ingredients")
                 .build();
@@ -319,7 +321,7 @@ public class PlanManagementServiceTest {
                                                                    .name("Valid Test Plan Meal")
                                                                    .pricePerMonth(NEW_PLANMEAL_PRICE)
                                                                    .minSubCount(10)
-                                                                   .isPrimary(true)
+                                                                   .primary(true)
                                                                    .imageUrl("https://example.com/bento-standard.jpg")
                                                                    .description("It is for testing")
                                                                    .build();
@@ -328,7 +330,7 @@ public class PlanManagementServiceTest {
                                                                    .name("Test Plan Meal")
                                                                    .pricePerMonth(new BigDecimal("-1200.00"))
                                                                    .minSubCount(5)
-                                                                   .isPrimary(false)
+                                                                   .primary(false)
                                                                    .imageUrl("https://example.com/bento-premium.jpg")
                                                                    .description("It is for testing")
                                                                    .build();
@@ -337,7 +339,7 @@ public class PlanManagementServiceTest {
                                                                   .name("Test Plan Meal")
                                                                   .pricePerMonth(new BigDecimal("1200.00"))
                                                                   .minSubCount(-5)
-                                                                  .isPrimary(false)
+                                                                  .primary(false)
                                                                   .imageUrl("https://example.com/bento-premium.jpg")
                                                                   .description("It is for testing")
                                                                   .build();
@@ -351,7 +353,7 @@ public class PlanManagementServiceTest {
 
         when(planManagementRepository.findActivePlans(anyInt(), anyInt()))
             .thenAnswer(inv -> dummyPlan == null ? List.of() : List.of(dummyPlan));
-        when(planManagementRepository.save(any(Plan.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(planManagementRepository.save(any(Plan.class), anyBoolean())).thenAnswer(inv -> inv.getArgument(0));
         when(planManagementRepository.findByPlanId(any(UUID.class)))
             .thenAnswer(inv -> Optional.ofNullable(dummyPlan));
         when(planManagementRepository.findActivePlansBetweenDates(any(LocalDate.class), any(LocalDate.class)))
@@ -381,7 +383,7 @@ public class PlanManagementServiceTest {
 
         // then
         ArgumentCaptor<Plan> planArgumentCaptor = ArgumentCaptor.forClass(Plan.class);
-        verify(planManagementRepository).save(planArgumentCaptor.capture());
+        verify(planManagementRepository).save(planArgumentCaptor.capture(), anyBoolean());
 
         Plan savedPlan = planArgumentCaptor.getValue();
 
@@ -431,7 +433,7 @@ public class PlanManagementServiceTest {
                                                                                            userId));
         assertEquals(PlanManagementErrorCode.EMPTY_MEALS, planManagementDomainException.getErrorCode());
         // must not persist anything when validation fails
-        verify(planManagementRepository, never()).save(any(Plan.class));
+        verify(planManagementRepository, never()).save(any(Plan.class), anyBoolean());
     }
 
     @Test
@@ -443,7 +445,7 @@ public class PlanManagementServiceTest {
                                                                                            userId));
         assertEquals(PlanManagementErrorCode.NO_PRIMARY_MEAL, planManagementDomainException.getErrorCode());
         // must not persist anything when validation fails
-        verify(planManagementRepository, never()).save(any(Plan.class));
+        verify(planManagementRepository, never()).save(any(Plan.class), anyBoolean());
     }
 
     @Test
@@ -455,7 +457,7 @@ public class PlanManagementServiceTest {
                                                                                            userId));
         assertEquals(PlanManagementErrorCode.INVALID_SUB_FEE, planManagementDomainException.getErrorCode());
         // must not persist anything when validation fails
-        verify(planManagementRepository, never()).save(any(Plan.class));
+        verify(planManagementRepository, never()).save(any(Plan.class), anyBoolean());
     }
 
     @Test
@@ -467,7 +469,7 @@ public class PlanManagementServiceTest {
                                                                                            userId));
         assertEquals(PlanManagementErrorCode.INVALID_SKIPDAYS, planManagementDomainException.getErrorCode());
         // must not persist anything when validation fails
-        verify(planManagementRepository, never()).save(any(Plan.class));
+        verify(planManagementRepository, never()).save(any(Plan.class), anyBoolean());
     }
 
     @Test
@@ -500,7 +502,7 @@ public class PlanManagementServiceTest {
                                                                                            invalidSubscriptionFeePlan));
         assertEquals(PlanManagementErrorCode.INVALID_SUB_FEE, planManagementDomainException.getErrorCode());
         // must not persist anything when validation fails
-        verify(planManagementRepository, never()).save(any(Plan.class));
+        verify(planManagementRepository, never()).save(any(Plan.class), anyBoolean());
     }
 
     @Test
@@ -927,7 +929,7 @@ public class PlanManagementServiceTest {
                                                     .name("Valid Test Plan Meal")
                                                     .pricePerMonth(NEW_PLANMEAL_PRICE)
                                                     .minSubCount(10)
-                                                    .isPrimary(false)
+                                                    .primary(false)
                                                     .imageUrl("https://example.com/bento-standard.jpg")
                                                     .description("It is for testing")
                                                     .build();
