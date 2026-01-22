@@ -1,4 +1,11 @@
 package com.nyihtuun.bentosystem.domain.valueobject;
 
-public record MealSelectionId(SubscriptionId subscriptionId, PlanMealId planMealId) {
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
+public class MealSelectionId {
+    SubscriptionId subscriptionId;
+    PlanMealId planMealId;
 }

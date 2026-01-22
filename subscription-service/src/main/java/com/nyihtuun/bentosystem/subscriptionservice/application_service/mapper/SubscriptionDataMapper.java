@@ -2,9 +2,10 @@ package com.nyihtuun.bentosystem.subscriptionservice.application_service.mapper;
 
 import com.nyihtuun.bentosystem.domain.valueobject.PlanId;
 import com.nyihtuun.bentosystem.domain.valueobject.PlanMealId;
+import com.nyihtuun.bentosystem.domain.valueobject.UserId;
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.dto.MealSelectionResponseDto;
-import com.nyihtuun.bentosystem.subscriptionservice.application_service.dto.SubscriptionRequestDto;
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.dto.SubscriptionResponseDto;
+import com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.output.client.PlanData;
 import com.nyihtuun.bentosystem.subscriptionservice.domain.entity.MealSelection;
 import com.nyihtuun.bentosystem.subscriptionservice.domain.entity.Subscription;
 import org.springframework.stereotype.Component;
@@ -15,10 +16,11 @@ import java.util.stream.Collectors;
 
 @Component
 public class SubscriptionDataMapper {
-    public Subscription mapSubscriptionDtoToSubscription(SubscriptionRequestDto subscriptionRequestDto) {
+    public Subscription mapToSubscription(PlanData planData, UserId providedUserId) {
         return Subscription.builder()
-                .planId(new PlanId(subscriptionRequestDto.getPlanId()))
-                .mealSelections(mapPlanMealIdsToMealSelections(subscriptionRequestDto.getPlanMealIds()))
+                .planId(new PlanId(planData.planId()))
+                .mealSelections(mapPlanMealIdsToMealSelections(planData.planMealIds()))
+                .providedUserId(providedUserId)
                 .build();
     }
 
@@ -38,6 +40,7 @@ public class SubscriptionDataMapper {
                 .userId(subscription.getUserId().getValue())
                 .subscriptionStatus(subscription.getSubscriptionStatus())
                 .mealSelectionResponseDtos(mapMealSelectionsToMealSelectionDtos(subscription.getMealSelections()))
+                .providedUserId(subscription.getProvidedUserId().getValue())
                 .build();
     }
 
@@ -45,8 +48,8 @@ public class SubscriptionDataMapper {
         return mealSelections.stream()
                 .map(mealSelection ->
                         MealSelectionResponseDto.builder()
-                                .planMealId(mealSelection.getId().planMealId().getValue())
-                                .subscriptionId(mealSelection.getId().subscriptionId().getValue())
+                                .planMealId(mealSelection.getId().getPlanMealId().getValue())
+                                .subscriptionId(mealSelection.getId().getSubscriptionId().getValue())
                                 .build())
                 .collect(Collectors.toList());
     }

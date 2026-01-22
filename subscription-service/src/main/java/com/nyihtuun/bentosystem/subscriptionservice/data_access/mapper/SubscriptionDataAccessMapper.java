@@ -60,7 +60,7 @@ public class SubscriptionDataAccessMapper {
         }
         return mealSelections.stream()
                              .map(mealSelection -> MealSelectionEntity.builder()
-                                                                      .planMealId(mealSelection.getId().planMealId().getValue())
+                                                                      .planMealId(mealSelection.getId().getPlanMealId().getValue())
                                                                       .build())
                              .collect(Collectors.toList());
     }

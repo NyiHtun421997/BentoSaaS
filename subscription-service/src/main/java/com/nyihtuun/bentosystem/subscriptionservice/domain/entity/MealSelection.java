@@ -12,8 +12,12 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode(callSuper = true)
 public class MealSelection extends BaseEntity<MealSelectionId> {
-    private MealSelection(Builder builder) {
+    MealSelection(Builder builder) {
         super.setId(new MealSelectionId(builder.subscriptionId, builder.planMealId));
+    }
+
+    void initializeMealSelection(SubscriptionId subscriptionId) {
+        super.getId().setSubscriptionId(subscriptionId);
     }
 
     public static Builder builder() {

@@ -20,4 +20,7 @@ public class SubscriptionRequestDto implements Serializable {
 
     @NotNull
     private List<@NotNull UUID> planMealIds;
+
+    @NotNull
+    private UUID providedUserId;
 }

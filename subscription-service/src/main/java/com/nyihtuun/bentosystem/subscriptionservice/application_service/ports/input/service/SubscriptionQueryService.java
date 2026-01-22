@@ -4,9 +4,10 @@ import com.nyihtuun.bentosystem.subscriptionservice.application_service.dto.Subs
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface SubscriptionQueryService {
     List<SubscriptionResponseDto> getMySubscriptions(UUID userId, LocalDate since);
-    SubscriptionResponseDto getSubscriptionById(UUID subscriptionId);
+    Optional<SubscriptionResponseDto> getSubscriptionById(UUID subscriptionId);
 }

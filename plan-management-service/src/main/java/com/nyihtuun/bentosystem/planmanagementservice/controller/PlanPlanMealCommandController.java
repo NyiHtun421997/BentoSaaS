@@ -54,9 +54,9 @@ public class PlanPlanMealCommandController {
     @ApiResponse(responseCode = "200", description = "Plan updated successfully")
     public ResponseEntity<PlanResponseDto> updatePlan(@PathVariable UUID planId,
                                                       @Validated({Default.class}) @RequestBody PlanRequestDto planRequestDto) {
-        log.info("Updating plan with planId: {} : {}", planId, planRequestDto);
+        log.info("Updating plan with planId: {} with: {}", planId, planRequestDto);
         PlanResponseDto planResponseDto = planManagementCommandService.validateAndUpdatePlanInfo(new PlanId(planId), planRequestDto);
-        log.info("Plan with planId: {} updated: {}", planId, planResponseDto);
+        log.info("Plan with planId: {} is updated: {}", planId, planResponseDto);
         return ResponseEntity.ok(planResponseDto);
     }
 
@@ -75,7 +75,7 @@ public class PlanPlanMealCommandController {
     @ApiResponse(responseCode = "200", description = "Meal added successfully")
     public ResponseEntity<PlanResponseDto> addMeal(@PathVariable UUID planId,
                                                    @Valid @RequestBody PlanMealRequestDto planMealRequestDto) {
-        log.info("Adding meal with planId: {} : {}", planId, planMealRequestDto);
+        log.info("Adding meal: {} to plan with planId: {}", planMealRequestDto, planId);
         PlanResponseDto planResponseDto = planManagementCommandService.addMealToPlan(new PlanId(planId), planMealRequestDto);
         log.info("PlanMeal added to Plan with planId: {} : {}", planId, planResponseDto);
         return ResponseEntity.ok(planResponseDto);
@@ -89,7 +89,7 @@ public class PlanPlanMealCommandController {
                                                       @Valid @RequestBody PlanMealRequestDto planMealRequestDto) {
         log.info("Updating meal with planId: {} and mealId: {} : {}", planId, mealId, planMealRequestDto);
         PlanResponseDto planResponseDto = planManagementCommandService.updateMealFromPlan(new PlanId(planId), new PlanMealId(mealId), planMealRequestDto);
-        log.info("PlanMeal with id: {} updated from Plan with planId: {}: {}", mealId, planId, planResponseDto);
+        log.info("PlanMeal with id: {} from Plan with planId: {} is updated: {}", mealId, planId, planResponseDto);
         return ResponseEntity.ok(planResponseDto);
     }
 

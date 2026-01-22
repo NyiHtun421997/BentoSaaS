@@ -4,20 +4,18 @@ import com.nyihtuun.bentosystem.domain.dto.response.PlanMealResponseDto;
 import com.nyihtuun.bentosystem.domain.dto.response.PlanResponseDto;
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.dto.SubscriptionRequestDto;
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.output.client.PlanManagementServiceClient;
+import com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.output.client.PlanData;
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.output.client.PlanValidationResult;
 import com.nyihtuun.bentosystem.subscriptionservice.configuration.SubscriptionConfigData;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
-import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -35,7 +33,7 @@ public class PlanManagementServiceClientImpl implements PlanManagementServiceCli
     @Override
     @Retry(name = "plan-management-service", fallbackMethod = "fallbackValidateAndFetchLegitPlanAndPlanMeals")
     @CircuitBreaker(name = "plan-management-service", fallbackMethod = "fallbackValidateAndFetchLegitPlanAndPlanMeals")
-    public PlanValidationResult<SubscriptionRequestDto> validateAndFetchLegitPlanAndPlanMeals(SubscriptionRequestDto subscriptionRequestDto) {
+    public PlanValidationResult<PlanData> validateAndFetchExistingPlanAndPlanMeals(SubscriptionRequestDto subscriptionRequestDto) {
         log.info("Validating plan with id: {}.", subscriptionRequestDto.getPlanId());
         log.info("Fetching plan meals for plan with id: {}.", subscriptionRequestDto.getPlanId());
 
@@ -56,24 +54,18 @@ public class PlanManagementServiceClientImpl implements PlanManagementServiceCli
                                               null);
         }
 
-        Set<UUID> existingPlanMealIds = planResponseDto.getPlanMealResponseDtos().stream()
-                                                       .map(PlanMealResponseDto::getPlanMealId)
-                                                       .collect(Collectors.toSet());
+        log.info("Plan with id: {} is valid and contains the following plan meals: {}.", planResponseDto.getPlanId(), planResponseDto.getPlanMealResponseDtos());
+        List<UUID> existingPlanMealIds = planResponseDto.getPlanMealResponseDtos()
+                                         .stream()
+                                         .map(PlanMealResponseDto::getPlanMealId)
+                                         .toList();
 
-        List<@NotNull UUID> legitPlanMealIds = subscriptionRequestDto.getPlanMealIds()
-                                                                     .stream()
-                                                                     .filter(existingPlanMealIds::contains)
-                                                                     .toList();
-
-        log.info("Plan with id: {} is valid and contains legit plan meals: {}.", subscriptionRequestDto.getPlanId(), legitPlanMealIds);
         return new PlanValidationResult<>(PlanValidationResult.PlanValidationStatus.VALID_PLAN,
-                                          SubscriptionRequestDto.builder()
-                                                                .planId(planResponseDto.getPlanId())
-                                                                .planMealIds(legitPlanMealIds)
-                                                                .build());
+                                          new PlanData(planResponseDto.getPlanId(), existingPlanMealIds));
     }
 
-    PlanValidationResult<SubscriptionRequestDto> fallbackValidateAndFetchLegitPlanAndPlanMeals(SubscriptionRequestDto subscriptionRequestDto, Throwable e) {
+    PlanValidationResult<SubscriptionRequestDto> fallbackValidateAndFetchExistingPlanAndPlanMeals(SubscriptionRequestDto subscriptionRequestDto,
+                                                                                               Throwable e) {
         log.error("Plan validation failed for plan with id: {} and resolved to fallback.", subscriptionRequestDto.getPlanId(), e);
         return new PlanValidationResult<>(PlanValidationResult.PlanValidationStatus.API_FAILURE, null);
     }

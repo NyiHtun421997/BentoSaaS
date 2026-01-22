@@ -80,7 +80,7 @@ public class PlanManagementCommandServiceImpl implements PlanManagementCommandSe
     @Override
     @Transactional
     public PlanResponseDto validateAndInitiatePlan(PlanRequestDto planRequestDto, UserId userId) {
-        log.info("Validating and initiating plan for plan: {}", planRequestDto);
+        log.info("Validating and initiating plan: {}", planRequestDto);
         Plan plan = planDataMapper.mapPlanDtoToPlan(planRequestDto);
         plan.validatePlan();
         plan.initializePlan(userId);

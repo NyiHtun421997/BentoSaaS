@@ -3,5 +3,5 @@ package com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.o
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.dto.SubscriptionRequestDto;
 
 public interface PlanManagementServiceClient {
-    PlanValidationResult<SubscriptionRequestDto> validateAndFetchLegitPlanAndPlanMeals(SubscriptionRequestDto subscriptionRequestDto);
+    PlanValidationResult<PlanData> validateAndFetchExistingPlanAndPlanMeals(SubscriptionRequestDto subscriptionRequestDto);
 }

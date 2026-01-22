@@ -21,4 +21,5 @@ public class SubscriptionResponseDto implements Serializable {
     private UUID planId;
     private SubscriptionStatus subscriptionStatus;
     private List<MealSelectionResponseDto> mealSelectionResponseDtos;
+    private UUID providedUserId;
 }

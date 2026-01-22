@@ -1,15 +1,23 @@
 package com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.input.service;
 
 import com.nyihtuun.bentosystem.domain.valueobject.SubscriptionId;
+import com.nyihtuun.bentosystem.domain.valueobject.UserId;
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.dto.SubscriptionRequestDto;
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.dto.SubscriptionResponseDto;
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.output.client.PlanManagementServiceClient;
+import com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.output.client.PlanData;
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.output.client.PlanValidationResult;
 import com.nyihtuun.bentosystem.subscriptionservice.domain.exception.SubscriptionDomainException;
 import com.nyihtuun.bentosystem.subscriptionservice.domain.exception.SubscriptionErrorCode;
+import jakarta.validation.constraints.NotNull;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 public interface SubscriptionCommandService {
-    SubscriptionResponseDto validateAndInitiateSubscription(SubscriptionRequestDto subscriptionRequestDto);
+    SubscriptionResponseDto validateAndInitiateSubscription(SubscriptionRequestDto subscriptionRequestDto, UserId userId);
 
     SubscriptionResponseDto validateAndUpdateSubscription(SubscriptionId subscriptionId, SubscriptionRequestDto subscriptionRequestDto);
 
@@ -17,12 +25,23 @@ public interface SubscriptionCommandService {
 
     SubscriptionResponseDto reflectPlanChanged();
 
-    default SubscriptionRequestDto validatePlanAndPlanMeals(SubscriptionRequestDto subscriptionRequestDto) {
-        PlanValidationResult<SubscriptionRequestDto> validationResult = getPlanManagementServiceClient().validateAndFetchLegitPlanAndPlanMeals(
+    default PlanData validatePlanAndPlanMeals(SubscriptionRequestDto subscriptionRequestDto) {
+        PlanValidationResult<PlanData> validationResult = getPlanManagementServiceClient().validateAndFetchExistingPlanAndPlanMeals(
                 subscriptionRequestDto);
 
         return switch (validationResult.getPlanValidationStatus()) {
-            case VALID_PLAN -> validationResult.getDto();
+            case VALID_PLAN -> {
+                PlanData resultData = validationResult.getData();
+
+                Set<UUID> existingPlanMealIds = new HashSet<>(resultData.planMealIds());
+
+                List<@NotNull UUID> legitPlanMealIds = subscriptionRequestDto.getPlanMealIds()
+                                                                             .stream()
+                                                                             .filter(existingPlanMealIds::contains)
+                                                                             .toList();
+
+                yield new PlanData(resultData.planId(), legitPlanMealIds);
+            }
             case INVALID_PLAN -> throw new SubscriptionDomainException(SubscriptionErrorCode.INVALID_PLAN);
             case API_FAILURE -> throw new SubscriptionDomainException(SubscriptionErrorCode.VALIDATION_FAILURE);
         };

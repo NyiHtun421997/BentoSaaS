@@ -11,5 +11,5 @@ public class PlanValidationResult<T> {
     }
 
     private PlanValidationStatus planValidationStatus;
-    private T dto;
+    private T data;
 }

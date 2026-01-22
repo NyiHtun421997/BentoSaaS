@@ -10,6 +10,7 @@ import com.nyihtuun.bentosystem.subscriptionservice.application_service.dto.Subs
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.input.service.SubscriptionCommandService;
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.input.service.SubscriptionQueryService;
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.output.client.PlanManagementServiceClient;
+import com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.output.client.PlanData;
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.output.client.PlanValidationResult;
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.output.repository.SubscriptionRepository;
 import com.nyihtuun.bentosystem.subscriptionservice.domain.entity.MealSelection;
@@ -24,9 +25,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -38,6 +37,9 @@ class SubscriptionServiceApplicationTests {
 
     private static final UUID USER_ID_UUID =
             UUID.fromString("11111111-1111-1111-1111-111111111111");
+
+    private static final UUID PROVIDED_USER_ID_UUID =
+            UUID.fromString("22222222-2222-2222-2222-222222222222");
 
     private static final UUID PLAN_ID_UUID =
             UUID.fromString("33333333-3333-3333-3333-333333333333");
@@ -79,11 +81,12 @@ class SubscriptionServiceApplicationTests {
     private PlanManagementServiceClient planManagementServiceClient;
 
     private UserId userId;
+    private UserId providedUserId;
     private PlanId planId;
     private PlanMealId planMealId1;
     private PlanMealId planMealId2;
     private List<PlanMealId> planMealIds;
-    private SubscriptionRequestDto cannonSubscriptionRequestDto;
+    private PlanData cannonPlanData;
     private SubscriptionRequestDto subscriptionRequestDto;
     private SubscriptionRequestDto updateSubscriptionRequestDto;
     private SubscriptionRequestDto invalidPlanIdSubscriptionRequestDto;
@@ -98,34 +101,42 @@ class SubscriptionServiceApplicationTests {
     @BeforeEach
     void setUp() {
         userId = new UserId(USER_ID_UUID);
+        providedUserId = new UserId(PROVIDED_USER_ID_UUID);
         planId = new PlanId(PLAN_ID_UUID);
         planMealId1 = new PlanMealId(PLAN_MEAL_ID_UUID1);
         planMealId2 = new PlanMealId(PLAN_MEAL_ID_UUID2);
 
 
-        cannonSubscriptionRequestDto = SubscriptionRequestDto.builder()
-                                                            .planId(PLAN_ID_UUID)
-                                                            .planMealIds(List.of(PLAN_MEAL_ID_UUID1, PLAN_MEAL_ID_UUID2, PLAN_MEAL_ID_UUID3, PLAN_MEAL_ID_UUID4))
-                                                            .build();
+        cannonPlanData = new PlanData(PLAN_ID_UUID,
+                                      List.of(PLAN_MEAL_ID_UUID1,
+                                              PLAN_MEAL_ID_UUID2,
+                                              PLAN_MEAL_ID_UUID3,
+                                              PLAN_MEAL_ID_UUID4));
 
         subscriptionRequestDto = SubscriptionRequestDto.builder()
                                                        .planId(PLAN_ID_UUID)
                                                        .planMealIds(List.of(PLAN_MEAL_ID_UUID1, PLAN_MEAL_ID_UUID2))
+                                                       .providedUserId(PROVIDED_USER_ID_UUID)
                                                        .build();
 
         updateSubscriptionRequestDto = SubscriptionRequestDto.builder()
-                                                       .planId(PLAN_ID_UUID)
-                                                       .planMealIds(List.of(PLAN_MEAL_ID_UUID1, PLAN_MEAL_ID_UUID3, PLAN_MEAL_ID_UUID4))
-                                                       .build();
+                                                             .planId(PLAN_ID_UUID)
+                                                             .planMealIds(List.of(PLAN_MEAL_ID_UUID1,
+                                                                                  PLAN_MEAL_ID_UUID3,
+                                                                                  PLAN_MEAL_ID_UUID4))
+                                                             .providedUserId(PROVIDED_USER_ID_UUID)
+                                                             .build();
 
         invalidPlanIdSubscriptionRequestDto = SubscriptionRequestDto.builder()
                                                                     .planId(INVALID_PLAN_ID_UUID)
                                                                     .planMealIds(List.of(PLAN_MEAL_ID_UUID1, PLAN_MEAL_ID_UUID2))
+                                                                    .providedUserId(PROVIDED_USER_ID_UUID)
                                                                     .build();
 
         apiFailureSubscriptionRequestDto = SubscriptionRequestDto.builder()
                                                                  .planId(API_FAILURE_PLAN_ID_UUID)
                                                                  .planMealIds(List.of(PLAN_MEAL_ID_UUID1, PLAN_MEAL_ID_UUID2))
+                                                                 .providedUserId(PROVIDED_USER_ID_UUID)
                                                                  .build();
 
         subscriptionId = new SubscriptionId(SUBSCRIPTION_ID_UUID);
@@ -141,7 +152,7 @@ class SubscriptionServiceApplicationTests {
                                            .planMealId(planMealId2)
                                            .build();
 
-        dummyMealSelections = List.of(dummyMealSelection1, dummyMealSelection2);
+        dummyMealSelections = new ArrayList<>(Arrays.asList(dummyMealSelection1, dummyMealSelection2));
 
         dummySubscription = Subscription.builder()
                                         .subscriptionId(subscriptionId)
@@ -149,25 +160,26 @@ class SubscriptionServiceApplicationTests {
                                         .userId(userId)
                                         .subscriptionStatus(SubscriptionStatus.APPLIED)
                                         .mealSelections(dummyMealSelections)
+                                        .providedUserId(providedUserId)
                                         .build();
 
-        when(planManagementServiceClient.validateAndFetchLegitPlanAndPlanMeals(subscriptionRequestDto))
+        when(planManagementServiceClient.validateAndFetchExistingPlanAndPlanMeals(subscriptionRequestDto))
                 .thenAnswer(invocation -> new PlanValidationResult<>(PlanValidationResult.PlanValidationStatus.VALID_PLAN,
-                                                                     cannonSubscriptionRequestDto));
+                                                                     cannonPlanData));
 
-        when(planManagementServiceClient.validateAndFetchLegitPlanAndPlanMeals(updateSubscriptionRequestDto))
+        when(planManagementServiceClient.validateAndFetchExistingPlanAndPlanMeals(updateSubscriptionRequestDto))
                 .thenAnswer(invocation -> new PlanValidationResult<>(PlanValidationResult.PlanValidationStatus.VALID_PLAN,
-                                                                     cannonSubscriptionRequestDto));
+                                                                     cannonPlanData));
 
-        when(planManagementServiceClient.validateAndFetchLegitPlanAndPlanMeals(invalidPlanIdSubscriptionRequestDto))
+        when(planManagementServiceClient.validateAndFetchExistingPlanAndPlanMeals(invalidPlanIdSubscriptionRequestDto))
                 .thenAnswer(invocation -> new PlanValidationResult<>(PlanValidationResult.PlanValidationStatus.INVALID_PLAN,
                                                                      null));
 
-        when(planManagementServiceClient.validateAndFetchLegitPlanAndPlanMeals(apiFailureSubscriptionRequestDto))
+        when(planManagementServiceClient.validateAndFetchExistingPlanAndPlanMeals(apiFailureSubscriptionRequestDto))
                 .thenAnswer(invocationOnMock -> new PlanValidationResult<>(PlanValidationResult.PlanValidationStatus.API_FAILURE,
                                                                            null));
 
-        when(subscriptionRepository.save(any(Subscription.class)))
+        when(subscriptionRepository.save(any(Subscription.class), anyBoolean()))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         when(subscriptionRepository.findBySubscriptionId(SUBSCRIPTION_ID_UUID))
@@ -176,20 +188,21 @@ class SubscriptionServiceApplicationTests {
         when(subscriptionRepository.findAllSubscriptionsByUserIdAndDate(any(UUID.class), any(LocalDate.class)))
                 .thenAnswer(invocation -> List.of(dummySubscription));
 
-        when(subscriptionRepository.findBySubscriptionId(any(UUID.class)))
-                .thenAnswer(invocation -> Optional.ofNullable(dummySubscription));
+        when(subscriptionRepository.findBySubscriptionId(INVALID_SUBSCRIPTION_ID_UUID))
+                .thenAnswer(invocation -> Optional.empty());
     }
 
     @Test
     void testValidateAndInitiateSubscription() {
         SubscriptionResponseDto subscriptionResponseDto = subscriptionCommandService.validateAndInitiateSubscription(
-                subscriptionRequestDto);
+                subscriptionRequestDto, userId);
 
         assertNotNull(subscriptionResponseDto);
         assertNotNull(subscriptionResponseDto.getSubscriptionId());
 
         assertEquals(PLAN_ID_UUID, subscriptionResponseDto.getPlanId());
         assertEquals(USER_ID_UUID, subscriptionResponseDto.getUserId());
+        assertEquals(PROVIDED_USER_ID_UUID, subscriptionResponseDto.getProvidedUserId());
         assertEquals(SubscriptionStatus.APPLIED, subscriptionResponseDto.getSubscriptionStatus());
 
         assertEquals(2, subscriptionResponseDto.getMealSelectionResponseDtos().size());
@@ -205,24 +218,24 @@ class SubscriptionServiceApplicationTests {
     void testValidateAndInitiateSubscription_invalidPlanId_shouldThrow() {
         SubscriptionDomainException subscriptionDomainException = assertThrows(SubscriptionDomainException.class,
                                                                                () -> subscriptionCommandService.validateAndInitiateSubscription(
-                                                                                       invalidPlanIdSubscriptionRequestDto));
+                                                                                       invalidPlanIdSubscriptionRequestDto, userId));
         assertEquals(SubscriptionErrorCode.INVALID_PLAN, subscriptionDomainException.getErrorCode());
-        verify(subscriptionRepository, never()).save(any(Subscription.class));
+        verify(subscriptionRepository, never()).save(any(Subscription.class), anyBoolean());
     }
 
     @Test
     void testValidateAndInitiateSubscription_apiFailure_shouldThrow() {
         SubscriptionDomainException subscriptionDomainException = assertThrows(SubscriptionDomainException.class,
                                                                                () -> subscriptionCommandService.validateAndInitiateSubscription(
-                                                                                       apiFailureSubscriptionRequestDto));
+                                                                                       apiFailureSubscriptionRequestDto, userId));
         assertEquals(SubscriptionErrorCode.VALIDATION_FAILURE, subscriptionDomainException.getErrorCode());
-        verify(subscriptionRepository, never()).save(any(Subscription.class));
+        verify(subscriptionRepository, never()).save(any(Subscription.class), anyBoolean());
     }
 
     @Test
     void testValidateAndUpdateSubscription() {
         SubscriptionResponseDto subscriptionResponseDto = subscriptionCommandService.validateAndUpdateSubscription(subscriptionId,
-                                                                                                                   subscriptionRequestDto);
+                                                                                                                   updateSubscriptionRequestDto);
 
         assertNotNull(subscriptionResponseDto);
         assertNotNull(subscriptionResponseDto.getSubscriptionId());
@@ -245,27 +258,31 @@ class SubscriptionServiceApplicationTests {
     @Test
     void testValidateAndUpdateSubscription_invalidPlanId_shouldThrow() {
         SubscriptionDomainException subscriptionDomainException = assertThrows(SubscriptionDomainException.class,
-                                                                               () -> subscriptionCommandService.validateAndUpdateSubscription(subscriptionId,
+                                                                               () -> subscriptionCommandService.validateAndUpdateSubscription(
+                                                                                       subscriptionId,
                                                                                        invalidPlanIdSubscriptionRequestDto));
         assertEquals(SubscriptionErrorCode.INVALID_PLAN, subscriptionDomainException.getErrorCode());
-        verify(subscriptionRepository, never()).save(any(Subscription.class));
+        verify(subscriptionRepository, never()).save(any(Subscription.class), anyBoolean());
     }
 
     @Test
     void testValidateAndUpdateSubscription_apiFailure_shouldThrow() {
         SubscriptionDomainException subscriptionDomainException = assertThrows(SubscriptionDomainException.class,
-                                                                               () -> subscriptionCommandService.validateAndUpdateSubscription(subscriptionId,
+                                                                               () -> subscriptionCommandService.validateAndUpdateSubscription(
+                                                                                       subscriptionId,
                                                                                        apiFailureSubscriptionRequestDto));
         assertEquals(SubscriptionErrorCode.VALIDATION_FAILURE, subscriptionDomainException.getErrorCode());
-        verify(subscriptionRepository, never()).save(any(Subscription.class));
+        verify(subscriptionRepository, never()).save(any(Subscription.class), anyBoolean());
     }
+
     @Test
     void testValidateAndUpdateSubscription_invalidSubscription_shouldThrow() {
         SubscriptionDomainException subscriptionDomainException = assertThrows(SubscriptionDomainException.class,
-                                                                               () -> subscriptionCommandService.validateAndUpdateSubscription(invalidSubscriptionId,
-                                                                                                                                              invalidPlanIdSubscriptionRequestDto));
+                                                                               () -> subscriptionCommandService.validateAndUpdateSubscription(
+                                                                                       invalidSubscriptionId,
+                                                                                       invalidPlanIdSubscriptionRequestDto));
         assertEquals(SubscriptionErrorCode.INVALID_SUBSCRIPTION_ID, subscriptionDomainException.getErrorCode());
-        verify(subscriptionRepository, never()).save(any(Subscription.class));
+        verify(subscriptionRepository, never()).save(any(Subscription.class), anyBoolean());
     }
 
 
@@ -279,9 +296,10 @@ class SubscriptionServiceApplicationTests {
     @Test
     void testCancelSubscription_invalidSubscription_shouldThrow() {
         SubscriptionDomainException subscriptionDomainException = assertThrows(SubscriptionDomainException.class,
-                                                                               () -> subscriptionCommandService.cancelSubscription(invalidSubscriptionId));
+                                                                               () -> subscriptionCommandService.cancelSubscription(
+                                                                                       invalidSubscriptionId));
         assertEquals(SubscriptionErrorCode.INVALID_SUBSCRIPTION_ID, subscriptionDomainException.getErrorCode());
-        verify(subscriptionRepository, never()).save(any(Subscription.class));
+        verify(subscriptionRepository, never()).save(any(Subscription.class), anyBoolean());
     }
 
     @Test
@@ -309,7 +327,7 @@ class SubscriptionServiceApplicationTests {
 
     @Test
     void testGetSubscriptionById() {
-        SubscriptionResponseDto subscription = subscriptionQueryService.getSubscriptionById(SUBSCRIPTION_ID_UUID);
+        SubscriptionResponseDto subscription = subscriptionQueryService.getSubscriptionById(SUBSCRIPTION_ID_UUID).get();
 
         assertEquals(SUBSCRIPTION_ID_UUID, subscription.getSubscriptionId());
         assertEquals(PLAN_ID_UUID, subscription.getPlanId());
