@@ -12,6 +12,8 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
+@EqualsAndHashCode
 @Table(name = "plan_meal", schema = "planmanagement")
 @Entity
 public class PlanMealEntity {

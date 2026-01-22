@@ -1,13 +1,12 @@
 package com.nyihtuun.bentosystem.planmanagementservice;
 
 import com.nyihtuun.bentosystem.domain.valueobject.*;
-import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.AddressDto;
-import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.CategoryDto;
+import com.nyihtuun.bentosystem.domain.dto.AddressDto;
+import com.nyihtuun.bentosystem.domain.dto.CategoryDto;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.request.PlanMealRequestDto;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.request.PlanRequestDto;
-import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.response.PlanMealResponseDto;
-import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.response.PlanResponseDto;
-import com.nyihtuun.bentosystem.planmanagementservice.application_service.mapper.PlanDataMapper;
+import com.nyihtuun.bentosystem.domain.dto.response.PlanMealResponseDto;
+import com.nyihtuun.bentosystem.domain.dto.response.PlanResponseDto;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.input.service.BusinessCalendarService;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.input.service.PlanManagementCommandService;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.input.service.PlanManagementQueryService;
@@ -74,9 +73,6 @@ public class PlanManagementServiceTest {
 
     @Autowired
     private PlanManagementQueryService planManagementQueryService;
-
-    @Autowired
-    private PlanDataMapper planDataMapper;
 
     @MockitoBean
     private PlanManagementRepository planManagementRepository;
@@ -361,6 +357,8 @@ public class PlanManagementServiceTest {
         when(planManagementRepository.saveCategory(any(Category.class))).thenAnswer(inv -> inv.getArgument(0));
         when(businessCalendarService.getCurrentMonthBusinessPeriod(any(YearMonth.class)))
                 .thenAnswer(inv -> periodContext);
+        when(businessCalendarService.isUpdatableDate(any(LocalDate.class)))
+                .thenAnswer(inv -> true);
         when(jobRunRepository.startRun(any(String.class),any(LocalDate.class), any(LocalDate.class), any(LocalDateTime.class)))
                 .thenAnswer(inv -> JOB_RUN_ID_UUID);
 

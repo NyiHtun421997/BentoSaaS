@@ -9,6 +9,8 @@ import java.time.YearMonth;
 public interface BusinessCalendarService {
     PeriodContext getCurrentMonthBusinessPeriod(YearMonth yearMonth);
 
+    boolean isUpdatableDate(LocalDate localDate);
+
     default boolean isWeekend(LocalDate date) {
         return (date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY);
     }

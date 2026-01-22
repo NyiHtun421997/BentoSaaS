@@ -5,17 +5,23 @@ import com.nyihtuun.bentosystem.domain.valueobject.PlanMealId;
 import com.nyihtuun.bentosystem.domain.valueobject.status.SubscriptionStatus;
 import lombok.Getter;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.List;
 
+@Getter
 public class UserPlanSubscriptionEvent extends AbstractPlanEvent {
 
-    @Getter
+    private final List<PlanMealId> appliedPlanMealIds;
+    private final List<PlanMealId> unappliedPlanMealIds;
     private final SubscriptionStatus subscriptionStatus;
 
-    public UserPlanSubscriptionEvent(PlanId planId, ZonedDateTime createdAt, List<PlanMealId> planMealIds,
+    public UserPlanSubscriptionEvent(PlanId planId, Instant createdAt,
+                                     List<PlanMealId> appliedPlanMealIds,
+                                     List<PlanMealId> unappliedPlanMealIds,
                                      SubscriptionStatus subscriptionStatus) {
-        super(planId, createdAt, planMealIds);
+        super(planId, createdAt);
+        this.appliedPlanMealIds = appliedPlanMealIds;
+        this.unappliedPlanMealIds = unappliedPlanMealIds;
         this.subscriptionStatus = subscriptionStatus;
     }
 }

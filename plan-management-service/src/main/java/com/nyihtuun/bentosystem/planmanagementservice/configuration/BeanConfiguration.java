@@ -16,7 +16,6 @@ public class BeanConfiguration {
         return new PlanManagementDomainServiceImpl();
     }
 
-    // ... existing code ...
     @Bean
     public HolidayManager holidayManager() {
         // This requires the 'jollyday-jaxb' implementation on the classpath.

@@ -4,7 +4,9 @@ import com.nyihtuun.bentosystem.domain.entity.AggregateRoot;
 import com.nyihtuun.bentosystem.domain.valueobject.DeliveryScheduleId;
 import com.nyihtuun.bentosystem.domain.valueobject.PlanId;
 import com.nyihtuun.bentosystem.domain.valueobject.PlanMealId;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,6 +14,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Getter
+@ToString
+@EqualsAndHashCode(callSuper = true)
 public class DeliverySchedule extends AggregateRoot<DeliveryScheduleId> {
     private PlanId planId;
     private LocalDate periodStart;

@@ -3,7 +3,7 @@
   <groupId>com.nyihtuun.bentosystem</groupId>
   <artifactId>common</artifactId>
   <versioning>
-    <lastUpdated>20260120022222</lastUpdated>
+    <lastUpdated>20260121114854</lastUpdated>
     <snapshot>
       <localCopy>true</localCopy>
     </snapshot>
@@ -11,12 +11,12 @@
       <snapshotVersion>
         <extension>pom</extension>
         <value>1.0-SNAPSHOT</value>
-        <updated>20260120022222</updated>
+        <updated>20260121114854</updated>
       </snapshotVersion>
       <snapshotVersion>
         <extension>jar</extension>
         <value>1.0-SNAPSHOT</value>
-        <updated>20260120022222</updated>
+        <updated>20260121114854</updated>
       </snapshotVersion>
     </snapshotVersions>
   </versioning>

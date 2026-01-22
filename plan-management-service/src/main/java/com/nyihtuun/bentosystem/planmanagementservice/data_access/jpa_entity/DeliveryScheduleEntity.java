@@ -13,6 +13,8 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
+@EqualsAndHashCode
 @Table(name = "delivery_schedule", schema = "planmanagement")
 @Entity
 public class DeliveryScheduleEntity {

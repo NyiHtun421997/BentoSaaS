@@ -1,11 +1,11 @@
 package com.nyihtuun.bentosystem.planmanagementservice.application_service.mapper;
 
 import com.nyihtuun.bentosystem.domain.valueobject.*;
-import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.AddressDto;
+import com.nyihtuun.bentosystem.domain.dto.AddressDto;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.request.PlanMealRequestDto;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.request.PlanRequestDto;
-import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.response.PlanMealResponseDto;
-import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.response.PlanResponseDto;
+import com.nyihtuun.bentosystem.domain.dto.response.PlanMealResponseDto;
+import com.nyihtuun.bentosystem.domain.dto.response.PlanResponseDto;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.entity.Plan;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.entity.PlanMeal;
 import org.springframework.stereotype.Component;

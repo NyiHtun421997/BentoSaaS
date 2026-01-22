@@ -20,6 +20,8 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
+@EqualsAndHashCode
 @Table(name = "job_run", schema = "planmanagement")
 @Entity
 public class JobRunEntity {
