@@ -15,13 +15,14 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
-@EqualsAndHashCode
+@ToString(exclude = {"mealSelections"})
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "subscription", schema = "subscription")
 @Entity
 public class SubscriptionEntity {
 
     @Id
+    @EqualsAndHashCode.Include
     private UUID id;
 
     @Column(name = "user_id", nullable = false)

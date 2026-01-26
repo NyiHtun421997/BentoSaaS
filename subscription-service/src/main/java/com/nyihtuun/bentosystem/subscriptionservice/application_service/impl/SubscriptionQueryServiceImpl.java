@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -41,5 +42,14 @@ public class SubscriptionQueryServiceImpl implements SubscriptionQueryService {
     public Optional<SubscriptionResponseDto> getSubscriptionById(UUID subscriptionId) {
         return subscriptionRepository.findBySubscriptionId(subscriptionId)
                                      .map(subscriptionDataMapper::mapSubscriptionToSubscriptionDto);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SubscriptionResponseDto> getActiveSubscriptionsBefore(LocalDateTime before) {
+        return subscriptionRepository.findActiveSubscriptionsBeforeDate(before)
+                                     .stream()
+                                     .map(subscriptionDataMapper::mapSubscriptionToSubscriptionDto)
+                                     .toList();
     }
 }

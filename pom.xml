@@ -15,6 +15,7 @@
     <module>plan-management-service</module>
     <module>common</module>
     <module>subscription-service</module>
+    <module>invoice-service</module>
   </modules>
 
   <parent>

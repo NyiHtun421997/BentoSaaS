@@ -1,10 +1,14 @@
 package com.nyihtuun.bentosystem.planmanagementservice.application_service.scheduler;
 
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.input.service.PlanManagementCommandService;
+import com.nyihtuun.bentosystem.planmanagementservice.configuration.PlanManagementConfigData;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import static com.nyihtuun.bentosystem.planmanagementservice.application_service.PlanManagementConstants.PLAN_MANAGEMENT_SCHEDULER_CRON;
+import static com.nyihtuun.bentosystem.planmanagementservice.application_service.PlanManagementConstants.PLAN_MANAGEMENT_ZONE;
 
 @Slf4j
 @Component
@@ -17,7 +21,7 @@ public class DeliveryScheduleGenerationScheduler {
         this.planManagementCommandService = planManagementCommandService;
     }
 
-    @Scheduled(cron = "0 0 0 1 * ?")
+    @Scheduled(cron = PLAN_MANAGEMENT_SCHEDULER_CRON, zone = PLAN_MANAGEMENT_ZONE)
     public void process() {
         log.info("Delivery schedule generation task started.");
         planManagementCommandService.generateSchedules();

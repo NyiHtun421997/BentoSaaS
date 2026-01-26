@@ -5,6 +5,11 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: validate
+  datasource:
+    url: jdbc:postgresql://localhost:5432/bento_saas?currentSchema=planmanagement,public
+    username: postgres
+    password: admin
+    driver-class-name: org.postgresql.Driver
   sql:
     init:
       mode: always

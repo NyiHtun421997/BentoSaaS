@@ -12,13 +12,14 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
-@EqualsAndHashCode
+@ToString(exclude = {"planEntity"})
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "plan_meal", schema = "planmanagement")
 @Entity
 public class PlanMealEntity {
 
     @Id
+    @EqualsAndHashCode.Include
     private UUID id;
 
     @ManyToOne(optional = false)

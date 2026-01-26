@@ -1,7 +1,7 @@
 package com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.output.repository;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.nyihtuun.bentosystem.planmanagementservice.data_access.jpa_entity.JobRunStatus;
-import tools.jackson.databind.JsonNode;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

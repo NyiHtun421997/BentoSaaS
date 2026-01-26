@@ -1,0 +1,37 @@
+spring:
+  jpa:
+    open-in-view: false
+    show-sql: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+  datasource:
+    url: jdbc:postgresql://localhost:5432/bento_saas?currentSchema=invoice,public
+    username: postgres
+    password: admin
+    driver-class-name: org.postgresql.Driver
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:init-schema.sql
+
+logging:
+  level:
+    com.food.ordering.system: INFO
+
+invoice:
+  job-name: invoiceGeneration
+  step-name: invoiceGenerationStep
+  batch-chunk-size: 10
+  job-param-issued-at: issuedAt
+  job-param-run-id: runId
+
+plan-management:
+  service:
+    address: localhost
+    port: 9000
+
+subscription:
+  service:
+    address: localhost
+    port: 9001

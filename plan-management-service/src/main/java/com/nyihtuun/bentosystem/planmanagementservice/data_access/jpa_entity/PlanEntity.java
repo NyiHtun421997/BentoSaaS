@@ -18,13 +18,14 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
-@EqualsAndHashCode
+@ToString(exclude = {"addressEntity", "categoryEntities", "planMealEntities"})
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "plan", schema = "planmanagement")
 @Entity
 public class PlanEntity {
 
     @Id
+    @EqualsAndHashCode.Include
     private UUID id;
 
     @JdbcTypeCode(SqlTypes.CHAR)

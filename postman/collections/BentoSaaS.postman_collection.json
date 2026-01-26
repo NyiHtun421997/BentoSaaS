@@ -360,38 +360,226 @@
         }
       ],
       "id": "c9a00dfe-43ae-4adb-a4b6-2145ff674006"
+    },
+    {
+      "name": "Subscription",
+      "item": [
+        {
+          "name": "New Request",
+          "id": "10839987-e255-447a-8b66-0ee0cf309b63",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"planId\": \"10000000-0000-0000-0000-000000000001\",\n    \"planMealIds\": [\"20000000-0000-0000-0000-000000000001\", \"20000000-0000-0000-0000-000000000002\"],\n    \"providedUserId\": \"5cb6d356-d2fc-4d47-908e-4b22e10a3583\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}{{subscription_sub_path}}{{api_version}}",
+              "host": [
+                "{{base_url}}{{subscription_sub_path}}{{api_version}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "New Request",
+          "id": "8693a9f8-9e16-4a61-ba8c-44a9f17fee97",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{subscription_sub_path}}{{api_version}}/0310e822-51e3-4070-b0a1-52626948c5e4",
+              "host": [
+                "{{base_url}}{{subscription_sub_path}}{{api_version}}"
+              ],
+              "path": [
+                "0310e822-51e3-4070-b0a1-52626948c5e4"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "New Request",
+          "id": "b835e6c6-7f3c-4cb8-bf6f-53c8d34b85ec",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{subscription_sub_path}}{{api_version}}/byuseridanddate?userId=82a94f21-db77-4737-a006-db74d133b990&since=2026-01-01",
+              "host": [
+                "{{base_url}}{{subscription_sub_path}}{{api_version}}"
+              ],
+              "path": [
+                "byuseridanddate"
+              ],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "82a94f21-db77-4737-a006-db74d133b990",
+                  "uuid": "80bc42b2-9a39-42f0-9d3a-fb3149f9ed33"
+                },
+                {
+                  "key": "since",
+                  "value": "2026-01-01",
+                  "uuid": "abe094ce-9a5b-4053-a513-6c6c2880724b"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "New Request",
+          "id": "ee648519-6847-4aa7-b244-4a7edc2d6604",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"planId\": \"10000000-0000-0000-0000-000000000001\",\n    \"planMealIds\": [\"20000000-0000-0000-0000-000000000001\", \"20000000-0000-0000-0000-000000000003\"],\n    \"providedUserId\": \"5cb6d356-d2fc-4d47-908e-4b22e10a3583\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}{{subscription_sub_path}}{{api_version}}/3d2f7123-b4c0-400c-93fd-f5cb3273ac4c",
+              "host": [
+                "{{base_url}}{{subscription_sub_path}}{{api_version}}"
+              ],
+              "path": [
+                "3d2f7123-b4c0-400c-93fd-f5cb3273ac4c"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "New Request",
+          "id": "451c435e-5f24-448d-9125-defbcb600017",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{subscription_sub_path}}{{api_version}}/3d2f7123-b4c0-400c-93fd-f5cb3273ac4c",
+              "host": [
+                "{{base_url}}{{subscription_sub_path}}{{api_version}}"
+              ],
+              "path": [
+                "3d2f7123-b4c0-400c-93fd-f5cb3273ac4c"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "fb03ec4e-f682-40e2-83ba-afa087f6f0db"
+    },
+    {
+      "name": "Inventory",
+      "item": [
+        {
+          "name": "New Request",
+          "id": "bc5a7bc9-e24b-4d67-b418-90943b38cb63",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{inventoryp_sub_path}}{{api_version}}/byuseridanddate?userId=3e03ba02-249d-441a-b788-b374552197e3&date=2026-01-01",
+              "host": [
+                "{{base_url}}{{inventoryp_sub_path}}{{api_version}}"
+              ],
+              "path": [
+                "byuseridanddate"
+              ],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "3e03ba02-249d-441a-b788-b374552197e3",
+                  "uuid": "6437cab9-f962-42ba-ac3b-dfb87775ca52"
+                },
+                {
+                  "key": "date",
+                  "value": "2026-01-01",
+                  "uuid": "a0ec5a89-368f-4784-9d74-8d4cb7877235"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "New Request",
+          "id": "40a76441-43b4-4ebf-9b28-601ba7d75560",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{inventoryp_sub_path}}{{api_version}}/ad14c6b9-1d08-4178-af23-c01dba98a2c4",
+              "host": [
+                "{{base_url}}{{inventoryp_sub_path}}{{api_version}}"
+              ],
+              "path": [
+                "ad14c6b9-1d08-4178-af23-c01dba98a2c4"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "ca778fbe-912b-45fd-bc9e-943cf28b6186"
     }
   ],
   "variable": [
     {
-      "id": "6d877367-7e5a-427a-baed-5c95716a89dc",
+      "id": "c8cd39fe-e369-4a04-9803-df4b366ef235",
       "key": "base_url",
       "value": ""
     },
     {
-      "id": "5d740cf5-3489-432c-bc11-16ebc9a9345b",
+      "id": "008e420f-1695-4f86-ad44-591ad6e489de",
       "key": "plan_management_sub_path",
       "value": ""
     },
     {
-      "id": "8b5b8998-4904-4710-b3c8-868531bbfa92",
+      "id": "1d7a5c80-ff97-4e67-9a03-d85f8e6a123c",
       "key": "api_version",
       "value": ""
     },
     {
-      "id": "fd1021ee-9b55-41af-8ba0-57b71b97ea1f",
+      "id": "7c276cdf-c0c5-4da6-8206-9c3ea335e705",
       "key": "plan",
       "value": ""
     },
     {
-      "id": "67d355bb-35df-4761-876c-02ec6177270e",
+      "id": "d66f3e53-d6e3-4c7d-aaa5-9568bf504d67",
       "key": "provider_plan",
       "value": ""
     },
     {
-      "id": "dea7029d-40ca-44a0-9035-562de2c618d9",
+      "id": "313e350f-a1c9-4508-b7af-e4856870a8f0",
       "key": "meal",
       "value": ""
+    },
+    {
+      "id": "6fddf895-9ce7-4e01-b239-35f57f088014",
+      "key": "subscription_sub_path",
+      "value": ""
+    },
+    {
+      "id": "b9d3d835-e9d1-4358-a93e-ea6e2894a8be",
+      "key": "inventoryp_sub_path",
+      "value": "",
+      "type": "default"
     }
   ]
 }

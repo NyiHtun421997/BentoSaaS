@@ -57,6 +57,7 @@ public class SubscriptionCommandServiceImpl implements SubscriptionCommandServic
     }
 
     @Override
+    @Transactional
     public SubscriptionResponseDto validateAndUpdateSubscription(SubscriptionId subscriptionId,
                                                                  SubscriptionRequestDto subscriptionRequestDto) {
         log.info("Validating and updating subscription with id: {} with new data: {}.", subscriptionId, subscriptionRequestDto);
@@ -72,6 +73,7 @@ public class SubscriptionCommandServiceImpl implements SubscriptionCommandServic
     }
 
     @Override
+    @Transactional
     public SubscriptionResponseDto cancelSubscription(SubscriptionId subscriptionId) {
         log.info("Cancelling subscription with id: {}", subscriptionId);
         Subscription subscription = subscriptionRepository.findBySubscriptionId(subscriptionId.getValue())
@@ -95,6 +97,7 @@ public class SubscriptionCommandServiceImpl implements SubscriptionCommandServic
     }
 
     @Override
+    @Transactional
     public SubscriptionResponseDto reflectPlanChanged() {
         return null;
     }

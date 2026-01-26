@@ -4,7 +4,6 @@ import com.nyihtuun.bentosystem.domain.entity.BaseEntity;
 import com.nyihtuun.bentosystem.domain.valueobject.*;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.exception.PlanManagementDomainException;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.exception.PlanManagementErrorCode;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -14,7 +13,6 @@ import java.util.UUID;
 
 @Getter
 @ToString
-@EqualsAndHashCode(callSuper = true)
 public class PlanMeal extends BaseEntity<PlanMealId> {
     private PlanId planId;
     private String name;

@@ -4,6 +4,7 @@ import com.nyihtuun.bentosystem.domain.dto.AbstractPlanDto;
 import com.nyihtuun.bentosystem.domain.valueobject.status.PlanStatus;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
@@ -13,6 +14,7 @@ import java.util.UUID;
 
 @Getter
 @SuperBuilder
+@NoArgsConstructor
 @ToString
 @EqualsAndHashCode(callSuper = true)
 public class PlanResponseDto extends AbstractPlanDto implements Serializable {

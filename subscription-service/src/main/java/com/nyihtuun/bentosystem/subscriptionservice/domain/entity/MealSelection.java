@@ -4,13 +4,11 @@ import com.nyihtuun.bentosystem.domain.entity.BaseEntity;
 import com.nyihtuun.bentosystem.domain.valueobject.MealSelectionId;
 import com.nyihtuun.bentosystem.domain.valueobject.PlanMealId;
 import com.nyihtuun.bentosystem.domain.valueobject.SubscriptionId;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
 @Getter
 @ToString
-@EqualsAndHashCode(callSuper = true)
 public class MealSelection extends BaseEntity<MealSelectionId> {
     MealSelection(Builder builder) {
         super.setId(new MealSelectionId(builder.subscriptionId, builder.planMealId));

@@ -1,5 +1,6 @@
 package com.nyihtuun.bentosystem.planmanagementservice.data_access.jpa_repository;
 
+import com.nyihtuun.bentosystem.domain.valueobject.status.PlanStatus;
 import com.nyihtuun.bentosystem.planmanagementservice.data_access.jpa_entity.PlanEntity;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,7 +23,8 @@ public interface PlanJpaRepository extends JpaRepository<PlanEntity, UUID> {
     List<PlanEntity> findPlanEntityByCategoryId(@Param("categoryId") UUID categoryId);
 
     List<PlanEntity> findPlanEntitiesByDeleteFlagFalseAndCreatedAtBetween(LocalDateTime from, LocalDateTime to, Pageable pageable);
-    List<PlanEntity> findPlanEntitiesByDeleteFlagFalseAndCreatedAtBetween(LocalDateTime from, LocalDateTime to);
+    List<PlanEntity> findPlanEntitiesByDeleteFlagFalseAndCreatedAtBetweenAndPlanStatus(LocalDateTime from, LocalDateTime to,
+                                                                                       PlanStatus planStatus);
     List<PlanEntity> findPlanEntitiesByUserId(UUID userId);
 
     @NativeQuery(

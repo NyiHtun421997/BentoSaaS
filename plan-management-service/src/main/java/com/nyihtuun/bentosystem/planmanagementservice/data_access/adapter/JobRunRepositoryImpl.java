@@ -1,20 +1,22 @@
 package com.nyihtuun.bentosystem.planmanagementservice.data_access.adapter;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.output.repository.JobRunRepository;
 import com.nyihtuun.bentosystem.planmanagementservice.data_access.jpa_entity.JobRunEntity;
 import com.nyihtuun.bentosystem.planmanagementservice.data_access.jpa_entity.JobRunStatus;
 import com.nyihtuun.bentosystem.planmanagementservice.data_access.jpa_repository.JobRunJpaRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.node.ArrayNode;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Slf4j
 @Component
 public class JobRunRepositoryImpl implements JobRunRepository {
 
@@ -45,7 +47,9 @@ public class JobRunRepositoryImpl implements JobRunRepository {
                                                 .failureCount(0)
                                                 .results(emptyArrayNode)
                                                 .build();
+        log.info("[StartRun] : Saving job_run: {}", jobRunEntity);
         jobRunJpaRepository.save(jobRunEntity);
+        log.info("[StartRun] : Saved job_run: {}", jobRunEntity);
         return id;
     }
 
@@ -78,6 +82,8 @@ public class JobRunRepositoryImpl implements JobRunRepository {
                                            .error(error)
                                            .finishedAt(finishedAt)
                                            .build();
+        log.info("[FinishRun] : Updating job_run: {}", updated);
         jobRunJpaRepository.save(updated);
+        log.info("[FinishRun] : Updated job_run: {}", updated);
     }
 }

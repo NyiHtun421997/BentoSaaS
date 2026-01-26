@@ -31,8 +31,8 @@ public class PlanManagementServiceClientImpl implements PlanManagementServiceCli
     }
 
     @Override
-    @Retry(name = "plan-management-service", fallbackMethod = "fallbackValidateAndFetchLegitPlanAndPlanMeals")
-    @CircuitBreaker(name = "plan-management-service", fallbackMethod = "fallbackValidateAndFetchLegitPlanAndPlanMeals")
+    @Retry(name = "plan-management-service", fallbackMethod = "fallbackValidateAndFetchExistingPlanAndPlanMeals")
+    @CircuitBreaker(name = "plan-management-service", fallbackMethod = "fallbackValidateAndFetchExistingPlanAndPlanMeals")
     public PlanValidationResult<PlanData> validateAndFetchExistingPlanAndPlanMeals(SubscriptionRequestDto subscriptionRequestDto) {
         log.info("Validating plan with id: {}.", subscriptionRequestDto.getPlanId());
         log.info("Fetching plan meals for plan with id: {}.", subscriptionRequestDto.getPlanId());
@@ -64,9 +64,9 @@ public class PlanManagementServiceClientImpl implements PlanManagementServiceCli
                                           new PlanData(planResponseDto.getPlanId(), existingPlanMealIds));
     }
 
-    PlanValidationResult<SubscriptionRequestDto> fallbackValidateAndFetchExistingPlanAndPlanMeals(SubscriptionRequestDto subscriptionRequestDto,
+    PlanValidationResult<PlanData> fallbackValidateAndFetchExistingPlanAndPlanMeals(SubscriptionRequestDto subscriptionRequestDto,
                                                                                                Throwable e) {
-        log.error("Plan validation failed for plan with id: {} and resolved to fallback.", subscriptionRequestDto.getPlanId(), e);
+        log.error("Plan validation failed for planId={} and resolved to fallback.", subscriptionRequestDto.getPlanId(), e);
         return new PlanValidationResult<>(PlanValidationResult.PlanValidationStatus.API_FAILURE, null);
     }
 }

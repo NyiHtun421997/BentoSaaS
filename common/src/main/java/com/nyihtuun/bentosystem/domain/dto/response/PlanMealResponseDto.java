@@ -3,6 +3,7 @@ package com.nyihtuun.bentosystem.domain.dto.response;
 import com.nyihtuun.bentosystem.domain.dto.AbstractPlanMealDto;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
@@ -11,6 +12,7 @@ import java.util.UUID;
 
 @Getter
 @SuperBuilder
+@NoArgsConstructor
 @ToString
 @EqualsAndHashCode(callSuper = true)
 public class PlanMealResponseDto extends AbstractPlanMealDto implements Serializable {

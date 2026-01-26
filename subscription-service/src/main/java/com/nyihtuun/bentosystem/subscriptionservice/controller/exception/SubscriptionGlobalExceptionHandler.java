@@ -13,8 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.nyihtuun.bentosystem.domain.utility.MessageUtil.PLAN_ERROR;
-import static com.nyihtuun.bentosystem.domain.utility.MessageUtil.toKey;
+import static com.nyihtuun.bentosystem.domain.utility.MessageUtil.*;
 
 @Slf4j
 @RestControllerAdvice
@@ -33,7 +32,7 @@ public class SubscriptionGlobalExceptionHandler {
                 exception.getMessage(),
                 exception
         );
-        String messageKey = PLAN_ERROR + toKey(exception.getErrorCode().name());
+        String messageKey = SUBSCRIPTION_ERROR + toKey(exception.getErrorCode().name());
         String message =
                 messageSource.getMessage(messageKey, null, LocaleContextHolder.getLocale());
         return ResponseEntity.badRequest().body(message);

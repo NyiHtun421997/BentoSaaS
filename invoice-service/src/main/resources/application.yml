@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: invoice-service
+  messages:
+    basename: messages
+  batch:
+    job:
+      enabled: false
+
+server:
+  port: 4002
+  servlet:
+    context-path: /invoice
+
+invoice:
+  scheduler-cron: "0 0 0 25 * ?"
+  zone: Asia/Tokyo

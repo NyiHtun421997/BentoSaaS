@@ -1,6 +1,7 @@
 package com.nyihtuun.bentosystem.planmanagementservice.data_access.adapter;
 
 import com.nyihtuun.bentosystem.domain.valueobject.CategoryId;
+import com.nyihtuun.bentosystem.domain.valueobject.status.PlanStatus;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.output.repository.PlanManagementRepository;
 import com.nyihtuun.bentosystem.planmanagementservice.data_access.jpa_entity.CategoryEntity;
 import com.nyihtuun.bentosystem.planmanagementservice.data_access.jpa_entity.DeliveryScheduleEntity;
@@ -81,10 +82,11 @@ public class PlanManagementRepositoryImpl implements PlanManagementRepository {
 
     @Override
     public List<Plan> findActivePlansBetweenDates(LocalDate start, LocalDate end) {
-        return planJpaRepository.findPlanEntitiesByDeleteFlagFalseAndCreatedAtBetween(start.atStartOfDay(),
-                                                                                      end.atStartOfDay())
+        return planJpaRepository.findPlanEntitiesByDeleteFlagFalseAndCreatedAtBetweenAndPlanStatus(start.atStartOfDay(),
+                                                                                                   end.atStartOfDay(),
+                                                                                                   PlanStatus.ACTIVE)
                                 .stream()
-                                .map(planEntity -> mapper.planEntityToPlan(planEntity, false))
+                                .map(planEntity -> mapper.planEntityToPlan(planEntity, true))
                                 .toList();
     }
 

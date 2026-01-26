@@ -4,7 +4,6 @@ import com.nyihtuun.bentosystem.domain.entity.BaseEntity;
 import com.nyihtuun.bentosystem.domain.valueobject.DeliveryScheduleDetailId;
 import com.nyihtuun.bentosystem.domain.valueobject.DeliveryScheduleId;
 import com.nyihtuun.bentosystem.domain.valueobject.PlanMealId;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -12,7 +11,6 @@ import java.time.LocalDate;
 
 @Getter
 @ToString
-@EqualsAndHashCode(callSuper = true)
 public class DeliveryScheduleDetail extends BaseEntity<DeliveryScheduleDetailId> {
     private DeliveryScheduleId deliveryScheduleId;
     private PlanMealId planMealId;

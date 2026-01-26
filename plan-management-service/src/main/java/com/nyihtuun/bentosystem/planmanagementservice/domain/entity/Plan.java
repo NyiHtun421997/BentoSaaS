@@ -5,7 +5,6 @@ import com.nyihtuun.bentosystem.planmanagementservice.domain.exception.PlanManag
 import com.nyihtuun.bentosystem.planmanagementservice.domain.exception.PlanManagementErrorCode;
 import com.nyihtuun.bentosystem.domain.valueobject.status.PlanStatus;
 import com.nyihtuun.bentosystem.domain.valueobject.*;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -17,7 +16,6 @@ import java.util.*;
 
 @Getter
 @ToString
-@EqualsAndHashCode(callSuper = true)
 public class Plan extends AggregateRoot<PlanId> {
     private static final int MAX_SKIPDAYS = 2;
 

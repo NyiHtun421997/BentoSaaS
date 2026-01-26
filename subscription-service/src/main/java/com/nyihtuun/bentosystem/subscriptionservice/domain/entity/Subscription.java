@@ -5,7 +5,6 @@ import com.nyihtuun.bentosystem.domain.valueobject.*;
 import com.nyihtuun.bentosystem.domain.valueobject.status.SubscriptionStatus;
 import com.nyihtuun.bentosystem.subscriptionservice.domain.exception.SubscriptionDomainException;
 import com.nyihtuun.bentosystem.subscriptionservice.domain.exception.SubscriptionErrorCode;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -17,7 +16,6 @@ import java.util.UUID;
 
 @Getter
 @ToString
-@EqualsAndHashCode(callSuper = true)
 public class Subscription extends AggregateRoot<SubscriptionId> {
     private UserId userId;
     private final PlanId planId;
@@ -60,14 +58,19 @@ public class Subscription extends AggregateRoot<SubscriptionId> {
 
     public void activate() {
         this.subscriptionStatus = SubscriptionStatus.SUBSCRIBED;
+        this.updatedAt = LocalDateTime.now();
+        this.activatedAt = LocalDateTime.now();
     }
 
     public void suspend() {
         this.subscriptionStatus = SubscriptionStatus.SUSPENDED;
+        this.updatedAt = LocalDateTime.now();
     }
 
     public void cancel() {
         this.subscriptionStatus = SubscriptionStatus.CANCELLED;
+        this.updatedAt = LocalDateTime.now();
+        this.cancelledAt = LocalDateTime.now();
     }
 
     public void updateMealSelections(List<UUID> planMealIds) {
@@ -84,6 +87,7 @@ public class Subscription extends AggregateRoot<SubscriptionId> {
                                             .planMealId(new PlanMealId(planMealId))
                                             .build());
         }
+        this.updatedAt = LocalDateTime.now();
     }
 
     public static Builder builder() {

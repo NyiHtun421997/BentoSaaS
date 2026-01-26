@@ -167,14 +167,14 @@ VALUES
 -- ==========================================================
 -- job_run (5 rows)
 -- ==========================================================
-INSERT INTO "planmanagement".job_run
-(id, job_type, period_start, period_end, status, started_at, finished_at,
- total_targets, success_count, failure_count, results, error, created_at)
-VALUES
-    ('50000000-0000-0000-0000-000000000001','PLAN_STATUS_SYNC','2026-01-01','2026-01-07','SUCCESS','2026-01-08 01:00:00','2026-01-08 01:00:10',10,10,0,'[]'::jsonb,NULL,'2026-01-08 01:00:10'),
-    ('50000000-0000-0000-0000-000000000002','SCHEDULE_GEN','2026-01-08','2026-01-14','PARTIAL_SUCCESS','2026-01-15 01:10:00','2026-01-15 01:10:30',10,9,1,'[]'::jsonb,'{"message":"1 plan skipped due to validation"}'::jsonb,'2026-01-15 01:10:30'),
-    ('50000000-0000-0000-0000-000000000003','SUB_COUNT_REFRESH','2026-01-15','2026-01-21','SUCCESS','2026-01-22 02:00:00','2026-01-22 02:00:12',30,30,0,'[]'::jsonb,NULL,'2026-01-22 02:00:12'),
-    ('50000000-0000-0000-0000-000000000004','PLAN_CLEANUP','2026-01-01','2026-01-31','FAILED','2026-02-01 03:00:00','2026-02-01 03:00:05',10,0,10,'[]'::jsonb,'{"message":"DB lock timeout"}'::jsonb,'2026-02-01 03:00:05'),
-    ('50000000-0000-0000-0000-000000000005','PLAN_STATUS_SYNC','2026-01-22','2026-01-28','SUCCESS','2026-01-29 01:00:00','2026-01-29 01:00:09',10,10,0,'[]'::jsonb,NULL,'2026-01-29 01:00:09');
+-- INSERT INTO "planmanagement".job_run
+-- (id, job_type, period_start, period_end, status, started_at, finished_at,
+--  total_targets, success_count, failure_count, results, error, created_at)
+-- VALUES
+--     ('50000000-0000-0000-0000-000000000001','PLAN_STATUS_SYNC','2026-01-01','2026-01-07','SUCCESS','2026-01-08 01:00:00','2026-01-08 01:00:10',10,10,0,'[]'::jsonb,NULL,'2026-01-08 01:00:10'),
+--     ('50000000-0000-0000-0000-000000000002','SCHEDULE_GEN','2026-01-08','2026-01-14','PARTIAL_SUCCESS','2026-01-15 01:10:00','2026-01-15 01:10:30',10,9,1,'[]'::jsonb,'{"message":"1 plan skipped due to validation"}'::jsonb,'2026-01-15 01:10:30'),
+--     ('50000000-0000-0000-0000-000000000003','SUB_COUNT_REFRESH','2026-01-15','2026-01-21','SUCCESS','2026-01-22 02:00:00','2026-01-22 02:00:12',30,30,0,'[]'::jsonb,NULL,'2026-01-22 02:00:12'),
+--     ('50000000-0000-0000-0000-000000000004','PLAN_CLEANUP','2026-01-01','2026-01-31','FAILED','2026-02-01 03:00:00','2026-02-01 03:00:05',10,0,10,'[]'::jsonb,'{"message":"DB lock timeout"}'::jsonb,'2026-02-01 03:00:05'),
+--     ('50000000-0000-0000-0000-000000000005','PLAN_STATUS_SYNC','2026-01-22','2026-01-28','SUCCESS','2026-01-29 01:00:00','2026-01-29 01:00:09',10,10,0,'[]'::jsonb,NULL,'2026-01-29 01:00:09');
 
 -- Note: delivery_schedule / delivery_schedule_detail are intentionally not seeded.

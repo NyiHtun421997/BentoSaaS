@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package plan_management;
+
+option java_multiple_files = true;
+option java_package = "plan_management_grpc";
+
+service PlanManagementService {
+  rpc FetchPlanMealPrices (InvoiceRequest) returns (PlanManagementResponse);
+}
+
+message InvoiceRequest {
+  repeated string plan_ids = 1;
+}
+
+message PlanManagementResponse {
+  repeated PlanDetail plan_details = 2;
+
+  message PlanDetail {
+    string plan_id = 3;
+    repeated PlanMeal planMeals = 4;
+
+    message PlanMeal {
+      string plan_meal_id = 5;
+      string price_per_month = 6;
+    }
+  }
+}

@@ -4,18 +4,21 @@ spring:
   messages:
     basename: messages
     encoding: UTF-8
-  datasource:
-    url: jdbc:postgresql://localhost:5432/bento_saas?currentSchema=planmanagement,public
-    username: postgres
-    password: admin
-    driver-class-name: org.postgresql.Driver
   jpa:
     properties:
       hibernate:
         type:
-          json_format_mapper: jsonb
+          json_format_mapper: jackson
 
 server:
   port: 4000
   servlet:
     context-path: /plan-management
+
+grpc:
+  server:
+    port: 9000
+
+plan-management:
+  scheduler-cron: "0 0 0 1 * ?"
+  zone: Asia/Tokyo

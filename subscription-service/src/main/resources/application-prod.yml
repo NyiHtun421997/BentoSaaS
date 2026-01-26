@@ -1,0 +1,47 @@
+spring:
+  jpa:
+    open-in-view: false
+    show-sql: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+  datasource:
+    url: jdbc:postgresql://localhost:5432/bento_saas?currentSchema=subscription,public
+    username: postgres
+    password: admin
+    driver-class-name: org.postgresql.Driver
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:init-schema.sql
+
+logging:
+  level:
+    com.food.ordering.system: INFO
+
+subscription:
+  plan-management-service-url: http://localhost:4000/plan-management
+  plan-management-api: api
+  plan-management-version: v1
+  plan-management-plan-details-path: plan
+  connect-timeout-seconds: 5
+  read-timeout-seconds: 5
+
+
+resilience4j:
+  circuit breaker:
+    instances:
+      plan-management-service:
+        failureRateThreshold: 50
+        automatic-transition-from-open-to-half-open-enabled: true
+        sliding-window-type: COUNT_BASED
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 2
+
+  retry:
+    instances:
+      plan-management-service:
+        maxAttempts: 3
+        waitDuration: 300ms

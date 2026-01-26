@@ -8,6 +8,9 @@ import com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.in
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.input.service.SubscriptionQueryService;
 import com.nyihtuun.bentosystem.subscriptionservice.domain.exception.SubscriptionDomainException;
 import com.nyihtuun.bentosystem.subscriptionservice.domain.exception.SubscriptionErrorCode;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +27,7 @@ import static com.nyihtuun.bentosystem.subscriptionservice.controller.ApiPaths.V
 @Slf4j
 @RestController
 @RequestMapping(VERSION1)
+@Tag(name = "Subscription", description = "Endpoints for managing user subscriptions to bento plans.")
 public class SubscriptionController {
 
     private final SubscriptionCommandService subscriptionCommandService;
@@ -37,6 +41,8 @@ public class SubscriptionController {
     }
 
     @GetMapping(SUBSCRIPTION_ID)
+    @Operation(summary = "Get subscription details", description = "Retrieves detailed information of a subscription by ID.")
+    @ApiResponse(responseCode = "200", description = "Subscription details retrieved successfully")
     public ResponseEntity<SubscriptionResponseDto> findSubscriptionDetails(@PathVariable UUID subscriptionId) {
         log.info("Fetching subscription details by subscriptionId: {}", subscriptionId);
         return subscriptionQueryService.getSubscriptionById(subscriptionId)
@@ -51,6 +57,8 @@ public class SubscriptionController {
     }
 
     @GetMapping("byuseridanddate")
+    @Operation(summary = "Find user subscriptions", description = "Retrieves a list of subscriptions for a specific user since a given date.")
+    @ApiResponse(responseCode = "200", description = "Subscriptions retrieved successfully")
     public ResponseEntity<List<SubscriptionResponseDto>> findMySubscriptions(UUID userId, LocalDate since) {
         log.info("Fetching subscriptions by userId and date");
         List<SubscriptionResponseDto> mySubscriptions = subscriptionQueryService.getMySubscriptions(userId, since);
@@ -59,6 +67,8 @@ public class SubscriptionController {
     }
 
     @PostMapping
+    @Operation(summary = "Create a subscription", description = "Initiates a new subscription to a bento plan.")
+    @ApiResponse(responseCode = "200", description = "Subscription created successfully")
     public ResponseEntity<SubscriptionResponseDto> createSubscription(
             @Valid @RequestBody SubscriptionRequestDto subscriptionRequestDto) {
         // TODO : implement authentication and jwt related services
@@ -73,6 +83,8 @@ public class SubscriptionController {
     }
 
     @PutMapping( SUBSCRIPTION_ID)
+    @Operation(summary = "Update subscription", description = "Updates an existing subscription's meal selections or other details.")
+    @ApiResponse(responseCode = "200", description = "Subscription updated successfully")
     public ResponseEntity<SubscriptionResponseDto> updateSubscription(@PathVariable UUID subscriptionId, @Valid @RequestBody SubscriptionRequestDto subscriptionRequestDto) {
         log.info("Updating subscription with id: {} with: {}", subscriptionId, subscriptionRequestDto);
         SubscriptionResponseDto subscriptionResponseDto = subscriptionCommandService.validateAndUpdateSubscription(new SubscriptionId(
@@ -82,6 +94,8 @@ public class SubscriptionController {
     }
 
     @DeleteMapping(SUBSCRIPTION_ID)
+    @Operation(summary = "Cancel subscription", description = "Cancels an active subscription.")
+    @ApiResponse(responseCode = "200", description = "Subscription cancelled successfully")
     public ResponseEntity<?> cancelSubscription(@PathVariable UUID subscriptionId) {
         log.info("Cancelling subscription with id: {}", subscriptionId);
         subscriptionCommandService.cancelSubscription(new SubscriptionId(subscriptionId));

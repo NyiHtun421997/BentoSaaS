@@ -226,7 +226,7 @@ public class PlanManagementDataAccessMapper {
         return DeliveryScheduleDetailEntity.builder()
                                            .id(detail.getId().getValue())
                                            .deliveryScheduleEntity(parent)
-                                           .planMealEntity(planMealEntityMap.get(detail.getPlanMealId()))
+                                           .planMealEntity(planMealEntityMap.get(detail.getPlanMealId().getValue()))
                                            .deliveryDate(detail.getDeliveryDate())
                                            .build();
     }

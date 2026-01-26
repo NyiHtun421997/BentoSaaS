@@ -1,5 +1,6 @@
 package com.nyihtuun.bentosystem.subscriptionservice.data_access.jpa_repository;
 
+import com.nyihtuun.bentosystem.domain.valueobject.status.SubscriptionStatus;
 import com.nyihtuun.bentosystem.subscriptionservice.data_access.jpa_entity.SubscriptionEntity;
 import com.nyihtuun.bentosystem.subscriptionservice.domain.entity.Subscription;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,4 +14,6 @@ import java.util.UUID;
 @Repository
 public interface SubscriptionJpaRepository extends JpaRepository<SubscriptionEntity, UUID> {
     List<SubscriptionEntity> findAllByUserIdAndAppliedAtAfter(UUID userId, LocalDateTime since);
+    List<SubscriptionEntity> findAllBySubscriptionStatusAndAppliedAtBefore(SubscriptionStatus subscriptionStatus,
+                                                                           LocalDateTime appliedAt);
 }
