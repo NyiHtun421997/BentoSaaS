@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Getter
@@ -25,13 +25,13 @@ public class PlanMeal extends BaseEntity<PlanMealId> {
 
     private String imageUrl;
 
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @Setter
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
     private boolean deleteFlag;
-    private LocalDateTime deletedAt;
+    private Instant deletedAt;
 
     private PlanMeal(Builder builder) {
         super.setId(builder.planMealId);
@@ -64,26 +64,26 @@ public class PlanMeal extends BaseEntity<PlanMealId> {
         super.setId(new PlanMealId(UUID.randomUUID()));
         this.planId = planId;
         this.currentSubCount = 0;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+        this.createdAt = Instant.now();
+        this.updatedAt = Instant.now();
         this.deleteFlag = false;
     }
 
     void reflectUserSelection(boolean apply) {
         if (apply) {
             this.currentSubCount++;
-            this.updatedAt = LocalDateTime.now();
+            this.updatedAt = Instant.now();
             return;
         }
         if (this.currentSubCount > 0) {
             this.currentSubCount--;
-            this.updatedAt = LocalDateTime.now();
+            this.updatedAt = Instant.now();
         }
     }
 
     void deleteMeal() {
         this.deleteFlag = true;
-        this.deletedAt = LocalDateTime.now();
+        this.deletedAt = Instant.now();
     }
 
     void updateMeal(PlanMealUpdateCommand planMealUpdateCommand) {
@@ -93,7 +93,7 @@ public class PlanMeal extends BaseEntity<PlanMealId> {
         this.isPrimary = planMealUpdateCommand.isPrimary();
         this.minSubCount = planMealUpdateCommand.getMinSubCount();
         this.imageUrl = planMealUpdateCommand.getImageUrl();
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = Instant.now();
     }
 
     public static Builder builder() {
@@ -110,10 +110,10 @@ public class PlanMeal extends BaseEntity<PlanMealId> {
         private Threshold minSubCount;
         private int currentSubCount;
         private String imageUrl;
-        private LocalDateTime createdAt;
-        private LocalDateTime updatedAt;
+        private Instant createdAt;
+        private Instant updatedAt;
         private boolean deleteFlag;
-        private LocalDateTime deletedAt;
+        private Instant deletedAt;
 
         private Builder() {
         }
@@ -163,12 +163,12 @@ public class PlanMeal extends BaseEntity<PlanMealId> {
             return this;
         }
 
-        public Builder createdAt(LocalDateTime val) {
+        public Builder createdAt(Instant val) {
             createdAt = val;
             return this;
         }
 
-        public Builder updatedAt(LocalDateTime val) {
+        public Builder updatedAt(Instant val) {
             updatedAt = val;
             return this;
         }
@@ -178,7 +178,7 @@ public class PlanMeal extends BaseEntity<PlanMealId> {
             return this;
         }
 
-        public Builder deletedAt(LocalDateTime val) {
+        public Builder deletedAt(Instant val) {
             deletedAt = val;
             return this;
         }

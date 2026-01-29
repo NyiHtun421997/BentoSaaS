@@ -51,6 +51,8 @@ public class PlanManagementGrpcService extends PlanManagementServiceGrpc.PlanMan
     private PlanManagementResponse.PlanDetail toPlanDetail(PlanResponseDto planResponseDto) {
         List<PlanManagementResponse.PlanDetail.PlanMeal> planMeals = planResponseDto.getPlanMealResponseDtos()
                                                                                     .stream()
+                                                                                    .filter(planMealResponseDto ->
+                                                                                                    planMealResponseDto.getCurrentSubCount() >= planMealResponseDto.getMinSubCount())
                                                                                     .map(this::toPlanMeal)
                                                                                     .toList();
 

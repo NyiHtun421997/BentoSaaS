@@ -3,8 +3,8 @@ package com.nyihtuun.bentosystem.planmanagementservice.data_access.jpa_entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,7 +34,7 @@ public class DeliveryScheduleEntity {
     private LocalDate periodEnd;
 
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @OneToMany(
             mappedBy = "deliveryScheduleEntity",

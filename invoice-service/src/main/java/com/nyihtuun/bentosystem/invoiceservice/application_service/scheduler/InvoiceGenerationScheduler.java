@@ -17,8 +17,8 @@ import org.springframework.stereotype.Component;
 import java.time.YearMonth;
 import java.time.ZoneOffset;
 
-import static com.nyihtuun.bentosystem.invoiceservice.application_service.InvoiceConstants.INVOICE_SCHEDULER_CRON;
-import static com.nyihtuun.bentosystem.invoiceservice.application_service.InvoiceConstants.INVOICE_ZONE;
+import static com.nyihtuun.bentosystem.invoiceservice.InvoiceConstants.INVOICE_SCHEDULER_CRON;
+import static com.nyihtuun.bentosystem.invoiceservice.InvoiceConstants.INVOICE_ZONE;
 
 @Slf4j
 @Component

@@ -11,8 +11,8 @@ import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
@@ -44,10 +44,10 @@ public class JobRunEntity {
     private JobRunStatus status;
 
     @Column(name = "started_at", nullable = false)
-    private LocalDateTime startedAt;
+    private Instant startedAt;
 
     @Column(name = "finished_at")
-    private LocalDateTime finishedAt;
+    private Instant finishedAt;
 
     @Column(name = "total_targets", nullable = false)
     private int totalTargets;
@@ -67,6 +67,6 @@ public class JobRunEntity {
     private JsonNode error;
 
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
 }

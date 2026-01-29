@@ -6,7 +6,7 @@ import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,16 +40,16 @@ public class SubscriptionEntity {
     private SubscriptionStatus subscriptionStatus;
 
     @Column(name = "applied_at", nullable = false)
-    private LocalDateTime appliedAt;
+    private Instant appliedAt;
 
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
     @Column(name = "cancelled_at")
-    private LocalDateTime cancelledAt;
+    private Instant cancelledAt;
 
     @Column(name = "activated_at")
-    private LocalDateTime activatedAt;
+    private Instant activatedAt;
 
     @OneToMany(
             mappedBy = "subscription",

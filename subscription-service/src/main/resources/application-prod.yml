@@ -17,7 +17,7 @@ spring:
 
 logging:
   level:
-    com.food.ordering.system: INFO
+    com.nyihtuun.bentosystem.subscriptionservice: INFO
 
 subscription:
   plan-management-service-url: http://localhost:4000/plan-management

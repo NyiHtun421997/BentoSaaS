@@ -3,12 +3,13 @@ package com.nyihtuun.bentosystem.invoiceservice.application_service.batch;
 import com.nyihtuun.bentosystem.domain.valueobject.Money;
 import com.nyihtuun.bentosystem.domain.valueobject.SubscriptionId;
 import com.nyihtuun.bentosystem.domain.valueobject.UserId;
-import com.nyihtuun.bentosystem.invoiceservice.application_service.InvoiceConstants;
+import com.nyihtuun.bentosystem.invoiceservice.InvoiceConstants;
 import com.nyihtuun.bentosystem.invoiceservice.data_access.jpa_entity.InvoiceEntity;
 import com.nyihtuun.bentosystem.invoiceservice.data_access.mapper.InvoiceDataAccessMapper;
 import com.nyihtuun.bentosystem.invoiceservice.domain.entity.Invoice;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.infrastructure.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,7 @@ import java.util.UUID;
 
 @Slf4j
 @Component(InvoiceConstants.INVOICE_ITEM_PROCESSOR)
+@StepScope
 public class InvoiceItemProcessor implements ItemProcessor<SubscriptionContext, InvoiceEntity> {
 
     private final PlanMealPriceContext planMealPriceContext;

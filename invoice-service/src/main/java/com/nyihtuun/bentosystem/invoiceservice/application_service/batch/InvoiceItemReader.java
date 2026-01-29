@@ -1,11 +1,12 @@
 package com.nyihtuun.bentosystem.invoiceservice.application_service.batch;
 
-import com.nyihtuun.bentosystem.invoiceservice.application_service.InvoiceConstants;
-import com.nyihtuun.bentosystem.invoiceservice.application_service.ports.impl.grpc.PlanManagementServiceGrpcClient;
-import com.nyihtuun.bentosystem.invoiceservice.application_service.ports.impl.grpc.SubscriptionServiceGrpcClient;
+import com.nyihtuun.bentosystem.invoiceservice.InvoiceConstants;
+import com.nyihtuun.bentosystem.invoiceservice.application_service.impl.grpc.PlanManagementServiceGrpcClient;
+import com.nyihtuun.bentosystem.invoiceservice.application_service.impl.grpc.SubscriptionServiceGrpcClient;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.listener.StepExecutionListener;
 import org.springframework.batch.core.step.StepExecution;
 import org.springframework.batch.infrastructure.item.ItemReader;
@@ -16,15 +17,13 @@ import subscription_grpc.SubscriptionResponse;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Component(InvoiceConstants.INVOICE_ITEM_READER)
+@StepScope
 public class InvoiceItemReader implements ItemReader<SubscriptionContext>, StepExecutionListener {
 
     private final PlanManagementServiceGrpcClient planManagementServiceGrpcClient;
@@ -46,10 +45,10 @@ public class InvoiceItemReader implements ItemReader<SubscriptionContext>, StepE
         log.info("Fetching active subscriptions for invoice generation.");
         SubscriptionResponse subscriptionResponse = subscriptionServiceGrpcClient.fetchActiveSubscriptions(Instant.now());
 
-        List<String> planIds = subscriptionResponse.getSubscriptionsList()
-                                                   .stream()
-                                                   .map(SubscriptionResponse.Subscription::getPlanId)
-                                                   .toList();
+        Set<String> planIds = subscriptionResponse.getSubscriptionsList()
+                                                  .stream()
+                                                  .map(SubscriptionResponse.Subscription::getPlanId)
+                                                  .collect(Collectors.toSet());
 
         subscriptionContextIterator = subscriptionResponse.getSubscriptionsList()
                                                           .stream()
@@ -57,7 +56,7 @@ public class InvoiceItemReader implements ItemReader<SubscriptionContext>, StepE
                                                           .iterator();
 
         log.info("Fetching plan meal prices for invoice generation.");
-        PlanManagementResponse planManagementResponse = planManagementServiceGrpcClient.fetchPlanMealPrices(planIds);
+        PlanManagementResponse planManagementResponse = planManagementServiceGrpcClient.fetchPlanMealPrices(planIds.stream().toList());
         Map<UUID, BigDecimal> planMealPrices = planManagementResponse.getPlanDetailsList()
                                                                      .stream()
                                                                      .flatMap(planDetail -> planDetail.getPlanMealsList().stream())

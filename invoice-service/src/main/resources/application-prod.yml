@@ -17,7 +17,7 @@ spring:
 
 logging:
   level:
-    com.food.ordering.system: INFO
+    com.nyihtuun.bentosystem.invoiceservice: INFO
 
 invoice:
   job-name: invoiceGeneration

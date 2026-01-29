@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package subscription.events;
+
+import "google/protobuf/timestamp.proto";
+
+option java_multiple_files = true;
+
+enum PlanStatus {
+  PLAN_STATUS_UNSPECIFIED = 0;
+  RECRUITING = 1;
+  ACTIVE = 2;
+  SUSPENDED = 3;
+  CANCELLED = 4;
+}
+
+enum PlanMealStatus {
+  PLAN_MEAL_STATUS_UNSPECIFIED = 0;
+  MEALS_REMOVED = 1;
+  MEALS_UPDATED = 2;
+  MEALS_ADDED = 3;
+  UNCHANGED = 4;
+}
+
+enum SubscriptionStatus {
+  SUBSCRIPTION_STATUS_UNSPECIFIED = 0;
+  SUBSCRIPTION_APPLIED = 1;
+  SUBSCRIPTION_SUBSCRIBED = 2;
+  SUBSCRIPTION_CANCELLED = 3;
+  SUBSCRIPTION_SUSPENDED = 4;
+}
+
+message PlanChangedEvent {
+  string planId = 1;
+  google.protobuf.Timestamp createdAt = 2;
+  repeated string planMealIds = 3;
+  PlanStatus planStatus = 4;
+  PlanMealStatus planMealStatus = 5;
+}
+
+message UserPlanSubscriptionEvent {
+  string planId = 1;
+  repeated string appliedPlanMealIds = 2;
+  repeated string unAppliedPlanMealIds = 3;
+  google.protobuf.Timestamp createdAt = 4;
+  SubscriptionStatus subscriptionStatus = 5;
+}

@@ -1,7 +1,10 @@
 package com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.input.service;
 
+import com.nyihtuun.bentosystem.domain.valueobject.PlanId;
+import com.nyihtuun.bentosystem.domain.valueobject.PlanMealId;
 import com.nyihtuun.bentosystem.domain.valueobject.SubscriptionId;
 import com.nyihtuun.bentosystem.domain.valueobject.UserId;
+import com.nyihtuun.bentosystem.domain.valueobject.status.PlanStatus;
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.dto.SubscriptionRequestDto;
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.dto.SubscriptionResponseDto;
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.output.client.PlanManagementServiceClient;
@@ -23,7 +26,9 @@ public interface SubscriptionCommandService {
 
     SubscriptionResponseDto cancelSubscription(SubscriptionId subscriptionId);
 
-    SubscriptionResponseDto reflectPlanChanged();
+    List<SubscriptionResponseDto> reflectPlanChanged(PlanId planId, PlanStatus planStatus);
+
+    List<SubscriptionResponseDto> reflectPlanMealsRemoved(PlanId planId, List<PlanMealId> planMealIds);
 
     default PlanData validatePlanAndPlanMeals(SubscriptionRequestDto subscriptionRequestDto) {
         PlanValidationResult<PlanData> validationResult = getPlanManagementServiceClient().validateAndFetchExistingPlanAndPlanMeals(

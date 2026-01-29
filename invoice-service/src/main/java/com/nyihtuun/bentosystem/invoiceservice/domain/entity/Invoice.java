@@ -11,8 +11,8 @@ import com.nyihtuun.bentosystem.invoiceservice.domain.exception.InvoiceErrorCode
 import lombok.Getter;
 import lombok.ToString;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
@@ -23,9 +23,9 @@ public class Invoice extends AggregateRoot<InvoiceId> {
     private final UserId providedUserId;
     private InvoiceStatus invoiceStatus;
     private final Money amount;
-    private LocalDateTime issuedAt;
-    private LocalDateTime updatedAt;
-    private LocalDateTime paidAt;
+    private Instant issuedAt;
+    private Instant updatedAt;
+    private Instant paidAt;
     private LocalDate periodStart;
     private LocalDate periodEnd;
 
@@ -46,7 +46,7 @@ public class Invoice extends AggregateRoot<InvoiceId> {
     public void initializeInvoice(LocalDate periodStart, LocalDate periodEnd) {
         super.setId(new InvoiceId(UUID.randomUUID()));
         this.invoiceStatus = InvoiceStatus.ISSUED;
-        this.issuedAt = LocalDateTime.now();
+        this.issuedAt = Instant.now();
         this.periodStart = periodStart;
         this.periodEnd = periodEnd;
     }
@@ -61,20 +61,20 @@ public class Invoice extends AggregateRoot<InvoiceId> {
         validateExpireTime();
 
         this.invoiceStatus = InvoiceStatus.PAID;
-        this.paidAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+        this.paidAt = Instant.now();
+        this.updatedAt = Instant.now();
     }
 
     public void cancel() {
         validateExpireTime();
         this.invoiceStatus = InvoiceStatus.CANCELLED;
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = Instant.now();
     }
 
     public void markFailed() {
         validateExpireTime();
         this.invoiceStatus = InvoiceStatus.FAILED;
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = Instant.now();
     }
 
     private void validateExpireTime() {
@@ -93,9 +93,9 @@ public class Invoice extends AggregateRoot<InvoiceId> {
         private UserId providedUserId;
         private InvoiceStatus invoiceStatus;
         private Money amount;
-        private LocalDateTime issuedAt;
-        private LocalDateTime updatedAt;
-        private LocalDateTime paidAt;
+        private Instant issuedAt;
+        private Instant updatedAt;
+        private Instant paidAt;
         private LocalDate periodStart;
         private LocalDate periodEnd;
 
@@ -132,17 +132,17 @@ public class Invoice extends AggregateRoot<InvoiceId> {
             return this;
         }
 
-        public Builder issuedAt(LocalDateTime val) {
+        public Builder issuedAt(Instant val) {
             issuedAt = val;
             return this;
         }
 
-        public Builder updatedAt(LocalDateTime val) {
+        public Builder updatedAt(Instant val) {
             updatedAt = val;
             return this;
         }
 
-        public Builder paidAt(LocalDateTime val) {
+        public Builder paidAt(Instant val) {
             paidAt = val;
             return this;
         }

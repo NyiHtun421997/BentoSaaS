@@ -9,8 +9,8 @@ import lombok.Getter;
 import lombok.ToString;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
 
 
@@ -28,12 +28,12 @@ public class Plan extends AggregateRoot<PlanId> {
     private List<LocalDate> skipDays;
     private Address address;
     private Money displaySubscriptionFee;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Instant createdAt;
+    private Instant updatedAt;
 
     private List<PlanMeal> planMeals;
     private boolean deleteFlag;
-    private LocalDateTime deletedAt;
+    private Instant deletedAt;
 
     private Plan(Builder builder) {
         super.setId(builder.planId);
@@ -95,8 +95,8 @@ public class Plan extends AggregateRoot<PlanId> {
         super.setId(new PlanId(UUID.randomUUID()));
         this.code = Code.generate();
         this.providerUserId = userId;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+        this.createdAt = Instant.now();
+        this.updatedAt = Instant.now();
         this.planMeals.forEach(planMeal -> planMeal.initializeMeal(super.getId()));
         status = PlanStatus.RECRUITING;
     }
@@ -108,12 +108,13 @@ public class Plan extends AggregateRoot<PlanId> {
         this.skipDays = planUpdateCommand.getSkipDays();
         this.address = planUpdateCommand.getAddress();
         this.displaySubscriptionFee = planUpdateCommand.getDisplaySubscriptionFee();
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = Instant.now();
     }
 
     public void deletePlan() {
+        this.status = PlanStatus.CANCELLED;
         this.deleteFlag = true;
-        this.deletedAt = LocalDateTime.now();
+        this.deletedAt = Instant.now();
     }
 
     public void reflectMealSelection(List<PlanMealId> appliedPlanMealIds,
@@ -131,7 +132,7 @@ public class Plan extends AggregateRoot<PlanId> {
                 meal.reflectUserSelection(false);
             }
         }
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = Instant.now();
     }
 
     public void updatePlanStatus() {
@@ -151,7 +152,7 @@ public class Plan extends AggregateRoot<PlanId> {
         planMeal.initializeMeal(super.getId());
         this.planMeals.add(planMeal);
         this.displaySubscriptionFee = this.getDisplaySubscriptionFee().add(planMeal.getPricePerMonth());
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = Instant.now();
 
         validateSubscriptionFee();
     }
@@ -171,7 +172,7 @@ public class Plan extends AggregateRoot<PlanId> {
 
         planMealToRemove.deleteMeal();
         this.displaySubscriptionFee = this.getDisplaySubscriptionFee().subtract(planMealToRemove.getPricePerMonth());
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = Instant.now();
 
         validateSubscriptionFee();
         checkAtLeasOnePrimaryMeal();
@@ -185,7 +186,7 @@ public class Plan extends AggregateRoot<PlanId> {
         planMealToUpdate.updateMeal(planMealUpdateCommand);
         planMealToUpdate.validateMeal();
         this.displaySubscriptionFee = calculateDisplaySubscriptionFee();
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = Instant.now();
 
         validateSubscriptionFee();
         checkAtLeasOnePrimaryMeal();
@@ -206,11 +207,11 @@ public class Plan extends AggregateRoot<PlanId> {
         private List<LocalDate> skipDays;
         private Address address;
         private Money displaySubscriptionFee;
-        private LocalDateTime createdAt;
-        private LocalDateTime updatedAt;
+        private Instant createdAt;
+        private Instant updatedAt;
         private List<PlanMeal> planMeals;
         private boolean deleteFlag;
-        private LocalDateTime deletedAt;
+        private Instant deletedAt;
 
         private Builder() {
         }
@@ -260,12 +261,12 @@ public class Plan extends AggregateRoot<PlanId> {
             return this;
         }
 
-        public Builder createdAt(LocalDateTime val) {
+        public Builder createdAt(Instant val) {
             createdAt = val;
             return this;
         }
 
-        public Builder updatedAt(LocalDateTime val) {
+        public Builder updatedAt(Instant val) {
             updatedAt = val;
             return this;
         }
@@ -280,7 +281,7 @@ public class Plan extends AggregateRoot<PlanId> {
             return this;
         }
 
-        public Builder deletedAt(LocalDateTime val) {
+        public Builder deletedAt(Instant val) {
             deletedAt = val;
             return this;
         }

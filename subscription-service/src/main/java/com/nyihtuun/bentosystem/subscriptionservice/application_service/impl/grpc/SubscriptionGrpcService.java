@@ -8,13 +8,7 @@ import subscription_grpc.SubscriptionResponse;
 import subscription_grpc.SubscriptionServiceGrpc;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.List;
-
-import static com.nyihtuun.bentosystem.subscriptionservice.application_service.SubscriptionConstants.SUBSCRIPTION_ZONE;
-import static java.time.ZoneOffset.UTC;
 
 @Slf4j
 @GrpcService
@@ -34,9 +28,7 @@ public class SubscriptionGrpcService extends SubscriptionServiceGrpc.Subscriptio
         Instant instant = Instant.ofEpochSecond(request.getInvoicingEventTime().getSeconds(),
                                                 request.getInvoicingEventTime().getNanos());
 
-        List<SubscriptionResponseDto> activeSubscriptionsBefore = subscriptionQueryService.getActiveSubscriptionsBefore(LocalDateTime.ofInstant(
-                instant,
-                ZoneId.of(SUBSCRIPTION_ZONE)));
+        List<SubscriptionResponseDto> activeSubscriptionsBefore = subscriptionQueryService.getActiveSubscriptionsBefore(instant);
 
         log.info("Active subscriptions before: {}", activeSubscriptionsBefore);
 

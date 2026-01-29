@@ -1,10 +1,11 @@
 package com.nyihtuun.bentosystem.invoiceservice.configuration;
 
-import com.nyihtuun.bentosystem.invoiceservice.application_service.InvoiceConstants;
+import com.nyihtuun.bentosystem.invoiceservice.InvoiceConstants;
 import com.nyihtuun.bentosystem.invoiceservice.application_service.batch.BatchJobExecutionListener;
 import com.nyihtuun.bentosystem.invoiceservice.application_service.batch.SubscriptionContext;
 import com.nyihtuun.bentosystem.invoiceservice.data_access.jpa_entity.InvoiceEntity;
 import com.nyihtuun.bentosystem.invoiceservice.data_access.jpa_repository.InvoiceJpaRepository;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.Job;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
@@ -23,6 +24,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 public class BeanConfiguration {
 
     @Bean
+    @StepScope
     public RepositoryItemWriter<InvoiceEntity> invoiceItemWriter(InvoiceJpaRepository invoiceJpaRepository) {
         return new RepositoryItemWriterBuilder<InvoiceEntity>()
                 .repository(invoiceJpaRepository)

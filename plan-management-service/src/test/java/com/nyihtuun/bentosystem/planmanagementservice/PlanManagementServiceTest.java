@@ -7,10 +7,12 @@ import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.re
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.request.PlanRequestDto;
 import com.nyihtuun.bentosystem.domain.dto.response.PlanMealResponseDto;
 import com.nyihtuun.bentosystem.domain.dto.response.PlanResponseDto;
+import com.nyihtuun.bentosystem.planmanagementservice.application_service.outbox.model.PlanChangedEventOutboxMessage;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.input.service.BusinessCalendarService;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.input.service.PlanManagementCommandService;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.input.service.PlanManagementQueryService;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.output.repository.JobRunRepository;
+import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.output.repository.PlanChangedEventOutboxRepository;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.output.repository.PlanManagementRepository;
 import com.nyihtuun.bentosystem.planmanagementservice.data_access.jpa_entity.JobRunStatus;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.entity.Category;
@@ -34,6 +36,7 @@ import java.math.BigDecimal;
 import java.time.*;
 import java.util.*;
 
+import static com.nyihtuun.bentosystem.planmanagementservice.PlanManagementConstants.ASIA_TOKYO_ZONE;
 import static org.mockito.ArgumentMatchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -79,6 +82,9 @@ public class PlanManagementServiceTest {
 
     @MockitoBean
     private JobRunRepository jobRunRepository;
+
+    @MockitoBean
+    private PlanChangedEventOutboxRepository planChangedEventOutboxRepository;
 
     @MockitoBean
     private BusinessCalendarService businessCalendarService;
@@ -269,8 +275,8 @@ public class PlanManagementServiceTest {
                 .minSubCount(new Threshold(1))
                 .currentSubCount(0)
                 .imageUrl("https://example.com/standard.jpg")
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
+                .createdAt(Instant.now())
+                .updatedAt(Instant.now())
                 .build();
 
          dummyPlanMeal2 = PlanMeal.builder()
@@ -283,8 +289,8 @@ public class PlanManagementServiceTest {
                 .minSubCount(new Threshold(5))
                 .currentSubCount(0)
                 .imageUrl("https://example.com/premium.jpg")
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
+                .createdAt(Instant.now())
+                .updatedAt(Instant.now())
                 .build();
 
         dummyPlanMeals = new ArrayList<>(Arrays.asList(dummyPlanMeal1, dummyPlanMeal2));
@@ -308,8 +314,8 @@ public class PlanManagementServiceTest {
                         .location(GeoPoint.of(65.658034, 109.701636))
                         .build())
                         .displaySubscriptionFee(new Money(INITIAL_DISPLAY_SUBFEE))
-                        .createdAt(LocalDateTime.now())
-                        .updatedAt(LocalDateTime.now())
+                        .createdAt(Instant.now())
+                        .updatedAt(Instant.now())
                         .planMeals(dummyPlanMeals)
                         .build();
 
@@ -359,7 +365,7 @@ public class PlanManagementServiceTest {
                 .thenAnswer(inv -> periodContext);
         when(businessCalendarService.isUpdatableDate(any(LocalDate.class)))
                 .thenAnswer(inv -> true);
-        when(jobRunRepository.startRun(any(String.class),any(LocalDate.class), any(LocalDate.class), any(LocalDateTime.class)))
+        when(jobRunRepository.startRun(any(String.class),any(LocalDate.class), any(LocalDate.class), any(Instant.class)))
                 .thenAnswer(inv -> JOB_RUN_ID_UUID);
 
         doNothing().when(jobRunRepository).finishRun(
@@ -370,8 +376,10 @@ public class PlanManagementServiceTest {
                 eq(0),
                 any(),
                 any(),
-                any(LocalDateTime.class)
+                any(Instant.class)
         );
+
+        doNothing().when(planChangedEventOutboxRepository).save(any(PlanChangedEventOutboxMessage.class));
     }
 
     @Test
@@ -528,8 +536,8 @@ public class PlanManagementServiceTest {
                                           .minSubCount(new Threshold(2))
                                           .currentSubCount(0)
                                           .imageUrl("https://example.com/standard.jpg")
-                                          .createdAt(LocalDateTime.now())
-                                          .updatedAt(LocalDateTime.now())
+                                          .createdAt(Instant.now())
+                                          .updatedAt(Instant.now())
                                           .build();
 
          dummyPlanMeal2 = PlanMeal.builder()
@@ -542,8 +550,8 @@ public class PlanManagementServiceTest {
                                           .minSubCount(new Threshold(5))
                                           .currentSubCount(0)
                                           .imageUrl("https://example.com/premium.jpg")
-                                          .createdAt(LocalDateTime.now())
-                                          .updatedAt(LocalDateTime.now())
+                                          .createdAt(Instant.now())
+                                          .updatedAt(Instant.now())
                                           .build();
 
         List<PlanMeal> dummyPlanMeals = new ArrayList<>();
@@ -569,8 +577,8 @@ public class PlanManagementServiceTest {
                                         .location(GeoPoint.of(65.658034, 109.701636))
                                         .build())
                         .displaySubscriptionFee(new Money(INITIAL_DISPLAY_SUBFEE))
-                        .createdAt(LocalDateTime.now())
-                        .updatedAt(LocalDateTime.now())
+                        .createdAt(Instant.now())
+                        .updatedAt(Instant.now())
                         .planMeals(dummyPlanMeals)
                         .build();
         
@@ -596,8 +604,8 @@ public class PlanManagementServiceTest {
                                           .minSubCount(new Threshold(1))
                                           .currentSubCount(1)
                                           .imageUrl("https://example.com/standard.jpg")
-                                          .createdAt(LocalDateTime.now())
-                                          .updatedAt(LocalDateTime.now())
+                                          .createdAt(Instant.now())
+                                          .updatedAt(Instant.now())
                                           .build();
 
         PlanMeal dummyPlanMeal2 = PlanMeal.builder()
@@ -610,8 +618,8 @@ public class PlanManagementServiceTest {
                                           .minSubCount(new Threshold(5))
                                           .currentSubCount(0)
                                           .imageUrl("https://example.com/premium.jpg")
-                                          .createdAt(LocalDateTime.now())
-                                          .updatedAt(LocalDateTime.now())
+                                          .createdAt(Instant.now())
+                                          .updatedAt(Instant.now())
                                           .build();
 
         List<PlanMeal> dummyPlanMeals = new ArrayList<>();
@@ -637,8 +645,8 @@ public class PlanManagementServiceTest {
                                         .location(GeoPoint.of(65.658034, 109.701636))
                                         .build())
                         .displaySubscriptionFee(new Money(new BigDecimal("2000.00")))
-                        .createdAt(LocalDateTime.now())
-                        .updatedAt(LocalDateTime.now())
+                        .createdAt(Instant.now())
+                        .updatedAt(Instant.now())
                         .planMeals(dummyPlanMeals)
                         .build();
         PlanResponseDto planResponseDto = planManagementCommandService.reflectUserSubscription(dummyPlanId,
@@ -663,8 +671,8 @@ public class PlanManagementServiceTest {
                                           .minSubCount(new Threshold(1))
                                           .currentSubCount(2)
                                           .imageUrl("https://example.com/standard.jpg")
-                                          .createdAt(LocalDateTime.now())
-                                          .updatedAt(LocalDateTime.now())
+                                          .createdAt(Instant.now())
+                                          .updatedAt(Instant.now())
                                           .build();
 
         PlanMeal dummyPlanMeal2 = PlanMeal.builder()
@@ -677,8 +685,8 @@ public class PlanManagementServiceTest {
                                           .minSubCount(new Threshold(5))
                                           .currentSubCount(2)
                                           .imageUrl("https://example.com/premium.jpg")
-                                          .createdAt(LocalDateTime.now())
-                                          .updatedAt(LocalDateTime.now())
+                                          .createdAt(Instant.now())
+                                          .updatedAt(Instant.now())
                                           .build();
 
         List<PlanMeal> dummyPlanMeals = new ArrayList<>();
@@ -704,8 +712,8 @@ public class PlanManagementServiceTest {
                                         .location(GeoPoint.of(65.658034, 109.701636))
                                         .build())
                         .displaySubscriptionFee(new Money(new BigDecimal("2000.00")))
-                        .createdAt(LocalDateTime.now())
-                        .updatedAt(LocalDateTime.now())
+                        .createdAt(Instant.now())
+                        .updatedAt(Instant.now())
                         .planMeals(dummyPlanMeals)
                         .build();
 
@@ -756,8 +764,8 @@ public class PlanManagementServiceTest {
                                           .minSubCount(new Threshold(1))
                                           .currentSubCount(1)
                                           .imageUrl("https://example.com/standard.jpg")
-                                          .createdAt(LocalDateTime.now())
-                                          .updatedAt(LocalDateTime.now())
+                                          .createdAt(Instant.now())
+                                          .updatedAt(Instant.now())
                                           .build();
 
         PlanMeal dummyPlanMeal2 = PlanMeal.builder()
@@ -770,8 +778,8 @@ public class PlanManagementServiceTest {
                                           .minSubCount(new Threshold(5))
                                           .currentSubCount(0)
                                           .imageUrl("https://example.com/premium.jpg")
-                                          .createdAt(LocalDateTime.now())
-                                          .updatedAt(LocalDateTime.now())
+                                          .createdAt(Instant.now())
+                                          .updatedAt(Instant.now())
                                           .build();
 
         List<PlanMeal> dummyPlanMeals = new ArrayList<>();
@@ -797,8 +805,8 @@ public class PlanManagementServiceTest {
                                         .location(GeoPoint.of(65.658034, 109.701636))
                                         .build())
                         .displaySubscriptionFee(new Money(new BigDecimal("2000.00")))
-                        .createdAt(LocalDateTime.now())
-                        .updatedAt(LocalDateTime.now())
+                        .createdAt(Instant.now())
+                        .updatedAt(Instant.now())
                         .planMeals(dummyPlanMeals)
                         .build();
         PlanResponseDto planResponseDto = planManagementCommandService.addMealToPlan(dummyPlanId, validPlanMealRequestDto);
@@ -861,8 +869,8 @@ public class PlanManagementServiceTest {
                                         .location(GeoPoint.of(65.658034, 109.701636))
                                         .build())
                         .displaySubscriptionFee(new Money(INITIAL_DISPLAY_SUBFEE))
-                        .createdAt(LocalDateTime.now())
-                        .updatedAt(LocalDateTime.now())
+                        .createdAt(Instant.now())
+                        .updatedAt(Instant.now())
                         .planMeals(dummyPlanMeals)
                         .build();
 
@@ -894,8 +902,8 @@ public class PlanManagementServiceTest {
                                  .minSubCount(new Threshold(1))
                                  .currentSubCount(1)
                                  .imageUrl("https://example.com/standard.jpg")
-                                 .createdAt(LocalDateTime.now())
-                                 .updatedAt(LocalDateTime.now())
+                                 .createdAt(Instant.now())
+                                 .updatedAt(Instant.now())
                                  .build();
         dummyPlanMeals = List.of(dummyPlanMeal1, dummyPlanMeal2);
 
@@ -918,8 +926,8 @@ public class PlanManagementServiceTest {
                                         .location(GeoPoint.of(65.658034, 109.701636))
                                         .build())
                         .displaySubscriptionFee(new Money(INITIAL_DISPLAY_SUBFEE))
-                        .createdAt(LocalDateTime.now())
-                        .updatedAt(LocalDateTime.now())
+                        .createdAt(Instant.now())
+                        .updatedAt(Instant.now())
                         .planMeals(dummyPlanMeals)
                         .build();
 
@@ -961,8 +969,8 @@ public class PlanManagementServiceTest {
                                  .minSubCount(new Threshold(1))
                                  .currentSubCount(1)
                                  .imageUrl("https://example.com/standard.jpg")
-                                 .createdAt(LocalDateTime.now())
-                                 .updatedAt(LocalDateTime.now())
+                                 .createdAt(Instant.now())
+                                 .updatedAt(Instant.now())
                                  .build();
 
         dummyPlanMeal2 = PlanMeal.builder()
@@ -975,8 +983,8 @@ public class PlanManagementServiceTest {
                                  .minSubCount(new Threshold(5))
                                  .currentSubCount(5)
                                  .imageUrl("https://example.com/premium.jpg")
-                                 .createdAt(LocalDateTime.now())
-                                 .updatedAt(LocalDateTime.now())
+                                 .createdAt(Instant.now())
+                                 .updatedAt(Instant.now())
                                  .build();
 
         dummyPlanMeals = List.of(dummyPlanMeal1, dummyPlanMeal2);
@@ -1000,8 +1008,8 @@ public class PlanManagementServiceTest {
                                         .location(GeoPoint.of(65.658034, 109.701636))
                                         .build())
                         .displaySubscriptionFee(new Money(INITIAL_DISPLAY_SUBFEE))
-                        .createdAt(LocalDateTime.of(2025, 1, 5, 1, 1))
-                        .updatedAt(LocalDateTime.of(2025, 1, 6, 1, 1))
+                        .createdAt(LocalDateTime.of(2025, 1, 5, 1, 1).atZone(ZoneId.of(ASIA_TOKYO_ZONE)).toInstant())
+                        .updatedAt(LocalDateTime.of(2025, 1, 6, 1, 1).atZone(ZoneId.of(ASIA_TOKYO_ZONE)).toInstant())
                         .planMeals(dummyPlanMeals)
                         .build();
 
@@ -1034,8 +1042,8 @@ public class PlanManagementServiceTest {
                                  .minSubCount(new Threshold(1))
                                  .currentSubCount(1)
                                  .imageUrl("https://example.com/standard.jpg")
-                                 .createdAt(LocalDateTime.now())
-                                 .updatedAt(LocalDateTime.now())
+                                 .createdAt(Instant.now())
+                                 .updatedAt(Instant.now())
                                  .build();
 
         dummyPlanMeal2 = PlanMeal.builder()
@@ -1048,8 +1056,8 @@ public class PlanManagementServiceTest {
                                  .minSubCount(new Threshold(5))
                                  .currentSubCount(1)
                                  .imageUrl("https://example.com/premium.jpg")
-                                 .createdAt(LocalDateTime.now())
-                                 .updatedAt(LocalDateTime.now())
+                                 .createdAt(Instant.now())
+                                 .updatedAt(Instant.now())
                                  .build();
 
         dummyPlanMeals = List.of(dummyPlanMeal1, dummyPlanMeal2);
@@ -1073,8 +1081,8 @@ public class PlanManagementServiceTest {
                                         .location(GeoPoint.of(65.658034, 109.701636))
                                         .build())
                         .displaySubscriptionFee(new Money(INITIAL_DISPLAY_SUBFEE))
-                        .createdAt(LocalDateTime.of(2025, 1, 5, 1, 1))
-                        .updatedAt(LocalDateTime.of(2025, 1, 6, 1, 1))
+                        .createdAt(LocalDateTime.of(2025, 1, 5, 1, 1).atZone(ZoneId.of(ASIA_TOKYO_ZONE)).toInstant())
+                        .updatedAt(LocalDateTime.of(2025, 1, 6, 1, 1).atZone(ZoneId.of(ASIA_TOKYO_ZONE)).toInstant())
                         .planMeals(dummyPlanMeals)
                         .build();
 

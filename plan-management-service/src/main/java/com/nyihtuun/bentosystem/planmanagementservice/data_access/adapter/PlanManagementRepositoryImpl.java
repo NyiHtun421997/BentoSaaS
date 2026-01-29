@@ -20,10 +20,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import static com.nyihtuun.bentosystem.planmanagementservice.PlanManagementConstants.ASIA_TOKYO_ZONE;
 
 @Component
 public class PlanManagementRepositoryImpl implements PlanManagementRepository {
@@ -72,8 +76,11 @@ public class PlanManagementRepositoryImpl implements PlanManagementRepository {
 
     @Override
     public List<Plan> findActivePlansBetweenDates(LocalDate start, LocalDate end, int page, int size) {
-        return planJpaRepository.findPlanEntitiesByDeleteFlagFalseAndCreatedAtBetween(start.atStartOfDay(),
-                                                                                      end.atStartOfDay(),
+        Instant from = start.atStartOfDay(ZoneId.of(ASIA_TOKYO_ZONE)).toInstant();
+        Instant to = end.plusDays(1).atStartOfDay(ZoneId.of(ASIA_TOKYO_ZONE)).toInstant();
+
+        return planJpaRepository.findPlanEntitiesByDeleteFlagFalseAndCreatedAtBetween(from,
+                                                                                      to,
                                                                                       getPageable(page, size))
                                 .stream()
                                 .map(planEntity -> mapper.planEntityToPlan(planEntity, false))
@@ -82,8 +89,11 @@ public class PlanManagementRepositoryImpl implements PlanManagementRepository {
 
     @Override
     public List<Plan> findActivePlansBetweenDates(LocalDate start, LocalDate end) {
-        return planJpaRepository.findPlanEntitiesByDeleteFlagFalseAndCreatedAtBetweenAndPlanStatus(start.atStartOfDay(),
-                                                                                                   end.atStartOfDay(),
+        Instant from = start.atStartOfDay(ZoneId.of(ASIA_TOKYO_ZONE)).toInstant();
+        Instant to = end.plusDays(1).atStartOfDay(ZoneId.of(ASIA_TOKYO_ZONE)).toInstant();
+
+        return planJpaRepository.findPlanEntitiesByDeleteFlagFalseAndCreatedAtBetweenAndPlanStatus(from,
+                                                                                                   to,
                                                                                                    PlanStatus.ACTIVE)
                                 .stream()
                                 .map(planEntity -> mapper.planEntityToPlan(planEntity, true))
@@ -143,9 +153,12 @@ public class PlanManagementRepositoryImpl implements PlanManagementRepository {
 
     @Override
     public Optional<DeliverySchedule> findDeliverySchedulesByPlanIdAndDate(UUID planId, LocalDate start, LocalDate end) {
+        Instant startInstant = start.atStartOfDay(ZoneId.of(ASIA_TOKYO_ZONE)).toInstant();
+        Instant endInstant = end.atStartOfDay(ZoneId.of(ASIA_TOKYO_ZONE)).toInstant();
+
         return deliveryScheduleJpaRepository.findDeliveryScheduleByPlanIdAndCreatedAtBetween(planId,
-                                                                                             start.atStartOfDay(),
-                                                                                             end.atStartOfDay())
+                                                                                             startInstant,
+                                                                                             endInstant)
                                             .map(mapper::deliveryScheduleEntityToDeliverySchedule);
     }
 

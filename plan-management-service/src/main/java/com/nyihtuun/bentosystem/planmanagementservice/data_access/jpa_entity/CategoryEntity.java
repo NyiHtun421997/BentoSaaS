@@ -3,7 +3,7 @@ package com.nyihtuun.bentosystem.planmanagementservice.data_access.jpa_entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
@@ -25,5 +25,5 @@ public class CategoryEntity {
     private String name;
 
     @ManyToMany(mappedBy = "categoryEntities", fetch = FetchType.LAZY)
-    private List<PlanEntity> plans;
+    private Set<PlanEntity> plans;
 }

@@ -9,4 +9,9 @@ public record SubscriptionConfigData(
         String planManagementVersion,
         String planManagementPlanDetailsPath,
         long connectTimeoutSeconds,
-        long readTimeoutSeconds) {}
+        long readTimeoutSeconds,
+        String planChangedTopicName,
+        String userSubscriptionTopicName,
+        String groupId,
+        String outboxSchedulerFixedRate,
+        String outboxSchedulerInitialDelay) {}

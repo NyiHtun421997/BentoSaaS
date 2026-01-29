@@ -1,9 +1,11 @@
 package com.nyihtuun.bentosystem.invoiceservice.controller;
 
+import com.nyihtuun.bentosystem.invoiceservice.application_service.dto.response.InvoiceResponseDto;
 import com.nyihtuun.bentosystem.invoiceservice.application_service.ports.input.service.InvoiceService;
-import com.nyihtuun.bentosystem.invoiceservice.domain.entity.Invoice;
 import com.nyihtuun.bentosystem.invoiceservice.domain.exception.InvoiceDomainException;
 import com.nyihtuun.bentosystem.invoiceservice.domain.exception.InvoiceErrorCode;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +22,7 @@ import static com.nyihtuun.bentosystem.invoiceservice.controller.ApiPaths.VERSIO
 @Slf4j
 @RestController
 @RequestMapping(VERSION1)
-@Tag(name = "Plan Query", description = "Endpoints for searching and retrieving bento plans.")
+@Tag(name = "Invoice", description = "Endpoints for managing invoices and payments.")
 public class InvoiceController {
 
     private final InvoiceService invoiceService;
@@ -31,7 +33,9 @@ public class InvoiceController {
     }
 
     @GetMapping(INVOICE_ID)
-    public ResponseEntity<Invoice> findInvoiceById(@PathVariable UUID invoiceId) {
+    @Operation(summary = "Get invoice by ID", description = "Retrieves an invoice by its unique identifier.")
+    @ApiResponse(responseCode = "200", description = "Invoice retrieved successfully")
+    public ResponseEntity<InvoiceResponseDto> findInvoiceById(@PathVariable UUID invoiceId) {
         log.info("Fetching invoice with id: {}", invoiceId);
         return invoiceService.getInvoiceById(invoiceId)
                 .map(invoice -> {
@@ -45,29 +49,37 @@ public class InvoiceController {
     }
 
     @GetMapping("byuseridanddate")
-    public ResponseEntity<List<Invoice>> findInvoicesByUserIdAndDate(
+    @Operation(summary = "Find invoices by user ID and date", description = "Retrieves a list of invoices for a specific user on a given date.")
+    @ApiResponse(responseCode = "200", description = "Invoices retrieved successfully")
+    public ResponseEntity<List<InvoiceResponseDto>> findInvoicesByUserIdAndDate(
             @RequestParam UUID userId,
             @RequestParam LocalDate date) {
         log.info("Fetching invoices for user with id: {} on date: {}", userId, date);
-        List<Invoice> invoices = invoiceService.getMyInvoicesByDate(userId, date);
+        List<InvoiceResponseDto> invoices = invoiceService.getMyInvoicesByDate(userId, date);
         log.info("Found {} invoices for user with id: {} on date: {}", invoices.size(), userId, date);
         return ResponseEntity.ok(invoices);
     }
 
     @PutMapping("/pay" + INVOICE_ID)
-    public ResponseEntity<Invoice> makePayment(@PathVariable UUID invoiceId) {
+    @Operation(summary = "Make payment", description = "Processes payment for an invoice.")
+    @ApiResponse(responseCode = "200", description = "Payment processed successfully")
+    public ResponseEntity<InvoiceResponseDto> makePayment(@PathVariable UUID invoiceId) {
         log.info("Making payment for invoice with id: {}", invoiceId);
         return ResponseEntity.ok(invoiceService.makePayment(invoiceId));
     }
 
     @PutMapping("/cancel" + INVOICE_ID)
-    public ResponseEntity<Invoice> cancelPayment(@PathVariable UUID invoiceId) {
+    @Operation(summary = "Cancel payment", description = "Cancels a payment for an invoice.")
+    @ApiResponse(responseCode = "200", description = "Payment cancelled successfully")
+    public ResponseEntity<InvoiceResponseDto> cancelPayment(@PathVariable UUID invoiceId) {
         log.info("Cancelling payment for invoice with id: {}", invoiceId);
         return ResponseEntity.ok(invoiceService.cancelPayment(invoiceId));
     }
 
     @PutMapping("/fail" + INVOICE_ID)
-    public ResponseEntity<Invoice> markPaymentFailed(@PathVariable UUID invoiceId) {
+    @Operation(summary = "Mark payment failed", description = "Marks an invoice payment as failed.")
+    @ApiResponse(responseCode = "200", description = "Payment marked as failed successfully")
+    public ResponseEntity<InvoiceResponseDto> markPaymentFailed(@PathVariable UUID invoiceId) {
         log.info("Marking payment for invoice with id: {} as failed", invoiceId);
         return ResponseEntity.ok(invoiceService.markPaymentFailed(invoiceId));
     }

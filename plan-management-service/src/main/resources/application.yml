@@ -9,6 +9,14 @@ spring:
       hibernate:
         type:
           json_format_mapper: jackson
+  kafka:
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+      auto-offset-reset: earliest
 
 server:
   port: 4000
@@ -22,3 +30,8 @@ grpc:
 plan-management:
   scheduler-cron: "0 0 0 1 * ?"
   zone: Asia/Tokyo
+  plan-changed-topic-name: plan-changed-topic
+  user-subscription-topic-name: user-plan-subscription-topic
+  group-id: plan-management-service
+  outbox-scheduler-fixed-rate: 10000
+  outbox-scheduler-initial-delay: 10000

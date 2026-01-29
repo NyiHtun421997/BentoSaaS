@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Slf4j
@@ -30,7 +30,7 @@ public class JobRunRepositoryImpl implements JobRunRepository {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public UUID startRun(String jobType, LocalDate periodStart, LocalDate periodEnd, LocalDateTime startedAt) {
+    public UUID startRun(String jobType, LocalDate periodStart, LocalDate periodEnd, Instant startedAt) {
         UUID id = UUID.randomUUID();
         ArrayNode emptyArrayNode = objectMapper.createArrayNode();
 
@@ -41,7 +41,7 @@ public class JobRunRepositoryImpl implements JobRunRepository {
                                                 .periodEnd(periodEnd)
                                                 .status(JobRunStatus.FAILED) // temporary default; overwritten on finish
                                                 .startedAt(startedAt)
-                                                .createdAt(LocalDateTime.now())
+                                                .createdAt(Instant.now())
                                                 .totalTargets(0)
                                                 .successCount(0)
                                                 .failureCount(0)
@@ -62,7 +62,7 @@ public class JobRunRepositoryImpl implements JobRunRepository {
                           int failureCount,
                           JsonNode results,
                           JsonNode error,
-                          LocalDateTime finishedAt) {
+                          Instant finishedAt) {
 
         JobRunEntity jobRunEntity = jobRunJpaRepository.findById(jobRunId)
                                                        .orElseThrow(() -> new IllegalStateException("job_run not found: " + jobRunId));

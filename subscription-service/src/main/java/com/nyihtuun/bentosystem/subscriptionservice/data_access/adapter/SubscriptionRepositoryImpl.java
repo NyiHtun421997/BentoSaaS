@@ -6,12 +6,11 @@ import com.nyihtuun.bentosystem.subscriptionservice.data_access.jpa_entity.Subsc
 import com.nyihtuun.bentosystem.subscriptionservice.data_access.jpa_repository.SubscriptionJpaRepository;
 import com.nyihtuun.bentosystem.subscriptionservice.data_access.mapper.SubscriptionDataAccessMapper;
 import com.nyihtuun.bentosystem.subscriptionservice.domain.entity.Subscription;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -31,14 +30,14 @@ public class SubscriptionRepositoryImpl implements SubscriptionRepository {
 
     @Override
     public List<Subscription> findAllSubscriptionsByUserIdAndDate(UUID userId, LocalDate since) {
-        return subscriptionJpaRepository.findAllByUserIdAndAppliedAtAfter(userId, since.atStartOfDay())
+        return subscriptionJpaRepository.findAllByUserIdAndAppliedAtAfter(userId, Instant.from(since.atStartOfDay()))
                 .stream()
                 .map(subscriptionDataMapper::subscriptionEntityToSubscription)
                 .toList();
     }
 
     @Override
-    public List<Subscription> findActiveSubscriptionsBeforeDate(@MonotonicNonNull LocalDateTime before) {
+    public List<Subscription> findActiveSubscriptionsBeforeDate(Instant before) {
         return subscriptionJpaRepository.findAllBySubscriptionStatusAndAppliedAtBefore(SubscriptionStatus.SUBSCRIBED, before)
                 .stream()
                 .map(subscriptionDataMapper::subscriptionEntityToSubscription)
@@ -49,6 +48,14 @@ public class SubscriptionRepositoryImpl implements SubscriptionRepository {
     public Optional<Subscription> findBySubscriptionId(UUID subscriptionId) {
         return subscriptionJpaRepository.findById(subscriptionId)
                 .map(subscriptionDataMapper::subscriptionEntityToSubscription);
+    }
+
+    @Override
+    public List<Subscription> findByPlanId(UUID planId) {
+        return subscriptionJpaRepository.findAllByPlanId(planId)
+                .stream()
+                .map(subscriptionDataMapper::subscriptionEntityToSubscription)
+                .toList();
     }
 
     @Override

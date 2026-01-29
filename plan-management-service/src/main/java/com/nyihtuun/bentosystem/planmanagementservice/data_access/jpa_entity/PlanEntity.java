@@ -7,10 +7,11 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
@@ -44,10 +45,10 @@ public class PlanEntity {
     private PlanStatus planStatus;
 
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
     @Column(name = "user_id", nullable = false)
     private UUID userId;
@@ -67,7 +68,7 @@ public class PlanEntity {
             joinColumns = @JoinColumn(name = "plan_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id")
     )
-    private List<CategoryEntity> categoryEntities;
+    private Set<CategoryEntity> categoryEntities;
 
     @Column(
             name = "display_subscription_fee",
@@ -81,7 +82,7 @@ public class PlanEntity {
     private Boolean deleteFlag;
 
     @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
+    private Instant deletedAt;
 
     @OneToMany(
             mappedBy = "planEntity",

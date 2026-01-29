@@ -17,4 +17,4 @@ spring:
 
 logging:
   level:
-    com.food.ordering.system: INFO
+    com.nyihtuun.bentosystem.planmanagementservice: INFO

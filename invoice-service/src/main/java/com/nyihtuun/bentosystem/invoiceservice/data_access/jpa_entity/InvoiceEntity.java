@@ -7,8 +7,8 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
@@ -44,13 +44,13 @@ public class InvoiceEntity {
     private BigDecimal amount;
 
     @Column(name = "issued_at", nullable = false)
-    private LocalDateTime issuedAt;
+    private Instant issuedAt;
 
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
     @Column(name = "paid_at")
-    private LocalDateTime paidAt;
+    private Instant paidAt;
 
     @Column(name = "period_start", nullable = false)
     private LocalDate periodStart;

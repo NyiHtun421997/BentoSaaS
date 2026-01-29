@@ -38,14 +38,14 @@ CREATE TABLE "planmanagement".plan
     title                    VARCHAR        NOT NULL,
     description              VARCHAR,
     plan_status              plan_status    NOT NULL,
-    created_at               TIMESTAMP      NOT NULL,
-    updated_at               TIMESTAMP      NOT NULL,
+    created_at               TIMESTAMPTZ    NOT NULL,
+    updated_at               TIMESTAMPTZ    NOT NULL,
     user_id                  uuid           NOT NULL,
-    skip_dates                jsonb          NOT NULL DEFAULT '[]',
+    skip_dates               jsonb          NOT NULL DEFAULT '[]',
     address_id               uuid           NOT NULL,
     display_subscription_fee NUMERIC(10, 2) NOT NULL CHECK ( display_subscription_fee > 0 ),
     delete_flag              BOOLEAN                 DEFAULT FALSE,
-    deleted_at               TIMESTAMP,
+    deleted_at               TIMESTAMPTZ,
     CONSTRAINT plan_pk PRIMARY KEY (id),
     CONSTRAINT plan_title_description_unique UNIQUE (title, description),
     CONSTRAINT plan_address_fk FOREIGN KEY (address_id)
@@ -68,10 +68,10 @@ CREATE TABLE "planmanagement".plan_meal
     min_sub_count     INT     DEFAULT 1 CHECK ( min_sub_count > 0 ),
     current_sub_count INT     DEFAULT 0 CHECK ( current_sub_count >= 0 ),
     image_url         VARCHAR,
-    created_at        TIMESTAMP      NOT NULL,
-    updated_at        TIMESTAMP      NOT NULL,
+    created_at        TIMESTAMPTZ    NOT NULL,
+    updated_at        TIMESTAMPTZ    NOT NULL,
     delete_flag       BOOLEAN DEFAULT FALSE,
-    deleted_at        TIMESTAMP,
+    deleted_at        TIMESTAMPTZ,
     CONSTRAINT plan_meal_pkey PRIMARY KEY (id),
     CONSTRAINT plan_meal_plan_id_fk FOREIGN KEY (plan_id)
         REFERENCES "planmanagement".plan (id)
@@ -111,7 +111,7 @@ CREATE TABLE "planmanagement".delivery_schedule
     plan_id      uuid      NOT NULL,
     period_start DATE      NOT NULL,
     period_end   DATE      NOT NULL,
-    created_at   TIMESTAMP NOT NULL,
+    created_at   TIMESTAMPTZ NOT NULL,
     CONSTRAINT delivery_schedule_pk PRIMARY KEY (id),
     CONSTRAINT delivery_schedule_unique UNIQUE (plan_id, period_start, period_end),
     CONSTRAINT delivery_schedule_plan_id_fk FOREIGN KEY (plan_id)
@@ -157,8 +157,8 @@ CREATE TABLE "planmanagement".job_run
 
     status        job_run_status  NOT NULL, -- SUCCESS / PARTIAL_SUCCESS / FAILED
 
-    started_at    TIMESTAMP  NOT NULL,
-    finished_at   TIMESTAMP,
+    started_at    TIMESTAMPTZ  NOT NULL,
+    finished_at   TIMESTAMPTZ,
 
     total_targets INT          NOT NULL DEFAULT 0,
     success_count INT          NOT NULL DEFAULT 0,
@@ -167,7 +167,7 @@ CREATE TABLE "planmanagement".job_run
     results       jsonb        NOT NULL DEFAULT '[]'::jsonb,
     error         jsonb,
 
-    created_at    TIMESTAMP  NOT NULL DEFAULT now()
+    created_at    TIMESTAMPTZ  NOT NULL DEFAULT now()
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS ux_pm_job_run_job_period
@@ -178,3 +178,22 @@ CREATE INDEX IF NOT EXISTS ix_pm_job_run_job_type_started_at
 
 CREATE INDEX IF NOT EXISTS  ix_pm_job_run_job_type_status
     on "planmanagement".job_run (job_type, status);
+
+-- ==========================================================
+-- Plan Management BC: Outbox Table
+-- ==========================================================
+
+DROP TYPE IF EXISTS outbox_status;
+CREATE TYPE outbox_status AS ENUM ('STARTED', 'COMPLETED', 'FAILED');
+
+DROP TABLE IF EXISTS "planmanagement".plan_changed_event_outbox CASCADE;
+CREATE TABLE "planmanagement".plan_changed_event_outbox
+(
+    id uuid NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL,
+    processed_at TIMESTAMPTZ,
+    payload jsonb NOT NULL,
+    outbox_status outbox_status NOT NULL,
+    version integer NOT NULL,
+    CONSTRAINT plan_changed_event_outbox_pkey PRIMARY KEY (id)
+);

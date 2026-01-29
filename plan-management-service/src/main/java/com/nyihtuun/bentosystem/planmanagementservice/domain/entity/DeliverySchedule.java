@@ -7,8 +7,8 @@ import com.nyihtuun.bentosystem.domain.valueobject.PlanMealId;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,7 +18,7 @@ public class DeliverySchedule extends AggregateRoot<DeliveryScheduleId> {
     private PlanId planId;
     private LocalDate periodStart;
     private LocalDate periodEnd;
-    private LocalDateTime createdAt;
+    private Instant createdAt;
     private List<DeliveryScheduleDetail> deliveryScheduleDetails;
 
     private DeliverySchedule(Builder builder) {
@@ -47,7 +47,7 @@ public class DeliverySchedule extends AggregateRoot<DeliveryScheduleId> {
         private PlanId planId;
         private LocalDate periodStart;
         private LocalDate periodEnd;
-        private LocalDateTime createdAt;
+        private Instant createdAt;
         private List<DeliveryScheduleDetail> deliverySchedules;
 
         private Builder() {
@@ -73,7 +73,7 @@ public class DeliverySchedule extends AggregateRoot<DeliveryScheduleId> {
             return this;
         }
 
-        public Builder createdAt(LocalDateTime val) {
+        public Builder createdAt(Instant val) {
             createdAt = val;
             return this;
         }

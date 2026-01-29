@@ -8,7 +8,9 @@ import com.nyihtuun.bentosystem.invoiceservice.domain.entity.Invoice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -32,7 +34,7 @@ public class InvoiceRepositoryImpl implements InvoiceRepository {
 
     @Override
     public List<Invoice> findByUserIdAndDate(UUID userId, LocalDate date) {
-        return invoiceJpaRepository.findAllByUserIdAndIssuedAtAfter(userId, date.atStartOfDay())
+        return invoiceJpaRepository.findAllByUserIdAndIssuedAtAfter(userId, date.atStartOfDay(ZoneOffset.UTC).toInstant())
                                    .stream()
                                    .map(mapper::invoiceEntityToInvoice)
                                    .toList();

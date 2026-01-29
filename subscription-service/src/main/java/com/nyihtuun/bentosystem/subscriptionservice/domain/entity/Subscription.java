@@ -8,7 +8,7 @@ import com.nyihtuun.bentosystem.subscriptionservice.domain.exception.Subscriptio
 import lombok.Getter;
 import lombok.ToString;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -21,10 +21,10 @@ public class Subscription extends AggregateRoot<SubscriptionId> {
     private final PlanId planId;
     private final UserId providedUserId;
     private SubscriptionStatus subscriptionStatus;
-    private LocalDateTime appliedAt;
-    private LocalDateTime updatedAt;
-    private LocalDateTime cancelledAt;
-    private LocalDateTime activatedAt;
+    private Instant appliedAt;
+    private Instant updatedAt;
+    private Instant cancelledAt;
+    private Instant activatedAt;
 
     private List<MealSelection> mealSelections;
 
@@ -50,44 +50,49 @@ public class Subscription extends AggregateRoot<SubscriptionId> {
         super.setId(new SubscriptionId(UUID.randomUUID()));
         this.userId = userId;
         this.subscriptionStatus = SubscriptionStatus.APPLIED;
-        this.appliedAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+        this.appliedAt = Instant.now();
+        this.updatedAt = Instant.now();
 
         this.mealSelections.forEach(mealSelection -> mealSelection.initializeMealSelection(super.getId()));
     }
 
     public void activate() {
         this.subscriptionStatus = SubscriptionStatus.SUBSCRIBED;
-        this.updatedAt = LocalDateTime.now();
-        this.activatedAt = LocalDateTime.now();
+        this.updatedAt = Instant.now();
+        this.activatedAt = Instant.now();
     }
 
     public void suspend() {
         this.subscriptionStatus = SubscriptionStatus.SUSPENDED;
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = Instant.now();
     }
 
     public void cancel() {
         this.subscriptionStatus = SubscriptionStatus.CANCELLED;
-        this.updatedAt = LocalDateTime.now();
-        this.cancelledAt = LocalDateTime.now();
+        this.updatedAt = Instant.now();
+        this.cancelledAt = Instant.now();
     }
 
-    public void updateMealSelections(List<UUID> planMealIds) {
-        Set<UUID> desired = new HashSet<>(planMealIds);
+    public void updateMealSelections(List<PlanMealId> planMealIds) {
+        Set<PlanMealId> desired = new HashSet<>(planMealIds);
         this.mealSelections.removeIf(mealSelection -> {
-           boolean contains = desired.contains(mealSelection.getId().getPlanMealId().getValue());
-           if (contains) desired.remove(mealSelection.getId().getPlanMealId().getValue());
+           boolean contains = desired.contains(mealSelection.getId().getPlanMealId());
+           if (contains) desired.remove(mealSelection.getId().getPlanMealId());
            return !contains;
         });
 
-        for (UUID planMealId : desired) {
+        for (PlanMealId planMealId : desired) {
             this.mealSelections.add(MealSelection.builder()
                                             .subscriptionId(super.getId())
-                                            .planMealId(new PlanMealId(planMealId))
+                                            .planMealId(planMealId)
                                             .build());
         }
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = Instant.now();
+    }
+
+    public void removeMealSelections(List<PlanMealId> planMealIds) {
+        this.mealSelections.removeIf(mealSelection -> planMealIds.contains(mealSelection.getId().getPlanMealId()));
+        if (this.mealSelections.isEmpty()) cancel();
     }
 
     public static Builder builder() {
@@ -100,10 +105,10 @@ public class Subscription extends AggregateRoot<SubscriptionId> {
         private PlanId planId;
         private UserId providedUserId;
         private SubscriptionStatus subscriptionStatus;
-        private LocalDateTime appliedAt;
-        private LocalDateTime updatedAt;
-        private LocalDateTime cancelledAt;
-        private LocalDateTime activatedAt;
+        private Instant appliedAt;
+        private Instant updatedAt;
+        private Instant cancelledAt;
+        private Instant activatedAt;
         private List<MealSelection> mealSelections;
 
         private Builder() {
@@ -134,22 +139,22 @@ public class Subscription extends AggregateRoot<SubscriptionId> {
             return this;
         }
 
-        public Builder appliedAt(LocalDateTime val) {
+        public Builder appliedAt(Instant val) {
             appliedAt = val;
             return this;
         }
 
-        public Builder updatedAt(LocalDateTime val) {
+        public Builder updatedAt(Instant val) {
             updatedAt = val;
             return this;
         }
 
-        public Builder cancelledAt(LocalDateTime val) {
+        public Builder cancelledAt(Instant val) {
             cancelledAt = val;
             return this;
         }
 
-        public Builder activatedAt(LocalDateTime val) {
+        public Builder activatedAt(Instant val) {
             activatedAt = val;
             return this;
         }

@@ -4,15 +4,18 @@ import com.nyihtuun.bentosystem.domain.valueobject.PlanId;
 import com.nyihtuun.bentosystem.domain.valueobject.PlanMealId;
 import com.nyihtuun.bentosystem.domain.valueobject.SubscriptionId;
 import com.nyihtuun.bentosystem.domain.valueobject.UserId;
+import com.nyihtuun.bentosystem.domain.valueobject.status.PlanStatus;
 import com.nyihtuun.bentosystem.domain.valueobject.status.SubscriptionStatus;
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.dto.SubscriptionRequestDto;
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.dto.SubscriptionResponseDto;
+import com.nyihtuun.bentosystem.subscriptionservice.application_service.outbox.model.UserPlanSubscriptionEventOutboxMessage;
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.input.service.SubscriptionCommandService;
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.input.service.SubscriptionQueryService;
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.output.client.PlanManagementServiceClient;
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.output.client.PlanData;
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.output.client.PlanValidationResult;
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.output.repository.SubscriptionRepository;
+import com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.output.repository.UserPlanSubscriptionEventOutboxRepository;
 import com.nyihtuun.bentosystem.subscriptionservice.domain.entity.MealSelection;
 import com.nyihtuun.bentosystem.subscriptionservice.domain.entity.Subscription;
 import com.nyihtuun.bentosystem.subscriptionservice.domain.exception.SubscriptionDomainException;
@@ -79,6 +82,9 @@ class SubscriptionServiceApplicationTests {
 
     @MockitoBean
     private PlanManagementServiceClient planManagementServiceClient;
+
+    @MockitoBean
+    private UserPlanSubscriptionEventOutboxRepository userPlanSubscriptionEventOutboxRepository;
 
     private UserId userId;
     private UserId providedUserId;
@@ -188,8 +194,13 @@ class SubscriptionServiceApplicationTests {
         when(subscriptionRepository.findAllSubscriptionsByUserIdAndDate(any(UUID.class), any(LocalDate.class)))
                 .thenAnswer(invocation -> List.of(dummySubscription));
 
+        when(subscriptionRepository.findByPlanId(any(UUID.class)))
+                .thenAnswer(invocation -> List.of(dummySubscription));
+
         when(subscriptionRepository.findBySubscriptionId(INVALID_SUBSCRIPTION_ID_UUID))
                 .thenAnswer(invocation -> Optional.empty());
+
+        doNothing().when(userPlanSubscriptionEventOutboxRepository).save(any(UserPlanSubscriptionEventOutboxMessage.class));
     }
 
     @Test
@@ -303,8 +314,49 @@ class SubscriptionServiceApplicationTests {
     }
 
     @Test
-    void testReflectPlanChanged() {
+    void testReflectPlanChanged_activated() {
+        List<SubscriptionResponseDto> subscriptionResponseDtos = subscriptionCommandService.reflectPlanChanged(planId,
+                                                                                                               PlanStatus.ACTIVE);
+        assertEquals(SubscriptionStatus.SUBSCRIBED, subscriptionResponseDtos.getFirst().getSubscriptionStatus());
+        assertEquals(PLAN_ID_UUID, subscriptionResponseDtos.getFirst().getPlanId());
+    }
 
+    @Test
+    void testReflectPlanChanged_suspended() {
+        dummySubscription = Subscription.builder()
+                                        .subscriptionId(subscriptionId)
+                                        .planId(planId)
+                                        .userId(userId)
+                                        .subscriptionStatus(SubscriptionStatus.SUBSCRIBED)
+                                        .mealSelections(dummyMealSelections)
+                                        .providedUserId(providedUserId)
+                                        .build();
+
+        List<SubscriptionResponseDto> subscriptionResponseDtos = subscriptionCommandService.reflectPlanChanged(planId, PlanStatus.SUSPENDED);
+        assertEquals(SubscriptionStatus.SUSPENDED, subscriptionResponseDtos.getFirst().getSubscriptionStatus());
+        assertEquals(PLAN_ID_UUID, subscriptionResponseDtos.getFirst().getPlanId());
+    }
+
+    @Test
+    void testReflectPlanChanged_cancelled() {
+        List<SubscriptionResponseDto> subscriptionResponseDtos = subscriptionCommandService.reflectPlanChanged(planId, PlanStatus.CANCELLED);
+        assertEquals(SubscriptionStatus.CANCELLED, subscriptionResponseDtos.getFirst().getSubscriptionStatus());
+        assertEquals(PLAN_ID_UUID, subscriptionResponseDtos.getFirst().getPlanId());
+    }
+
+    @Test
+    void testReflectPlanMealsRemoved_statusUnchanged() {
+        List<SubscriptionResponseDto> subscriptionResponseDtos = subscriptionCommandService.reflectPlanMealsRemoved(planId, List.of(planMealId2));
+        assertEquals(1, subscriptionResponseDtos.getFirst().getMealSelectionResponseDtos().size());
+        assertEquals(PLAN_MEAL_ID_UUID1, subscriptionResponseDtos.getFirst().getMealSelectionResponseDtos().getFirst().getPlanMealId());
+        assertEquals(SubscriptionStatus.APPLIED, subscriptionResponseDtos.getFirst().getSubscriptionStatus());
+    }
+
+    @Test
+    void testReflectPlanMealsRemoved_statusChanged() {
+        List<SubscriptionResponseDto> subscriptionResponseDtos = subscriptionCommandService.reflectPlanMealsRemoved(planId, List.of(planMealId1, planMealId2));
+        assertEquals(0, subscriptionResponseDtos.getFirst().getMealSelectionResponseDtos().size());
+        assertEquals(SubscriptionStatus.CANCELLED, subscriptionResponseDtos.getFirst().getSubscriptionStatus());
     }
 
     @Test

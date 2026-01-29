@@ -11,8 +11,8 @@ import com.nyihtuun.bentosystem.planmanagementservice.domain.entity.PlanMeal;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.exception.PlanManagementErrorCode;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -78,7 +78,7 @@ public class PlanManagementDomainServiceImpl implements PlanManagementDomainServ
         DeliverySchedule deliverySchedule = DeliverySchedule.builder()
                                                  .deliveryScheduleId(deliveryScheduleId)
                                                  .planId(plan.getId())
-                                                 .createdAt(LocalDateTime.now())
+                                                 .createdAt(Instant.now())
                                                  .periodStart(periodContext.periodStart())
                                                  .periodEnd(periodContext.periodEnd())
                                                  .deliverySchedules(deliveryScheduleDetails)

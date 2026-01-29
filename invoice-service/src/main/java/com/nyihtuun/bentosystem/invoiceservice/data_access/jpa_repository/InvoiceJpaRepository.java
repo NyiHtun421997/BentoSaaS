@@ -4,11 +4,11 @@ import com.nyihtuun.bentosystem.invoiceservice.data_access.jpa_entity.InvoiceEnt
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
 @Repository
 public interface InvoiceJpaRepository extends JpaRepository<InvoiceEntity, UUID> {
-    List<InvoiceEntity> findAllByUserIdAndIssuedAtAfter(UUID userId, LocalDateTime dateTime);
+    List<InvoiceEntity> findAllByUserIdAndIssuedAtAfter(UUID userId, Instant dateTime);
 }

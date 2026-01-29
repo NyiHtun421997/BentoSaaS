@@ -5,10 +5,7 @@ import com.nyihtuun.bentosystem.planmanagementservice.data_access.jpa_entity.*;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.entity.*;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -89,7 +86,7 @@ public class PlanManagementDataAccessMapper {
                                           .userId(plan.getProviderUserId().getValue())
                                           .skipDates(plan.getSkipDays())
                                           .addressEntity(addressToAddressEntity(plan.getAddress()))
-                                          .categoryEntities(categoryEntities)
+                                          .categoryEntities(new HashSet<>(categoryEntities))
                                           .displaySubscriptionFee(plan.getDisplaySubscriptionFee().amount())
                                           .deleteFlag(plan.isDeleteFlag())
                                           .deletedAt(plan.getDeletedAt())

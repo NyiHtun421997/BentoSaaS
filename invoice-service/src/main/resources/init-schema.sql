@@ -16,9 +16,9 @@ CREATE TABLE "invoice".invoice
     provided_user_id uuid         NOT NULL,
     invoice_status invoice_status NOT NULL,
     amount         NUMERIC(10, 2) NOT NULL CHECK ( amount > 0 ),
-    issued_at      TIMESTAMP      NOT NULL,
-    updated_at     TIMESTAMP,
-    paid_at        TIMESTAMP,
+    issued_at      TIMESTAMPTZ    NOT NULL,
+    updated_at     TIMESTAMPTZ,
+    paid_at        TIMESTAMPTZ,
     period_start   DATE           NOT NULL,
     period_end     DATE           NOT NULL,
 
