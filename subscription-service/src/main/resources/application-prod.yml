@@ -21,7 +21,6 @@ logging:
 
 subscription:
   plan-management-service-url: http://localhost:4000/plan-management
-  plan-management-api: api
   plan-management-version: v1
   plan-management-plan-details-path: plan
   connect-timeout-seconds: 5

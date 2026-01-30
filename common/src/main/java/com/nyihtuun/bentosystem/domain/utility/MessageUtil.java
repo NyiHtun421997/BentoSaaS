@@ -7,6 +7,7 @@ public class MessageUtil {
     public static final String PLAN_ERROR = "plan.error.";
     public static final String SUBSCRIPTION_ERROR = "subscription.error.";
     public static final String INVOICE_ERROR = "invoice.error.";
+    public static final String USER_ERROR = "user.error.";
 
     public static String toKey(String code) {
         return code.toLowerCase().replace('_', '-');

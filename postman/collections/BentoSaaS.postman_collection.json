@@ -184,9 +184,12 @@
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{plan}}10000000-0000-0000-0000-000000000002",
+                  "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{plan}}/10000000-0000-0000-0000-000000000004",
                   "host": [
-                    "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{plan}}10000000-0000-0000-0000-000000000002"
+                    "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{plan}}"
+                  ],
+                  "path": [
+                    "10000000-0000-0000-0000-000000000004"
                   ]
                 }
               },
@@ -372,7 +375,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"planId\": \"10000000-0000-0000-0000-000000000004\",\n    \"planMealIds\": [\"20000000-0000-0000-0000-000000000010\", \"20000000-0000-0000-0000-000000000011\"],\n    \"providedUserId\": \"b7d60be9-75f2-41be-a39e-a4fbfce08c85\"\n}",
+              "raw": "{\n    \"planId\": \"10000000-0000-0000-0000-000000000007\",\n    \"planMealIds\": [\"20000000-0000-0000-0000-000000000019\", \"20000000-0000-0000-0000-000000000020\"],\n    \"providedUserId\": \"11111111-0000-0000-0000-000000000007\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -395,12 +398,12 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}{{subscription_sub_path}}{{api_version}}/0310e822-51e3-4070-b0a1-52626948c5e4",
+              "raw": "{{base_url}}{{subscription_sub_path}}{{api_version}}/72178769-5701-459b-ad15-b174060b6aa4",
               "host": [
                 "{{base_url}}{{subscription_sub_path}}{{api_version}}"
               ],
               "path": [
-                "0310e822-51e3-4070-b0a1-52626948c5e4"
+                "72178769-5701-459b-ad15-b174060b6aa4"
               ]
             }
           },
@@ -444,7 +447,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"planId\": \"10000000-0000-0000-0000-000000000007\",\n    \"planMealIds\": [\"20000000-0000-0000-0000-000000000019\", \"20000000-0000-0000-0000-000000000020\"],\n    \"providedUserId\": \"11111111-0000-0000-0000-000000000007\"\n}",
+              "raw": "{\n    \"planId\": \"10000000-0000-0000-0000-000000000007\",\n    \"planMealIds\": [\"20000000-0000-0000-0000-000000000020\", \"20000000-0000-0000-0000-000000000021\"],\n    \"providedUserId\": \"11111111-0000-0000-0000-000000000007\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -452,12 +455,12 @@
               }
             },
             "url": {
-              "raw": "{{base_url}}{{subscription_sub_path}}{{api_version}}/3d2f7123-b4c0-400c-93fd-f5cb3273ac4c",
+              "raw": "{{base_url}}{{subscription_sub_path}}{{api_version}}/52dd57e6-1f06-41b9-8380-818dcbebc6e8",
               "host": [
                 "{{base_url}}{{subscription_sub_path}}{{api_version}}"
               ],
               "path": [
-                "3d2f7123-b4c0-400c-93fd-f5cb3273ac4c"
+                "52dd57e6-1f06-41b9-8380-818dcbebc6e8"
               ]
             }
           },
@@ -494,7 +497,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}{{inventoryp_sub_path}}{{api_version}}/byuseridanddate?userId=3e03ba02-249d-441a-b788-b374552197e3&date=2026-01-01",
+              "raw": "{{base_url}}{{inventoryp_sub_path}}{{api_version}}/byuseridanddate?userId=22222222-0000-0000-0000-000000000006&date=2026-01-01",
               "host": [
                 "{{base_url}}{{inventoryp_sub_path}}{{api_version}}"
               ],
@@ -504,7 +507,7 @@
               "query": [
                 {
                   "key": "userId",
-                  "value": "3e03ba02-249d-441a-b788-b374552197e3",
+                  "value": "22222222-0000-0000-0000-000000000006",
                   "uuid": "6437cab9-f962-42ba-ac3b-dfb87775ca52"
                 },
                 {
@@ -524,12 +527,12 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}{{inventoryp_sub_path}}{{api_version}}/ad14c6b9-1d08-4178-af23-c01dba98a2c4",
+              "raw": "{{base_url}}{{inventoryp_sub_path}}{{api_version}}/a91854f7-787b-49e3-969e-193b143db6c4",
               "host": [
                 "{{base_url}}{{inventoryp_sub_path}}{{api_version}}"
               ],
               "path": [
-                "ad14c6b9-1d08-4178-af23-c01dba98a2c4"
+                "a91854f7-787b-49e3-969e-193b143db6c4"
               ]
             }
           },
@@ -541,45 +544,44 @@
   ],
   "variable": [
     {
-      "id": "c8cd39fe-e369-4a04-9803-df4b366ef235",
+      "id": "bf378380-b095-4b69-9dc7-732f79729823",
       "key": "base_url",
       "value": ""
     },
     {
-      "id": "008e420f-1695-4f86-ad44-591ad6e489de",
+      "id": "aabc3772-8dae-4efa-ba3f-e49fe74a092e",
       "key": "plan_management_sub_path",
       "value": ""
     },
     {
-      "id": "1d7a5c80-ff97-4e67-9a03-d85f8e6a123c",
+      "id": "8a5072cd-985d-49c1-b566-77ab80e693a0",
       "key": "api_version",
       "value": ""
     },
     {
-      "id": "7c276cdf-c0c5-4da6-8206-9c3ea335e705",
+      "id": "86bf3c45-406a-4fc8-83b3-01773e5ddfaa",
       "key": "plan",
       "value": ""
     },
     {
-      "id": "d66f3e53-d6e3-4c7d-aaa5-9568bf504d67",
+      "id": "861cec96-b516-49dc-af2b-19f5eb0ec458",
       "key": "provider_plan",
       "value": ""
     },
     {
-      "id": "313e350f-a1c9-4508-b7af-e4856870a8f0",
+      "id": "d3322ae4-97fc-4efe-8014-08d40bf02f9a",
       "key": "meal",
       "value": ""
     },
     {
-      "id": "6fddf895-9ce7-4e01-b239-35f57f088014",
+      "id": "ccb9cc77-8081-4cc1-b28b-215872e8db02",
       "key": "subscription_sub_path",
       "value": ""
     },
     {
-      "id": "b9d3d835-e9d1-4358-a93e-ea6e2894a8be",
+      "id": "42fcffc9-f978-4d57-9db0-237ad57c0af7",
       "key": "inventoryp_sub_path",
-      "value": "",
-      "type": "default"
+      "value": ""
     }
   ]
 }

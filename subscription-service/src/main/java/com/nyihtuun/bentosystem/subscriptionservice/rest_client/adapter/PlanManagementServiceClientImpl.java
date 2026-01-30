@@ -39,7 +39,6 @@ public class PlanManagementServiceClientImpl implements PlanManagementServiceCli
 
         PlanResponseDto planResponseDto = restClient.get()
                                                     .uri(uriBuilder -> uriBuilder.pathSegment(
-                                                                                         configData.planManagementApi(),
                                                                                          configData.planManagementVersion(),
                                                                                          configData.planManagementPlanDetailsPath(),
                                                                                          subscriptionRequestDto.getPlanId().toString())

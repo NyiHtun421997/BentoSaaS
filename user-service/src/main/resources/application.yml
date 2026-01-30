@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: user-service
+  messages:
+    basename: messages
+    encoding: UTF-8
+
+server:
+  port: 4004
+  servlet:
+    context-path: /user

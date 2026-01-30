@@ -5,7 +5,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "subscription")
 public record SubscriptionConfigData(
         String planManagementServiceUrl,
-        String planManagementApi,
         String planManagementVersion,
         String planManagementPlanDetailsPath,
         long connectTimeoutSeconds,
