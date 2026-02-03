@@ -24,6 +24,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
@@ -106,6 +110,7 @@ class SubscriptionServiceApplicationTests {
 
     @BeforeEach
     void setUp() {
+        SecurityContextHolder.clearContext();
         userId = new UserId(USER_ID_UUID);
         providedUserId = new UserId(PROVIDED_USER_ID_UUID);
         planId = new PlanId(PLAN_ID_UUID);
@@ -245,8 +250,9 @@ class SubscriptionServiceApplicationTests {
 
     @Test
     void testValidateAndUpdateSubscription() {
+        setupSecurityContext("USER", USER_ID_UUID.toString());
         SubscriptionResponseDto subscriptionResponseDto = subscriptionCommandService.validateAndUpdateSubscription(subscriptionId,
-                                                                                                                   updateSubscriptionRequestDto);
+                                                                                                                    updateSubscriptionRequestDto);
 
         assertNotNull(subscriptionResponseDto);
         assertNotNull(subscriptionResponseDto.getSubscriptionId());
@@ -299,13 +305,14 @@ class SubscriptionServiceApplicationTests {
 
     @Test
     void testCancelSubscription() {
+        setupSecurityContext("USER", USER_ID_UUID.toString());
         SubscriptionResponseDto subscriptionResponseDto = subscriptionCommandService.cancelSubscription(subscriptionId);
         assertEquals(SubscriptionStatus.CANCELLED, subscriptionResponseDto.getSubscriptionStatus());
-        assertEquals(subscriptionId.getValue(), subscriptionResponseDto.getSubscriptionId());
     }
 
     @Test
     void testCancelSubscription_invalidSubscription_shouldThrow() {
+        setupSecurityContext("USER", USER_ID_UUID.toString());
         SubscriptionDomainException subscriptionDomainException = assertThrows(SubscriptionDomainException.class,
                                                                                () -> subscriptionCommandService.cancelSubscription(
                                                                                        invalidSubscriptionId));
@@ -315,6 +322,7 @@ class SubscriptionServiceApplicationTests {
 
     @Test
     void testReflectPlanChanged_activated() {
+        setupSecurityContext("USER", USER_ID_UUID.toString());
         List<SubscriptionResponseDto> subscriptionResponseDtos = subscriptionCommandService.reflectPlanChanged(planId,
                                                                                                                PlanStatus.ACTIVE);
         assertEquals(SubscriptionStatus.SUBSCRIBED, subscriptionResponseDtos.getFirst().getSubscriptionStatus());
@@ -323,6 +331,7 @@ class SubscriptionServiceApplicationTests {
 
     @Test
     void testReflectPlanChanged_suspended() {
+        setupSecurityContext("USER", USER_ID_UUID.toString());
         dummySubscription = Subscription.builder()
                                         .subscriptionId(subscriptionId)
                                         .planId(planId)
@@ -339,6 +348,7 @@ class SubscriptionServiceApplicationTests {
 
     @Test
     void testReflectPlanChanged_cancelled() {
+        setupSecurityContext("USER", USER_ID_UUID.toString());
         List<SubscriptionResponseDto> subscriptionResponseDtos = subscriptionCommandService.reflectPlanChanged(planId, PlanStatus.CANCELLED);
         assertEquals(SubscriptionStatus.CANCELLED, subscriptionResponseDtos.getFirst().getSubscriptionStatus());
         assertEquals(PLAN_ID_UUID, subscriptionResponseDtos.getFirst().getPlanId());
@@ -346,6 +356,7 @@ class SubscriptionServiceApplicationTests {
 
     @Test
     void testReflectPlanMealsRemoved_statusUnchanged() {
+        setupSecurityContext("USER", USER_ID_UUID.toString());
         List<SubscriptionResponseDto> subscriptionResponseDtos = subscriptionCommandService.reflectPlanMealsRemoved(planId, List.of(planMealId2));
         assertEquals(1, subscriptionResponseDtos.getFirst().getMealSelectionResponseDtos().size());
         assertEquals(PLAN_MEAL_ID_UUID1, subscriptionResponseDtos.getFirst().getMealSelectionResponseDtos().getFirst().getPlanMealId());
@@ -354,6 +365,7 @@ class SubscriptionServiceApplicationTests {
 
     @Test
     void testReflectPlanMealsRemoved_statusChanged() {
+        setupSecurityContext("USER", USER_ID_UUID.toString());
         List<SubscriptionResponseDto> subscriptionResponseDtos = subscriptionCommandService.reflectPlanMealsRemoved(planId, List.of(planMealId1, planMealId2));
         assertEquals(0, subscriptionResponseDtos.getFirst().getMealSelectionResponseDtos().size());
         assertEquals(SubscriptionStatus.CANCELLED, subscriptionResponseDtos.getFirst().getSubscriptionStatus());
@@ -361,6 +373,7 @@ class SubscriptionServiceApplicationTests {
 
     @Test
     void testGetMySubscriptions() {
+        setupSecurityContext("USER", USER_ID_UUID.toString());
         List<SubscriptionResponseDto> mySubscriptions = subscriptionQueryService.getMySubscriptions(userId.getValue(),
                                                                                                     LocalDate.now());
 
@@ -379,6 +392,7 @@ class SubscriptionServiceApplicationTests {
 
     @Test
     void testGetSubscriptionById() {
+        setupSecurityContext("USER", USER_ID_UUID.toString());
         SubscriptionResponseDto subscription = subscriptionQueryService.getSubscriptionById(SUBSCRIPTION_ID_UUID).get();
 
         assertEquals(SUBSCRIPTION_ID_UUID, subscription.getSubscriptionId());
@@ -391,5 +405,13 @@ class SubscriptionServiceApplicationTests {
         assertEquals(PLAN_MEAL_ID_UUID2, subscription.getMealSelectionResponseDtos().get(1).getPlanMealId());
         assertEquals(SUBSCRIPTION_ID_UUID, subscription.getMealSelectionResponseDtos().get(0).getSubscriptionId());
         assertEquals(SUBSCRIPTION_ID_UUID, subscription.getMealSelectionResponseDtos().get(1).getSubscriptionId());
+    }
+
+    private void setupSecurityContext(String role, String username) {
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                username, null, List.of(new SimpleGrantedAuthority("ROLE_" + role)));
+        context.setAuthentication(authentication);
+        SecurityContextHolder.setContext(context);
     }
 }

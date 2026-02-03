@@ -39,10 +39,10 @@ public class PlanPlanMealCommandController {
     @PostMapping
     @Operation(summary = "Create a new plan", description = "Initiates a new bento plan for a provider.")
     @ApiResponse(responseCode = "200", description = "Plan created successfully")
-    public ResponseEntity<PlanResponseDto> createPlan(@Validated({Default.class, CreatePlanValidationGroup.class}) @RequestBody PlanRequestDto planRequestDto) {
-        // TODO : implement authentication and jwt related services
-        // temporarily assume we will get user id from jwt
-        UUID userId = UUID.randomUUID();
+    public ResponseEntity<PlanResponseDto> createPlan(@Validated({Default.class, CreatePlanValidationGroup.class}) @RequestBody PlanRequestDto planRequestDto,
+                                                      @RequestHeader(name = "X-USER-ID") String userIdStr) {
+
+        UUID userId = UUID.fromString(userIdStr);
         log.info("Creating plan: {}", planRequestDto);
         PlanResponseDto planResponseDto = planManagementCommandService.validateAndInitiatePlan(planRequestDto, new UserId(userId));
         log.info("Plan created: {}", planResponseDto);
@@ -63,11 +63,11 @@ public class PlanPlanMealCommandController {
     @DeleteMapping(PLAN_ID)
     @Operation(summary = "Delete a plan", description = "Soft deletes a plan by ID.")
     @ApiResponse(responseCode = "200", description = "Plan deleted successfully")
-    public ResponseEntity<?> deletePlan(@PathVariable UUID planId) {
+    public ResponseEntity<PlanResponseDto> deletePlan(@PathVariable UUID planId) {
         log.info("Deleting plan with planId: {}", planId);
-        planManagementCommandService.deletePlan(new PlanId(planId));
+        PlanResponseDto planResponseDto = planManagementCommandService.deletePlan(new PlanId(planId));
         log.info("Plan with planId: {} deleted", planId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(planResponseDto);
     }
 
     @PostMapping(MEAL + PLAN_ID)

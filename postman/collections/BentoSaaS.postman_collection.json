@@ -12,24 +12,47 @@
           "name": "Cateogory",
           "item": [
             {
-              "name": "New Request",
+              "name": "Get All Categories",
               "id": "a4a220ab-f82f-4374-a4ef-315504bcd14d",
               "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "eyJhbGciOiJIUzM4NCJ9.eyJyb2xlIjpbeyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sInN1YiI6IjE1Y2QzY2I3LTZlN2QtNGViNS05NzEyLTMyNDM4MmUxMTg3ZSIsImlhdCI6MTc3MDEwMjE4OSwiZXhwIjoxNzcwMTA5Mzg5fQ.C0lgVwDyr9hVK7DNfOaAwg6WCXmVPKSAMvkF09NWyXorGG8Ly4l25jcUCObhD32P",
+                      "type": "string"
+                    }
+                  ]
+                },
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}category",
+                  "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}/category",
                   "host": [
-                    "{{base_url}}{{plan_management_sub_path}}{{api_version}}category"
+                    "{{base_url}}{{plan_management_sub_path}}{{api_version}}"
+                  ],
+                  "path": [
+                    "category"
                   ]
                 }
               },
               "response": []
             },
             {
-              "name": "New Request",
+              "name": "Create Category",
               "id": "9d846eea-0f35-4c64-bae5-81bb7ca001ba",
               "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "eyJhbGciOiJIUzM4NCJ9.eyJyb2xlIjpbeyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sInN1YiI6IjE1Y2QzY2I3LTZlN2QtNGViNS05NzEyLTMyNDM4MmUxMTg3ZSIsImlhdCI6MTc3MDEwMjE4OSwiZXhwIjoxNzcwMTA5Mzg5fQ.C0lgVwDyr9hVK7DNfOaAwg6WCXmVPKSAMvkF09NWyXorGG8Ly4l25jcUCObhD32P",
+                      "type": "string"
+                    }
+                  ]
+                },
                 "method": "POST",
                 "header": [],
                 "body": {
@@ -42,9 +65,12 @@
                   }
                 },
                 "url": {
-                  "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}category",
+                  "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}/category",
                   "host": [
-                    "{{base_url}}{{plan_management_sub_path}}{{api_version}}category"
+                    "{{base_url}}{{plan_management_sub_path}}{{api_version}}"
+                  ],
+                  "path": [
+                    "category"
                   ]
                 }
               },
@@ -60,28 +86,44 @@
               "name": "DeliverySchedule",
               "item": [
                 {
-                  "name": "New Request",
+                  "name": "Get All Schedules",
                   "id": "0b208bf5-8c18-4444-bc26-962bbd90bddd",
                   "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "eyJhbGciOiJIUzM4NCJ9.eyJyb2xlIjpbeyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sInN1YiI6IjE1Y2QzY2I3LTZlN2QtNGViNS05NzEyLTMyNDM4MmUxMTg3ZSIsImlhdCI6MTc3MDEwMjE4OSwiZXhwIjoxNzcwMTA5Mzg5fQ.C0lgVwDyr9hVK7DNfOaAwg6WCXmVPKSAMvkF09NWyXorGG8Ly4l25jcUCObhD32P",
+                          "type": "string"
+                        }
+                      ]
+                    },
                     "method": "GET",
                     "header": [],
                     "url": {
-                      "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{plan}}delivery-schedule?planId&start&end",
+                      "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{plan}}/delivery-schedule?planId=10000000-0000-0000-0000-000000000003&start=2026-02-01&end=2026-02-28",
                       "host": [
-                        "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{plan}}delivery-schedule"
+                        "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{plan}}"
+                      ],
+                      "path": [
+                        "delivery-schedule"
                       ],
                       "query": [
                         {
                           "key": "planId",
-                          "value": null
+                          "value": "10000000-0000-0000-0000-000000000003",
+                          "uuid": "5913bf2f-6dc3-401e-8488-1b4cedf0928d"
                         },
                         {
                           "key": "start",
-                          "value": null
+                          "value": "2026-02-01",
+                          "uuid": "3689dfcd-cf9e-46a0-8378-7b730bd0cdfb"
                         },
                         {
                           "key": "end",
-                          "value": null
+                          "value": "2026-02-28",
+                          "uuid": "9b1d69f2-5a9a-4449-968d-a83829697c16"
                         }
                       ]
                     }
@@ -92,9 +134,19 @@
               "id": "747cdb92-e14f-428f-8abb-e3f7f1e6880d"
             },
             {
-              "name": "New Request",
+              "name": "All Plans",
               "id": "ee58efae-86a4-42f8-8572-07d25884ee82",
               "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "eyJhbGciOiJIUzM4NCJ9.eyJyb2xlIjpbeyJhdXRob3JpdHkiOiJST0xFX0FETUlOIn0seyJhdXRob3JpdHkiOiJST0xFX1BST1ZJREVSIn0seyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sInN1YiI6IjIyMjIyMjIyLTAwMDAtMDAwMC0wMDAwLTAwMDAwMDAwMDAwMSIsImlhdCI6MTc3MDA0Mzg0NiwiZXhwIjoxNzcwMDUxMDQ2fQ.gqJOfAWMHMhk7EuSC0J6y9Q7Z3KuIMc2P2MbBhH8gAqPJtbLJpIaz40lP5msxfFj",
+                      "type": "string"
+                    }
+                  ]
+                },
                 "method": "GET",
                 "header": [],
                 "url": {
@@ -107,24 +159,39 @@
               "response": []
             },
             {
-              "name": "New Request",
+              "name": "ByTitleAndCode",
               "id": "5607fab1-ed7f-49b7-bacf-5c3b7702adf8",
               "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "eyJhbGciOiJIUzM4NCJ9.eyJyb2xlIjpbeyJhdXRob3JpdHkiOiJST0xFX0FETUlOIn0seyJhdXRob3JpdHkiOiJST0xFX1BST1ZJREVSIn0seyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sInN1YiI6IjIyMjIyMjIyLTAwMDAtMDAwMC0wMDAwLTAwMDAwMDAwMDAwMSIsImlhdCI6MTc3MDAzNjI0NywiZXhwIjoxNzcwMDQzNDQ3fQ.iaplNoeAw2DKxwKv6xpJkuwip0wAek540oKctxgeGciuRSkGclHUttDzbfQtwCxp",
+                      "type": "string"
+                    }
+                  ]
+                },
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{plan}}bytitleandcode?title=spicy&code=AA00006",
+                  "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{plan}}/bytitleandcode?title=spicy&code=AA00006",
                   "host": [
-                    "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{plan}}bytitleandcode"
+                    "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{plan}}"
+                  ],
+                  "path": [
+                    "bytitleandcode"
                   ],
                   "query": [
                     {
                       "key": "title",
-                      "value": "spicy"
+                      "value": "spicy",
+                      "uuid": "d6438ed6-e506-455a-98d5-80b313e4d90e"
                     },
                     {
                       "key": "code",
-                      "value": "AA00006"
+                      "value": "AA00006",
+                      "uuid": "269c5420-821f-495b-bc93-152eb56ad54b"
                     }
                   ]
                 }
@@ -132,7 +199,7 @@
               "response": []
             },
             {
-              "name": "New Request",
+              "name": "ByCategory",
               "id": "26594856-5168-45e9-8293-d36793a22540",
               "request": {
                 "method": "GET",
@@ -153,7 +220,7 @@
               "response": []
             },
             {
-              "name": "New Request",
+              "name": "NearMe",
               "id": "8de83179-2cc0-42a1-bff2-66614a70fb24",
               "request": {
                 "method": "GET",
@@ -178,38 +245,62 @@
               "response": []
             },
             {
-              "name": "New Request",
+              "name": "ById",
               "id": "d0a0a723-cd97-42db-be99-d33ef5c784e1",
               "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "eyJhbGciOiJIUzM4NCJ9.eyJyb2xlIjpbeyJhdXRob3JpdHkiOiJST0xFX0FETUlOIn0seyJhdXRob3JpdHkiOiJST0xFX1BST1ZJREVSIn0seyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sInN1YiI6IjIyMjIyMjIyLTAwMDAtMDAwMC0wMDAwLTAwMDAwMDAwMDAwMSIsImlhdCI6MTc3MDA0Mzg0NiwiZXhwIjoxNzcwMDUxMDQ2fQ.gqJOfAWMHMhk7EuSC0J6y9Q7Z3KuIMc2P2MbBhH8gAqPJtbLJpIaz40lP5msxfFj",
+                      "type": "string"
+                    }
+                  ]
+                },
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{plan}}/10000000-0000-0000-0000-000000000004",
+                  "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{plan}}/cbe5e08c-f754-4360-bcb0-b57de9963211",
                   "host": [
                     "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{plan}}"
                   ],
                   "path": [
-                    "10000000-0000-0000-0000-000000000004"
+                    "cbe5e08c-f754-4360-bcb0-b57de9963211"
                   ]
                 }
               },
               "response": []
             },
             {
-              "name": "New Request",
+              "name": "ByUserId",
               "id": "ea1a5795-2928-4496-821d-dae9ea2fef2b",
               "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "eyJhbGciOiJIUzM4NCJ9.eyJyb2xlIjpbeyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sInN1YiI6ImY3NWMwMjA0LWZjNjYtNGI1MS05ODQyLWZjMTk3ZWU5YWM0YyIsImlhdCI6MTc3MDEwNjk5OSwiZXhwIjoxNzcwMTE0MTk5fQ.Ihftnpx-qAc4AvTnblq_I5UQ4pLf7QVK9gbgKe3sw6OdcKUQj9cjIDs6Ul2hNtRi",
+                      "type": "string"
+                    }
+                  ]
+                },
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{plan}}byuserid?userId=ac42f897-33e4-41c0-be98-d37f3c7908cc",
+                  "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{plan}}/byuserid?userId=ffc667a8-25e9-4d0c-9837-5408ea03315b",
                   "host": [
-                    "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{plan}}byuserid"
+                    "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{plan}}"
+                  ],
+                  "path": [
+                    "byuserid"
                   ],
                   "query": [
                     {
                       "key": "userId",
-                      "value": "ac42f897-33e4-41c0-be98-d37f3c7908cc"
+                      "value": "ffc667a8-25e9-4d0c-9837-5408ea03315b",
+                      "uuid": "3ff75266-8825-4811-9a50-bd3ab8c91e9e"
                     }
                   ]
                 }
@@ -226,9 +317,19 @@
               "name": "Meal",
               "item": [
                 {
-                  "name": "New Request",
+                  "name": "Add Meal",
                   "id": "d51429be-60a0-4e7e-b16b-4f6c094657a7",
                   "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "eyJhbGciOiJIUzM4NCJ9.eyJyb2xlIjpbeyJhdXRob3JpdHkiOiJST0xFX1BST1ZJREVSIn0seyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sInN1YiI6ImZmYzY2N2E4LTI1ZTktNGQwYy05ODM3LTU0MDhlYTAzMzE1YiIsImlhdCI6MTc3MDEwNjkxNCwiZXhwIjoxNzcwMTE0MTE0fQ.4fFpF3aBezibBI8igfm8bph_AS4jTbftCjJF1XOwK_c64p4Ir2jzr3AkMa59KNZb",
+                          "type": "string"
+                        }
+                      ]
+                    },
                     "method": "POST",
                     "header": [],
                     "body": {
@@ -241,21 +342,31 @@
                       }
                     },
                     "url": {
-                      "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{provider_plan}}{{meal}}/241b94bd-c942-4a28-9850-4a0ac6cdb802",
+                      "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{provider_plan}}{{meal}}/ea42c043-22c1-4dbc-9f99-34153e0d0835",
                       "host": [
                         "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{provider_plan}}{{meal}}"
                       ],
                       "path": [
-                        "241b94bd-c942-4a28-9850-4a0ac6cdb802"
+                        "ea42c043-22c1-4dbc-9f99-34153e0d0835"
                       ]
                     }
                   },
                   "response": []
                 },
                 {
-                  "name": "New Request",
+                  "name": "Update Meal",
                   "id": "f98c8b4d-f239-4bc9-aa22-411930ee9426",
                   "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "eyJhbGciOiJIUzM4NCJ9.eyJyb2xlIjpbeyJhdXRob3JpdHkiOiJST0xFX1BST1ZJREVSIn0seyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sInN1YiI6ImZmYzY2N2E4LTI1ZTktNGQwYy05ODM3LTU0MDhlYTAzMzE1YiIsImlhdCI6MTc3MDEwNjkxNCwiZXhwIjoxNzcwMTE0MTE0fQ.4fFpF3aBezibBI8igfm8bph_AS4jTbftCjJF1XOwK_c64p4Ir2jzr3AkMa59KNZb",
+                          "type": "string"
+                        }
+                      ]
+                    },
                     "method": "PUT",
                     "header": [],
                     "body": {
@@ -268,18 +379,57 @@
                       }
                     },
                     "url": {
-                      "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{provider_plan}}{{meal}}?planId=241b94bd-c942-4a28-9850-4a0ac6cdb802&mealId=55679910-c28b-47dd-a877-f10a36d83508",
+                      "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{provider_plan}}{{meal}}?planId=ea42c043-22c1-4dbc-9f99-34153e0d0835&mealId=736a1e8f-4388-4451-b696-de0aca134b3c",
                       "host": [
                         "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{provider_plan}}{{meal}}"
                       ],
                       "query": [
                         {
                           "key": "planId",
-                          "value": "241b94bd-c942-4a28-9850-4a0ac6cdb802"
+                          "value": "ea42c043-22c1-4dbc-9f99-34153e0d0835",
+                          "uuid": "132ff600-a4a8-4a0d-a837-d613b45e9506"
                         },
                         {
                           "key": "mealId",
-                          "value": "55679910-c28b-47dd-a877-f10a36d83508"
+                          "value": "736a1e8f-4388-4451-b696-de0aca134b3c",
+                          "uuid": "7df867a2-db44-40a4-af2b-7903b93cb927"
+                        }
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Remove Meal",
+                  "id": "ceac94d7-d1ea-4b2b-9316-2a225b3a0ea7",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "eyJhbGciOiJIUzM4NCJ9.eyJyb2xlIjpbeyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sInN1YiI6ImY3NWMwMjA0LWZjNjYtNGI1MS05ODQyLWZjMTk3ZWU5YWM0YyIsImlhdCI6MTc3MDEwNjk5OSwiZXhwIjoxNzcwMTE0MTk5fQ.Ihftnpx-qAc4AvTnblq_I5UQ4pLf7QVK9gbgKe3sw6OdcKUQj9cjIDs6Ul2hNtRi",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "DELETE",
+                    "header": [],
+                    "url": {
+                      "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{provider_plan}}{{meal}}?planId=ea42c043-22c1-4dbc-9f99-34153e0d0835&mealId=0b42ff97-7234-46f0-b901-30db932091f8",
+                      "host": [
+                        "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{provider_plan}}{{meal}}"
+                      ],
+                      "query": [
+                        {
+                          "key": "planId",
+                          "value": "ea42c043-22c1-4dbc-9f99-34153e0d0835",
+                          "uuid": "cc672d2c-7475-491b-98a6-0cc4827ae0d2"
+                        },
+                        {
+                          "key": "mealId",
+                          "value": "0b42ff97-7234-46f0-b901-30db932091f8",
+                          "uuid": "b379069d-8cb6-4a1a-a1ff-30e55c8977ce"
                         }
                       ]
                     }
@@ -290,11 +440,28 @@
               "id": "5b40c2d9-8e63-483e-90a7-7dd7a815d29f"
             },
             {
-              "name": "New Request",
+              "name": "Create Plan",
               "id": "356f8f17-c169-4112-87b6-617072d49950",
               "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "eyJhbGciOiJIUzM4NCJ9.eyJyb2xlIjpbeyJhdXRob3JpdHkiOiJST0xFX1BST1ZJREVSIn0seyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sInN1YiI6ImZmYzY2N2E4LTI1ZTktNGQwYy05ODM3LTU0MDhlYTAzMzE1YiIsImlhdCI6MTc3MDEwNjkxNCwiZXhwIjoxNzcwMTE0MTE0fQ.4fFpF3aBezibBI8igfm8bph_AS4jTbftCjJF1XOwK_c64p4Ir2jzr3AkMa59KNZb",
+                      "type": "string"
+                    }
+                  ]
+                },
                 "method": "POST",
-                "header": [],
+                "header": [
+                  {
+                    "key": "X-USER-ID",
+                    "value": "ffc667a8-25e9-4d0c-9837-5408ea03315b",
+                    "type": "text",
+                    "uuid": "92a684c5-2a69-4aaa-83a6-cd8c4354fa5f"
+                  }
+                ],
                 "body": {
                   "mode": "raw",
                   "raw": "{\n  \"title\": \"OSAKA BENTO\",\n  \"description\": \"Healthy lunch plan\",\n  \"categoryIds\": [\n    \"c0000000-0000-0000-0000-000000000002\"\n  ],\n  \"address\": {\n    \"buildingNameRoomNo\": \"Namba Skyo 10F\",\n    \"chomeBanGo\": \"1-2-3\",\n    \"district\": \"NAMBA\",\n    \"postalCode\": \"542-0076\",\n    \"city\": \"OSAKA\",\n    \"prefecture\": \"OSAKA\",\n    \"location\": {\n      \"latitude\": 34.6687,\n      \"longitude\": 135.5016\n    }\n  },\n  \"displaySubscriptionFee\": 9800.00,\n  \"skipDays\": [\n    \"2026-01-25\"\n  ],\n  \"planMealRequestDtos\": [\n    {\n      \"name\": \"GRILLED SALMON\",\n      \"description\": \"Salmon + rice + pickles\",\n      \"pricePerMonth\": 4900.00,\n      \"primary\": true,\n      \"minSubCount\": 10,\n      \"imageUrl\": \"https://images.unsplash.com/photo-1546069901-ba9599a7e63c\"\n    },\n    {\n      \"name\": \"CHICKEN TERIYAKI\",\n      \"description\": \"Teriyaki chicken bento\",\n      \"pricePerMonth\": 4900.00,\n      \"primary\": false,\n      \"minSubCount\": 5,\n      \"imageUrl\": \"https://images.unsplash.com/photo-1555939594-58d7cb561ad1\"\n    }\n  ]\n}",
@@ -314,14 +481,24 @@
               "response": []
             },
             {
-              "name": "New Request",
+              "name": "Update Plan",
               "id": "341f7ca8-39bf-431f-bfe9-13e19af62f74",
               "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "eyJhbGciOiJIUzM4NCJ9.eyJyb2xlIjpbeyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sInN1YiI6IjE1Y2QzY2I3LTZlN2QtNGViNS05NzEyLTMyNDM4MmUxMTg3ZSIsImlhdCI6MTc3MDEwMjE4OSwiZXhwIjoxNzcwMTA5Mzg5fQ.C0lgVwDyr9hVK7DNfOaAwg6WCXmVPKSAMvkF09NWyXorGG8Ly4l25jcUCObhD32P",
+                      "type": "string"
+                    }
+                  ]
+                },
                 "method": "PUT",
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"title\": \"OSAKA BENTO\",\n  \"description\": \"Healthy lunch plan\",\n  \"categoryIds\": [\n    \"c0000000-0000-0000-0000-000000000001\",\n    \"c0000000-0000-0000-0000-000000000002\"\n  ],\n  \"address\": {\n    \"buildingNameRoomNo\": \"Namba Skyo 13F\",\n    \"chomeBanGo\": \"1-2-3\",\n    \"district\": \"NAMBA\",\n    \"postalCode\": \"542-0076\",\n    \"city\": \"OSAKA\",\n    \"prefecture\": \"OSAKA\",\n    \"location\": {\n      \"latitude\": 34.6687,\n      \"longitude\": 135.5016\n    }\n  },\n  \"displaySubscriptionFee\": 9800.00,\n  \"skipDays\": [\n    \"2026-01-25\"\n  ]\n}",
+                  "raw": "{\n  \"title\": \"OSAKA BENTO\",\n  \"description\": \"HEALTHY LUNCH PLANS\",\n  \"categoryIds\": [\n    \"c0000000-0000-0000-0000-000000000001\",\n    \"c0000000-0000-0000-0000-000000000002\"\n  ],\n  \"address\": {\n    \"buildingNameRoomNo\": \"Namba Skyo 13F\",\n    \"chomeBanGo\": \"1-2-3\",\n    \"district\": \"NAMBA\",\n    \"postalCode\": \"542-0076\",\n    \"city\": \"OSAKA\",\n    \"prefecture\": \"OSAKA\",\n    \"location\": {\n      \"latitude\": 34.6687,\n      \"longitude\": 135.5016\n    }\n  },\n  \"displaySubscriptionFee\": 9800.00,\n  \"skipDays\": [\n    \"2026-01-25\"\n  ]\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -329,30 +506,40 @@
                   }
                 },
                 "url": {
-                  "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{provider_plan}}/cbcc8100-fc7b-4146-b2a3-8126431a51c3",
+                  "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{provider_plan}}/accee749-dfce-449a-835b-b4a8b734a657",
                   "host": [
                     "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{provider_plan}}"
                   ],
                   "path": [
-                    "cbcc8100-fc7b-4146-b2a3-8126431a51c3"
+                    "accee749-dfce-449a-835b-b4a8b734a657"
                   ]
                 }
               },
               "response": []
             },
             {
-              "name": "New Request",
+              "name": "Cancel Plan",
               "id": "313996d6-57c7-4e66-a833-6373b15d969d",
               "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "eyJhbGciOiJIUzM4NCJ9.eyJyb2xlIjpbeyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sInN1YiI6IjE1Y2QzY2I3LTZlN2QtNGViNS05NzEyLTMyNDM4MmUxMTg3ZSIsImlhdCI6MTc3MDEwMjE4OSwiZXhwIjoxNzcwMTA5Mzg5fQ.C0lgVwDyr9hVK7DNfOaAwg6WCXmVPKSAMvkF09NWyXorGG8Ly4l25jcUCObhD32P",
+                      "type": "string"
+                    }
+                  ]
+                },
                 "method": "DELETE",
                 "header": [],
                 "url": {
-                  "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{provider_plan}}/9ac66791-453e-4072-93b1-b5c33e7122aa",
+                  "raw": "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{provider_plan}}/accee749-dfce-449a-835b-b4a8b734a657",
                   "host": [
                     "{{base_url}}{{plan_management_sub_path}}{{api_version}}{{provider_plan}}"
                   ],
                   "path": [
-                    "9ac66791-453e-4072-93b1-b5c33e7122aa"
+                    "accee749-dfce-449a-835b-b4a8b734a657"
                   ]
                 }
               },
@@ -368,11 +555,28 @@
       "name": "Subscription",
       "item": [
         {
-          "name": "New Request",
+          "name": "Subscribe",
           "id": "10839987-e255-447a-8b66-0ee0cf309b63",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzM4NCJ9.eyJyb2xlIjpbeyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sInN1YiI6ImY3NWMwMjA0LWZjNjYtNGI1MS05ODQyLWZjMTk3ZWU5YWM0YyIsImlhdCI6MTc3MDExMTE4NSwiZXhwIjoxNzcwMTE4Mzg1fQ.3XBRLLmFXdPbozyAC9ZFQ5VCpwHUyYuyIUfpRAMfcm3axZ-QSL9NQlrie8nT9z45",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "POST",
-            "header": [],
+            "header": [
+              {
+                "key": "X-USER-ID",
+                "value": "f75c0204-fc66-4b51-9842-fc197ee9ac4c",
+                "type": "text",
+                "uuid": "9290e653-d1d0-4ccf-a8a7-608b4e43e890"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n    \"planId\": \"10000000-0000-0000-0000-000000000007\",\n    \"planMealIds\": [\"20000000-0000-0000-0000-000000000019\", \"20000000-0000-0000-0000-000000000020\"],\n    \"providedUserId\": \"11111111-0000-0000-0000-000000000007\"\n}",
@@ -392,31 +596,51 @@
           "response": []
         },
         {
-          "name": "New Request",
+          "name": "ById",
           "id": "8693a9f8-9e16-4a61-ba8c-44a9f17fee97",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzM4NCJ9.eyJyb2xlIjpbeyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sInN1YiI6ImY3NWMwMjA0LWZjNjYtNGI1MS05ODQyLWZjMTk3ZWU5YWM0YyIsImlhdCI6MTc3MDExMTE4NSwiZXhwIjoxNzcwMTE4Mzg1fQ.3XBRLLmFXdPbozyAC9ZFQ5VCpwHUyYuyIUfpRAMfcm3axZ-QSL9NQlrie8nT9z45",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}{{subscription_sub_path}}{{api_version}}/72178769-5701-459b-ad15-b174060b6aa4",
+              "raw": "{{base_url}}{{subscription_sub_path}}{{api_version}}/4cbbd696-b253-4154-bf16-7a91b9c223d3",
               "host": [
                 "{{base_url}}{{subscription_sub_path}}{{api_version}}"
               ],
               "path": [
-                "72178769-5701-459b-ad15-b174060b6aa4"
+                "4cbbd696-b253-4154-bf16-7a91b9c223d3"
               ]
             }
           },
           "response": []
         },
         {
-          "name": "New Request",
+          "name": "ByUserId",
           "id": "b835e6c6-7f3c-4cb8-bf6f-53c8d34b85ec",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzM4NCJ9.eyJyb2xlIjpbeyJhdXRob3JpdHkiOiJST0xFX1BST1ZJREVSIn0seyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sInN1YiI6ImZmYzY2N2E4LTI1ZTktNGQwYy05ODM3LTU0MDhlYTAzMzE1YiIsImlhdCI6MTc3MDEwNjkxNCwiZXhwIjoxNzcwMTE0MTE0fQ.4fFpF3aBezibBI8igfm8bph_AS4jTbftCjJF1XOwK_c64p4Ir2jzr3AkMa59KNZb",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}{{subscription_sub_path}}{{api_version}}/byuseridanddate?userId=82a94f21-db77-4737-a006-db74d133b990&since=2026-01-01",
+              "raw": "{{base_url}}{{subscription_sub_path}}{{api_version}}/byuseridanddate?userId=f75c0204-fc66-4b51-9842-fc197ee9ac4c&since=2026-01-01",
               "host": [
                 "{{base_url}}{{subscription_sub_path}}{{api_version}}"
               ],
@@ -426,7 +650,7 @@
               "query": [
                 {
                   "key": "userId",
-                  "value": "82a94f21-db77-4737-a006-db74d133b990",
+                  "value": "f75c0204-fc66-4b51-9842-fc197ee9ac4c",
                   "uuid": "80bc42b2-9a39-42f0-9d3a-fb3149f9ed33"
                 },
                 {
@@ -440,9 +664,19 @@
           "response": []
         },
         {
-          "name": "New Request",
+          "name": "Change Selections",
           "id": "ee648519-6847-4aa7-b244-4a7edc2d6604",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzM4NCJ9.eyJyb2xlIjpbeyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sInN1YiI6ImY3NWMwMjA0LWZjNjYtNGI1MS05ODQyLWZjMTk3ZWU5YWM0YyIsImlhdCI6MTc3MDExMTE4NSwiZXhwIjoxNzcwMTE4Mzg1fQ.3XBRLLmFXdPbozyAC9ZFQ5VCpwHUyYuyIUfpRAMfcm3axZ-QSL9NQlrie8nT9z45",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "PUT",
             "header": [],
             "body": {
@@ -455,30 +689,40 @@
               }
             },
             "url": {
-              "raw": "{{base_url}}{{subscription_sub_path}}{{api_version}}/52dd57e6-1f06-41b9-8380-818dcbebc6e8",
+              "raw": "{{base_url}}{{subscription_sub_path}}{{api_version}}/9a8c1562-2a30-4392-b0e9-3046c23d5f60",
               "host": [
                 "{{base_url}}{{subscription_sub_path}}{{api_version}}"
               ],
               "path": [
-                "52dd57e6-1f06-41b9-8380-818dcbebc6e8"
+                "9a8c1562-2a30-4392-b0e9-3046c23d5f60"
               ]
             }
           },
           "response": []
         },
         {
-          "name": "New Request",
+          "name": "Cancel",
           "id": "451c435e-5f24-448d-9125-defbcb600017",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzM4NCJ9.eyJyb2xlIjpbeyJhdXRob3JpdHkiOiJST0xFX1BST1ZJREVSIn0seyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sInN1YiI6ImZmYzY2N2E4LTI1ZTktNGQwYy05ODM3LTU0MDhlYTAzMzE1YiIsImlhdCI6MTc3MDEwNjkxNCwiZXhwIjoxNzcwMTE0MTE0fQ.4fFpF3aBezibBI8igfm8bph_AS4jTbftCjJF1XOwK_c64p4Ir2jzr3AkMa59KNZb",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{base_url}}{{subscription_sub_path}}{{api_version}}/3d2f7123-b4c0-400c-93fd-f5cb3273ac4c",
+              "raw": "{{base_url}}{{subscription_sub_path}}{{api_version}}/9a8c1562-2a30-4392-b0e9-3046c23d5f60",
               "host": [
                 "{{base_url}}{{subscription_sub_path}}{{api_version}}"
               ],
               "path": [
-                "3d2f7123-b4c0-400c-93fd-f5cb3273ac4c"
+                "9a8c1562-2a30-4392-b0e9-3046c23d5f60"
               ]
             }
           },
@@ -491,15 +735,25 @@
       "name": "Invoice",
       "item": [
         {
-          "name": "New Request",
+          "name": "ByUserIdAndDate",
           "id": "bc5a7bc9-e24b-4d67-b418-90943b38cb63",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzM4NCJ9.eyJyb2xlIjpbeyJhdXRob3JpdHkiOiJST0xFX1BST1ZJREVSIn0seyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sInN1YiI6ImZmYzY2N2E4LTI1ZTktNGQwYy05ODM3LTU0MDhlYTAzMzE1YiIsImlhdCI6MTc3MDEwNjkxNCwiZXhwIjoxNzcwMTE0MTE0fQ.4fFpF3aBezibBI8igfm8bph_AS4jTbftCjJF1XOwK_c64p4Ir2jzr3AkMa59KNZb",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}{{inventoryp_sub_path}}{{api_version}}/byuseridanddate?userId=22222222-0000-0000-0000-000000000006&date=2026-01-01",
+              "raw": "{{base_url}}{{inventory_sub_path}}{{api_version}}/byuseridanddate?userId=f75c0204-fc66-4b51-9842-fc197ee9ac4c&date=2026-01-01",
               "host": [
-                "{{base_url}}{{inventoryp_sub_path}}{{api_version}}"
+                "{{base_url}}{{inventory_sub_path}}{{api_version}}"
               ],
               "path": [
                 "byuseridanddate"
@@ -507,7 +761,7 @@
               "query": [
                 {
                   "key": "userId",
-                  "value": "22222222-0000-0000-0000-000000000006",
+                  "value": "f75c0204-fc66-4b51-9842-fc197ee9ac4c",
                   "uuid": "6437cab9-f962-42ba-ac3b-dfb87775ca52"
                 },
                 {
@@ -521,18 +775,28 @@
           "response": []
         },
         {
-          "name": "New Request",
+          "name": "ById",
           "id": "40a76441-43b4-4ebf-9b28-601ba7d75560",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzM4NCJ9.eyJyb2xlIjpbeyJhdXRob3JpdHkiOiJST0xFX1BST1ZJREVSIn0seyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sInN1YiI6ImZmYzY2N2E4LTI1ZTktNGQwYy05ODM3LTU0MDhlYTAzMzE1YiIsImlhdCI6MTc3MDEwNjkxNCwiZXhwIjoxNzcwMTE0MTE0fQ.4fFpF3aBezibBI8igfm8bph_AS4jTbftCjJF1XOwK_c64p4Ir2jzr3AkMa59KNZb",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}{{inventoryp_sub_path}}{{api_version}}/a91854f7-787b-49e3-969e-193b143db6c4",
+              "raw": "{{base_url}}{{inventory_sub_path}}{{api_version}}/9cee095e-f197-4247-978b-de9230ba5fbe",
               "host": [
-                "{{base_url}}{{inventoryp_sub_path}}{{api_version}}"
+                "{{base_url}}{{inventory_sub_path}}{{api_version}}"
               ],
               "path": [
-                "a91854f7-787b-49e3-969e-193b143db6c4"
+                "9cee095e-f197-4247-978b-de9230ba5fbe"
               ]
             }
           },
@@ -540,47 +804,383 @@
         }
       ],
       "id": "ca778fbe-912b-45fd-bc9e-943cf28b6186"
+    },
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "Login1",
+          "id": "dea6b511-2397-46a5-8c95-251c107a08bd",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "username",
+                  "value": "admin@bento.dev",
+                  "type": "text",
+                  "uuid": "08df9975-664a-4461-983c-bbbed5aa9616"
+                },
+                {
+                  "key": "password",
+                  "value": "password1",
+                  "type": "text",
+                  "uuid": "0acb97eb-9584-46bf-9bcc-38337ae3130f"
+                }
+              ],
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}{{user_sub_path}}/api/auth/login",
+              "host": [
+                "{{base_url}}{{user_sub_path}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login2",
+          "id": "7e5b4815-10f1-43cc-8891-abecc51f89d9",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "username",
+                  "value": "test@gmail.com",
+                  "type": "text",
+                  "uuid": "08df9975-664a-4461-983c-bbbed5aa9616"
+                },
+                {
+                  "key": "password",
+                  "value": "passwordx",
+                  "type": "text",
+                  "uuid": "0acb97eb-9584-46bf-9bcc-38337ae3130f"
+                }
+              ],
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}{{user_sub_path}}/api/auth/login",
+              "host": [
+                "{{base_url}}{{user_sub_path}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login3",
+          "id": "0f2092eb-b331-4264-8089-f648d4e97921",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "username",
+                  "value": "test-provider@gmail.com",
+                  "type": "text",
+                  "uuid": "08df9975-664a-4461-983c-bbbed5aa9616"
+                },
+                {
+                  "key": "password",
+                  "value": "passwordx",
+                  "type": "text",
+                  "uuid": "0acb97eb-9584-46bf-9bcc-38337ae3130f"
+                }
+              ],
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}{{user_sub_path}}/api/auth/login",
+              "host": [
+                "{{base_url}}{{user_sub_path}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Validate Token",
+          "id": "75369b17-117a-4271-8db3-47d766b7c001",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzM4NCJ9.eyJyb2xlIjpbeyJhdXRob3JpdHkiOiJST0xFX0FETUlOIn0seyJhdXRob3JpdHkiOiJST0xFX1BST1ZJREVSIn0seyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sInN1YiI6IjIyMjIyMjIyLTAwMDAtMDAwMC0wMDAwLTAwMDAwMDAwMDAwMSIsImlhdCI6MTc3MDAzMjA0OSwiZXhwIjoxNzcwMDM5MjQ5fQ.l_k0ti8CSVrjERDzus03ICISUk9VCyxn0It3yxxwIwpaRpgnjEgkZBDiP4o5hqnG",
+                "type": "text",
+                "uuid": "975ae644-ea9a-4b77-b2f7-f81f0ab9fd7f"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}{{user_sub_path}}{{api_version}}/validate-token",
+              "host": [
+                "{{base_url}}{{user_sub_path}}{{api_version}}"
+              ],
+              "path": [
+                "validate-token"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Users",
+          "id": "4c8f1b1d-fbec-4f82-817c-bb40de0d6990",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzM4NCJ9.eyJyb2xlIjpbeyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sInN1YiI6IjE1Y2QzY2I3LTZlN2QtNGViNS05NzEyLTMyNDM4MmUxMTg3ZSIsImlhdCI6MTc3MDEwMjE4OSwiZXhwIjoxNzcwMTA5Mzg5fQ.C0lgVwDyr9hVK7DNfOaAwg6WCXmVPKSAMvkF09NWyXorGG8Ly4l25jcUCObhD32P",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{user_sub_path}}{{api_version}}",
+              "host": [
+                "{{base_url}}{{user_sub_path}}{{api_version}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete User",
+          "id": "d63b414e-632a-43af-80d7-5d32beeed728",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzM4NCJ9.eyJyb2xlIjpbeyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sInN1YiI6IjE1Y2QzY2I3LTZlN2QtNGViNS05NzEyLTMyNDM4MmUxMTg3ZSIsImlhdCI6MTc3MDEwMjE4OSwiZXhwIjoxNzcwMTA5Mzg5fQ.C0lgVwDyr9hVK7DNfOaAwg6WCXmVPKSAMvkF09NWyXorGG8Ly4l25jcUCObhD32P",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{user_sub_path}}{{api_version}}/accee749-dfce-449a-835b-b4a8b734a657",
+              "host": [
+                "{{base_url}}{{user_sub_path}}{{api_version}}"
+              ],
+              "path": [
+                "accee749-dfce-449a-835b-b4a8b734a657"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Regular Signup",
+          "id": "f468e950-1510-43ae-ac1e-6b01f59ada32",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"test@gmail.com\",\n    \"password\": \"passwordx\",\n    \"firstName\": \"test\",\n    \"lastName\": \"name\",\n    \"phNo\": \"+12025550123\",\n    \"description\": \"testing\",\n    \"address\": {\n        \"buildingNameRoomNo\": \"Sunshine Heights 402\",\n        \"chomeBanGo\": \"1-2-3\",\n        \"district\": \"Chuo\",\n        \"postalCode\": \"104-0061\",\n        \"city\": \"Tokyo\",\n        \"prefecture\": \"Tokyo\"\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}{{user_sub_path}}{{api_version}}/signup/regular",
+              "host": [
+                "{{base_url}}{{user_sub_path}}{{api_version}}"
+              ],
+              "path": [
+                "signup",
+                "regular"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Provider Signup",
+          "id": "f8168082-5630-43c7-85d0-b1d1d6b608ad",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"test-provider@gmail.com\",\n    \"password\": \"passwordx\",\n    \"firstName\": \"test provider\",\n    \"lastName\": \"name\",\n    \"phNo\": \"+12025550123\",\n    \"description\": \"testing\",\n    \"address\": {\n        \"buildingNameRoomNo\": \"Sunshine Heights 402\",\n        \"chomeBanGo\": \"1-2-3\",\n        \"district\": \"Chuo\",\n        \"postalCode\": \"104-0061\",\n        \"city\": \"Tokyo\",\n        \"prefecture\": \"Tokyo\"\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}{{user_sub_path}}{{api_version}}/signup/provider",
+              "host": [
+                "{{base_url}}{{user_sub_path}}{{api_version}}"
+              ],
+              "path": [
+                "signup",
+                "provider"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "ById",
+          "id": "915bccc2-6fbe-43ea-a9b2-eab54d60d7bb",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzM4NCJ9.eyJyb2xlIjpbeyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sInN1YiI6IjE1Y2QzY2I3LTZlN2QtNGViNS05NzEyLTMyNDM4MmUxMTg3ZSIsImlhdCI6MTc3MDEwMjE4OSwiZXhwIjoxNzcwMTA5Mzg5fQ.C0lgVwDyr9hVK7DNfOaAwg6WCXmVPKSAMvkF09NWyXorGG8Ly4l25jcUCObhD32P",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{user_sub_path}}{{api_version}}/e96b0c6c-4c98-4c99-9649-fcd96a317fd9",
+              "host": [
+                "{{base_url}}{{user_sub_path}}{{api_version}}"
+              ],
+              "path": [
+                "e96b0c6c-4c98-4c99-9649-fcd96a317fd9"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update User",
+          "id": "17e0287b-8013-49ee-aae2-4c93525abff9",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzM4NCJ9.eyJyb2xlIjpbeyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sInN1YiI6IjIyMjIyMjIyLTAwMDAtMDAwMC0wMDAwLTAwMDAwMDAwMDAwMyIsImlhdCI6MTc3MDA5NjE3NCwiZXhwIjoxNzcwMTAzMzc0fQ.VmvR1A6LXYeZvWtUsK9Mr0B3hQ8lQduQbsTFrbZu_yB5wuJt8v1-zEDFW2k_jCNy",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"test@gmail.com\",\n    \"password\": \"passwordx\",\n    \"firstName\": \"tester\",\n    \"lastName\": \"name\",\n    \"phNo\": \"+12025550123\",\n    \"description\": \"testing\",\n    \"address\": {\n        \"buildingNameRoomNo\": \"Sunshine Heights 402\",\n        \"chomeBanGo\": \"1-2-3\",\n        \"district\": \"Chuo\",\n        \"postalCode\": \"104-0061\",\n        \"city\": \"Tokyo\",\n        \"prefecture\": \"Tokyo\"\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}{{user_sub_path}}{{api_version}}/482f4d31-68f0-46d3-8556-bd91c2e6df6b",
+              "host": [
+                "{{base_url}}{{user_sub_path}}{{api_version}}"
+              ],
+              "path": [
+                "482f4d31-68f0-46d3-8556-bd91c2e6df6b"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "9b228583-fdb5-4ed6-a279-be660872d3e3"
     }
   ],
   "variable": [
     {
-      "id": "bf378380-b095-4b69-9dc7-732f79729823",
+      "id": "a0e70cf0-297a-404d-8c1b-7958df0d5ebf",
       "key": "base_url",
       "value": ""
     },
     {
-      "id": "aabc3772-8dae-4efa-ba3f-e49fe74a092e",
+      "id": "edce14f8-07c1-4916-89a5-53c0bffef593",
       "key": "plan_management_sub_path",
       "value": ""
     },
     {
-      "id": "8a5072cd-985d-49c1-b566-77ab80e693a0",
+      "id": "c0931211-0921-4a16-9df0-b157a9b40fe4",
       "key": "api_version",
       "value": ""
     },
     {
-      "id": "86bf3c45-406a-4fc8-83b3-01773e5ddfaa",
+      "id": "199d8fb7-78e7-4158-8596-4bc011e9c043",
       "key": "plan",
       "value": ""
     },
     {
-      "id": "861cec96-b516-49dc-af2b-19f5eb0ec458",
+      "id": "d207ac28-b98d-4499-b5a0-b5420de563de",
       "key": "provider_plan",
       "value": ""
     },
     {
-      "id": "d3322ae4-97fc-4efe-8014-08d40bf02f9a",
+      "id": "edc92b3e-c8e1-43c6-9c35-fef7641dfc02",
       "key": "meal",
       "value": ""
     },
     {
-      "id": "ccb9cc77-8081-4cc1-b28b-215872e8db02",
+      "id": "56b7a9a1-ca7a-4743-a5e6-c6bc0edd9450",
       "key": "subscription_sub_path",
       "value": ""
     },
     {
-      "id": "42fcffc9-f978-4d57-9db0-237ad57c0af7",
-      "key": "inventoryp_sub_path",
+      "id": "5b2457fa-8298-40c9-abc7-7e08bd315002",
+      "key": "inventory_sub_path",
+      "value": ""
+    },
+    {
+      "id": "f3669a29-be60-4b8f-a2f5-e9554e38134f",
+      "key": "user_sub_path",
       "value": ""
     }
   ]

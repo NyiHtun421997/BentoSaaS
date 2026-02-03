@@ -29,6 +29,10 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
@@ -113,6 +117,7 @@ public class PlanManagementServiceTest {
 
     @BeforeEach
     void setUp() {
+        SecurityContextHolder.clearContext();
         userId = new UserId(USER_ID_UUID);
 
         planMealRequestDtos = new ArrayList<>();
@@ -358,7 +363,7 @@ public class PlanManagementServiceTest {
         when(planManagementRepository.save(any(Plan.class), anyBoolean())).thenAnswer(inv -> inv.getArgument(0));
         when(planManagementRepository.findByPlanId(any(UUID.class)))
             .thenAnswer(inv -> Optional.ofNullable(dummyPlan));
-        when(planManagementRepository.findActivePlansBetweenDates(any(LocalDate.class), any(LocalDate.class)))
+        when(planManagementRepository.findActivePlansBetweenDates(any(LocalDate.class)))
             .thenAnswer(inv -> dummyPlan == null ? List.of() : List.of(dummyPlan));
         when(planManagementRepository.saveCategory(any(Category.class))).thenAnswer(inv -> inv.getArgument(0));
         when(businessCalendarService.getCurrentMonthBusinessPeriod(any(YearMonth.class)))
@@ -384,6 +389,7 @@ public class PlanManagementServiceTest {
 
     @Test
     void testValidateAndInitiatePlan() {
+        setupSecurityContext("PROVIDER", USER_ID_UUID.toString());
         // when
         PlanResponseDto planResponseDto = planManagementCommandService.validateAndInitiatePlan(planRequestDto, userId);
 
@@ -432,6 +438,7 @@ public class PlanManagementServiceTest {
 
     @Test
     void testValidateAndInitiatePlan_noMeal_shouldThrowAndNotPersist() {
+        setupSecurityContext("PROVIDER", USER_ID_UUID.toString());
         // when + then
         PlanManagementDomainException planManagementDomainException = assertThrows(PlanManagementDomainException.class,
                                                                                    () -> planManagementCommandService.validateAndInitiatePlan(
@@ -444,6 +451,7 @@ public class PlanManagementServiceTest {
 
     @Test
     void testValidateAndInitiatePlan_noPrimaryMeal_shouldThrowAndNotPersist() {
+        setupSecurityContext("PROVIDER", USER_ID_UUID.toString());
         // when + then
         PlanManagementDomainException planManagementDomainException = assertThrows(PlanManagementDomainException.class,
                                                                                    () -> planManagementCommandService.validateAndInitiatePlan(
@@ -456,6 +464,7 @@ public class PlanManagementServiceTest {
 
     @Test
     void testValidateAndInitiatePlan_invalidSubFee_shouldThrowAndNotPersist() {
+        setupSecurityContext("PROVIDER", USER_ID_UUID.toString());
         // when + then
         PlanManagementDomainException planManagementDomainException = assertThrows(PlanManagementDomainException.class,
                                                                                    () -> planManagementCommandService.validateAndInitiatePlan(
@@ -468,6 +477,7 @@ public class PlanManagementServiceTest {
 
     @Test
     void testValidateAndInitiatePlan_invalidSkipDays_shouldThrowAndNotPersist() {
+        setupSecurityContext("PROVIDER", USER_ID_UUID.toString());
         // when + then
         PlanManagementDomainException planManagementDomainException = assertThrows(PlanManagementDomainException.class,
                                                                                    () -> planManagementCommandService.validateAndInitiatePlan(
@@ -480,6 +490,7 @@ public class PlanManagementServiceTest {
 
     @Test
     void testValidateAndUpdatePlanInfo() {
+        setupSecurityContext("PROVIDER", USER_ID_UUID.toString());
         // when
         PlanResponseDto updated = planManagementCommandService.validateAndUpdatePlanInfo(dummyPlanId, planRequestDto);
 
@@ -501,6 +512,7 @@ public class PlanManagementServiceTest {
 
     @Test
     void testValidateAndUpdatePlan_invalidSubFee_shouldThrowAndNotPersist() {
+        setupSecurityContext("PROVIDER", USER_ID_UUID.toString());
         // when + then
         PlanManagementDomainException planManagementDomainException = assertThrows(PlanManagementDomainException.class,
                                                                                    () -> planManagementCommandService.validateAndUpdatePlanInfo(
@@ -513,6 +525,7 @@ public class PlanManagementServiceTest {
 
     @Test
     void testReflectUserSubscriptionSubscribed_statusChanged() {
+        setupSecurityContext("PROVIDER", USER_ID_UUID.toString());
         // test data : primaryPlanMeal threshold = 1, non-primaryPlanMeal = 5
         PlanResponseDto planResponseDto = planManagementCommandService.reflectUserSubscription(dummyPlanId,
                                                                                                List.of(dummyPlanMealId1, dummyPlanMealId2),
@@ -525,6 +538,7 @@ public class PlanManagementServiceTest {
 
     @Test
     void testReflectUserSubscriptionSubscribed_statusUnchanged() {
+        setupSecurityContext("PROVIDER", USER_ID_UUID.toString());
         // test data : primaryPlanMeal threshold = 2, non-primaryPlanMeal = 5
          dummyPlanMeal1 = PlanMeal.builder()
                                           .planMealId(dummyPlanMealId1)
@@ -593,6 +607,7 @@ public class PlanManagementServiceTest {
 
     @Test
     void testReflectUserSubscriptionUnsubscribed_statusChanged() {
+        setupSecurityContext("PROVIDER", USER_ID_UUID.toString());
         // test data : primaryPlanMeal threshold = 1, non-primaryPlanMeal = 5
         PlanMeal dummyPlanMeal1 = PlanMeal.builder()
                                           .planMealId(dummyPlanMealId1)
@@ -660,6 +675,7 @@ public class PlanManagementServiceTest {
 
     @Test
     void testReflectUserSubscriptionUnsubscribed_statusUnchanged() {
+        setupSecurityContext("PROVIDER", USER_ID_UUID.toString());
         // test data : primaryPlanMeal threshold = 1, non-primaryPlanMeal = 5
         PlanMeal dummyPlanMeal1 = PlanMeal.builder()
                                           .planMealId(dummyPlanMealId1)
@@ -740,6 +756,7 @@ public class PlanManagementServiceTest {
 
     @Test
     void testAddMealToPlan() {
+        setupSecurityContext("PROVIDER", USER_ID_UUID.toString());
         PlanResponseDto planResponseDto = planManagementCommandService.addMealToPlan(dummyPlanId, validPlanMealRequestDto);
         PlanMealResponseDto planMealResponseDto = planResponseDto.getPlanMealResponseDtos().stream()
                 .filter(planMeal -> "Valid Test Plan Meal".equals(planMeal.getName()))
@@ -754,6 +771,7 @@ public class PlanManagementServiceTest {
 
     @Test
     void testAddMealToPlan_statusChanged() {
+        setupSecurityContext("PROVIDER", USER_ID_UUID.toString());
         PlanMeal dummyPlanMeal1 = PlanMeal.builder()
                                           .planMealId(dummyPlanMealId1)
                                           .planId(dummyPlanId)
@@ -815,6 +833,7 @@ public class PlanManagementServiceTest {
 
     @Test
     void testAddMealToPlan_negativePrice_shouldThrow() {
+        setupSecurityContext("PROVIDER", USER_ID_UUID.toString());
         PlanManagementDomainException planManagementDomainException = assertThrows(PlanManagementDomainException.class,
                                                                                    () -> planManagementCommandService.addMealToPlan(dummyPlanId, negativePricePlanMealRequestDto));
         assertEquals(PlanManagementErrorCode.NEGATIVE_PLANMEAL_PRICE, planManagementDomainException.getErrorCode());
@@ -822,6 +841,7 @@ public class PlanManagementServiceTest {
 
     @Test
     void testAddMealToPlan_negativeMinSubCount_shouldThrow() {
+        setupSecurityContext("PROVIDER", USER_ID_UUID.toString());
         PlanManagementDomainException planManagementDomainException = assertThrows(PlanManagementDomainException.class,
                                                                                    () -> planManagementCommandService.addMealToPlan(dummyPlanId, negativeMinSubCountPlanMealRequestDto));
         assertEquals(PlanManagementErrorCode.NEGATIVE_PLANMEAL_MINSUBCOUNT, planManagementDomainException.getErrorCode());
@@ -829,6 +849,7 @@ public class PlanManagementServiceTest {
 
     @Test
     void testRemoveMealFromPlan() {
+        setupSecurityContext("PROVIDER", USER_ID_UUID.toString());
         PlanResponseDto planResponseDto = planManagementCommandService.removeMealFromPlan(dummyPlanId, dummyPlanMealId2);
         assertEquals(1, planResponseDto.getPlanMealResponseDtos().size());
         assertEquals(INITIAL_DISPLAY_SUBFEE.subtract(REMOVED_PLANMEAL_PRICE), planResponseDto.getDisplaySubscriptionFee());
@@ -836,6 +857,7 @@ public class PlanManagementServiceTest {
 
     @Test
     void testRemoveMealFromPlan_invalidPlanMealId_shouldThrow() {
+        setupSecurityContext("PROVIDER", USER_ID_UUID.toString());
         PlanManagementDomainException planManagementDomainException = assertThrows(PlanManagementDomainException.class,
                                                                                    () -> planManagementCommandService.removeMealFromPlan(dummyPlanId, new PlanMealId(UUID.randomUUID())));
         assertEquals(PlanManagementErrorCode.INVALID_PLANMEAL_ID, planManagementDomainException.getErrorCode());
@@ -843,6 +865,7 @@ public class PlanManagementServiceTest {
 
     @Test
     void testRemoveMealFromPlan_noPrimaryMeal_shouldThrow() {
+        setupSecurityContext("PROVIDER", USER_ID_UUID.toString());
         PlanManagementDomainException planManagementDomainException = assertThrows(PlanManagementDomainException.class,
                                                                                    () -> planManagementCommandService.removeMealFromPlan(dummyPlanId, dummyPlanMealId1));
         assertEquals(PlanManagementErrorCode.NO_PRIMARY_MEAL, planManagementDomainException.getErrorCode());
@@ -850,6 +873,7 @@ public class PlanManagementServiceTest {
 
     @Test
     void testUpdateMealFromPlan_statusChanged() {
+        setupSecurityContext("PROVIDER", USER_ID_UUID.toString());
         dummyPlan = Plan.builder()
                         .planId(dummyPlanId)
                         .code(Code.generate())
@@ -892,6 +916,7 @@ public class PlanManagementServiceTest {
 
     @Test
     void testUpdateMealFromPlan_statusUnchanged() {
+        setupSecurityContext("PROVIDER", USER_ID_UUID.toString());
         dummyPlanMeal1 = PlanMeal.builder()
                                  .planMealId(dummyPlanMealId1)
                                  .planId(dummyPlanId)
@@ -1104,6 +1129,7 @@ public class PlanManagementServiceTest {
 
     @Test
      void testGetActivePlans() {
+        setupSecurityContext("PROVIDER", USER_ID_UUID.toString());
         PlanResponseDto planResponseDto = planManagementQueryService.getActivePlans(0, 5).getFirst();
         assertNotNull(planResponseDto);
         assertEquals(dummyPlanId.getValue(), planResponseDto.getPlanId());
@@ -1125,6 +1151,7 @@ public class PlanManagementServiceTest {
 
     @Test
     void testCreateCategory() {
+        setupSecurityContext("ADMIN", USER_ID_UUID.toString());
         // when
         planManagementCommandService.createCategory(new CategoryDto("Japanese"));
 
@@ -1139,6 +1166,7 @@ public class PlanManagementServiceTest {
 
     @Test
     void testCreateCategory_duplicatedCategory_shouldThrow() {
+        setupSecurityContext("ADMIN", USER_ID_UUID.toString());
         // given: repository throws DB constraint violation for "Healthy"
         when(planManagementRepository.saveCategory(
                 argThat(category -> "HEALTHY".equals(category.getName()))
@@ -1151,6 +1179,7 @@ public class PlanManagementServiceTest {
 
     @Test
     void testCreateCategory_nullCategory_shouldThrow() {
+        setupSecurityContext("ADMIN", USER_ID_UUID.toString());
         PlanManagementDomainException planManagementDomainException = assertThrows(PlanManagementDomainException.class,
                                                                                    () -> planManagementCommandService.createCategory(null));
         assertEquals(PlanManagementErrorCode.INVALID_CATEGORY_NAME, planManagementDomainException.getErrorCode());
@@ -1158,9 +1187,17 @@ public class PlanManagementServiceTest {
 
     @Test
     void testCreateCategory_emptyCategory_shouldThrow() {
+        setupSecurityContext("ADMIN", USER_ID_UUID.toString());
         PlanManagementDomainException planManagementDomainException = assertThrows(PlanManagementDomainException.class,
                                                                                    () -> planManagementCommandService.createCategory(new CategoryDto("")));
         assertEquals(PlanManagementErrorCode.INVALID_CATEGORY_NAME, planManagementDomainException.getErrorCode());
     }
 
+    private void setupSecurityContext(String role, String username) {
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                username, null, List.of(new SimpleGrantedAuthority("ROLE_" + role)));
+        context.setAuthentication(authentication);
+        SecurityContextHolder.setContext(context);
+    }
 }

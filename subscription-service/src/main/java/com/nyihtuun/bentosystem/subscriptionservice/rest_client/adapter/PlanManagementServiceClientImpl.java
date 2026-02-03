@@ -11,11 +11,16 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
 import java.util.UUID;
+
+import static com.nyihtuun.bentosystem.subscriptionservice.security.WebSecurity.BEARER_PREFIX;
 
 @Slf4j
 @Component
@@ -37,12 +42,16 @@ public class PlanManagementServiceClientImpl implements PlanManagementServiceCli
         log.info("Validating plan with id: {}.", subscriptionRequestDto.getPlanId());
         log.info("Fetching plan meals for plan with id: {}.", subscriptionRequestDto.getPlanId());
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String jwtToken = (authentication != null) ? (String) authentication.getCredentials() : null;
+
         PlanResponseDto planResponseDto = restClient.get()
                                                     .uri(uriBuilder -> uriBuilder.pathSegment(
                                                                                          configData.planManagementVersion(),
                                                                                          configData.planManagementPlanDetailsPath(),
                                                                                          subscriptionRequestDto.getPlanId().toString())
                                                                                  .build())
+                                                    .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + jwtToken)
                                                     .retrieve()
                                                     .body(PlanResponseDto.class);
 
@@ -53,18 +62,20 @@ public class PlanManagementServiceClientImpl implements PlanManagementServiceCli
                                               null);
         }
 
-        log.info("Plan with id: {} is valid and contains the following plan meals: {}.", planResponseDto.getPlanId(), planResponseDto.getPlanMealResponseDtos());
+        log.info("Plan with id: {} is valid and contains the following plan meals: {}.",
+                 planResponseDto.getPlanId(),
+                 planResponseDto.getPlanMealResponseDtos());
         List<UUID> existingPlanMealIds = planResponseDto.getPlanMealResponseDtos()
-                                         .stream()
-                                         .map(PlanMealResponseDto::getPlanMealId)
-                                         .toList();
+                                                        .stream()
+                                                        .map(PlanMealResponseDto::getPlanMealId)
+                                                        .toList();
 
         return new PlanValidationResult<>(PlanValidationResult.PlanValidationStatus.VALID_PLAN,
                                           new PlanData(planResponseDto.getPlanId(), existingPlanMealIds));
     }
 
     PlanValidationResult<PlanData> fallbackValidateAndFetchExistingPlanAndPlanMeals(SubscriptionRequestDto subscriptionRequestDto,
-                                                                                               Throwable e) {
+                                                                                    Throwable e) {
         log.error("Plan validation failed for planId={} and resolved to fallback.", subscriptionRequestDto.getPlanId(), e);
         return new PlanValidationResult<>(PlanValidationResult.PlanValidationStatus.API_FAILURE, null);
     }

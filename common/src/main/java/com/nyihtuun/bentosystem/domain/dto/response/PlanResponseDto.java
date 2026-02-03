@@ -21,5 +21,6 @@ public class PlanResponseDto extends AbstractPlanDto implements Serializable {
     private UUID planId;
     private String code;
     private PlanStatus status;
+    private UUID providerUserId;
     private List<PlanMealResponseDto> planMealResponseDtos;
 }

@@ -9,3 +9,12 @@ server:
   port: 4004
   servlet:
     context-path: /user
+
+login:
+  path: /auth/login
+
+security:
+  messages:
+    login_success: "Login success"
+    bad_credentials: "Bad credentials"
+    auth_failed: "Authentication failed"

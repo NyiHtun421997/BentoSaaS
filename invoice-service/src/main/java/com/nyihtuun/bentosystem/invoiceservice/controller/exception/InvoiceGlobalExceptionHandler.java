@@ -1,13 +1,17 @@
 package com.nyihtuun.bentosystem.invoiceservice.controller.exception;
 
 import com.nyihtuun.bentosystem.invoiceservice.domain.exception.InvoiceDomainException;
+import com.nyihtuun.bentosystem.invoiceservice.domain.exception.InvoiceErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.Map;
 
 import static com.nyihtuun.bentosystem.domain.utility.MessageUtil.INVOICE_ERROR;
 import static com.nyihtuun.bentosystem.domain.utility.MessageUtil.toKey;
@@ -22,7 +26,7 @@ public class InvoiceGlobalExceptionHandler {
     }
 
     @ExceptionHandler(InvoiceDomainException.class)
-    public ResponseEntity<?> handle(InvoiceDomainException exception) {
+    public ResponseEntity<?> handleInvoiceDomainException(InvoiceDomainException exception) {
         log.error(
                 "InvoiceDomainException occurred. errorCode={}, message={}",
                 exception.getErrorCode(),
@@ -32,7 +36,22 @@ public class InvoiceGlobalExceptionHandler {
         String messageKey = INVOICE_ERROR + toKey(exception.getErrorCode().name());
         String message =
                 messageSource.getMessage(messageKey, null, LocaleContextHolder.getLocale());
+
+        if (exception.getErrorCode() == InvoiceErrorCode.GENERIC_ACCESS_DENIED) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(message);
+        }
+
         return ResponseEntity.badRequest().body(message);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<Map<String, String>> handleMissingServletRequestParameterException(MissingServletRequestParameterException ex) {
+        return ResponseEntity
+                .badRequest()
+                .body(Map.of(
+                        "error", "MISSING_PARAMETERS",
+                        "message", "Required parameters '" + ex.getParameterName() + "' are missing"
+                ));
     }
 
     @ExceptionHandler(Exception.class)

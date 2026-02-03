@@ -29,11 +29,17 @@ import com.nyihtuun.bentosystem.planmanagementservice.application_service.outbox
 import com.nyihtuun.bentosystem.planmanagementservice.domain.service.GenerateSchedulesResult;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.service.PeriodContext;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.service.PlanManagementDomainService;
+import com.nyihtuun.bentosystem.planmanagementservice.security.authorization_handler.AdminOrProviderAccessDeniedAuthorizationHandler;
+import com.nyihtuun.bentosystem.planmanagementservice.security.authorization_handler.OnlyProviderAccessDeniedHandler;
+import com.nyihtuun.bentosystem.planmanagementservice.security.authorization_handler.ProviderOrOwnerAccessDeniedAuthorizationHandler;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authorization.method.HandleAuthorizationDenied;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import plan_management.events.PlanChangedEvent;
@@ -72,6 +78,8 @@ public class PlanManagementCommandServiceImpl implements PlanManagementCommandSe
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('PROVIDER')")
+    @HandleAuthorizationDenied(handlerClass = OnlyProviderAccessDeniedHandler.class)
     public PlanResponseDto validateAndInitiatePlan(PlanRequestDto planRequestDto, UserId userId) {
         log.info("Validating and initiating plan: {}", planRequestDto);
         Plan plan = planDataMapper.mapPlanDtoToPlan(planRequestDto);
@@ -89,6 +97,8 @@ public class PlanManagementCommandServiceImpl implements PlanManagementCommandSe
 
     @Override
     @Transactional
+    @PostAuthorize("returnObject.providerUserId.toString() == principal.toString() and hasRole('PROVIDER')")
+    @HandleAuthorizationDenied(handlerClass = ProviderOrOwnerAccessDeniedAuthorizationHandler.class)
     public PlanResponseDto validateAndUpdatePlanInfo(PlanId planId, PlanRequestDto planRequestDto) {
         log.info("Validating and updating plan with id: {} with plan: {}", planId, planRequestDto);
         PlanUpdateCommand planUpdateCommand = planDataMapper.mapPlanDtoToPlanUpdateCommand(planRequestDto);
@@ -136,16 +146,19 @@ public class PlanManagementCommandServiceImpl implements PlanManagementCommandSe
 
     @Override
     @Transactional
-    public void deletePlan(PlanId planId) {
+    @PostAuthorize("returnObject.providerUserId.toString() == principal.toString() and hasRole('PROVIDER')")
+    @HandleAuthorizationDenied(handlerClass = ProviderOrOwnerAccessDeniedAuthorizationHandler.class)
+    public PlanResponseDto deletePlan(PlanId planId) {
         log.info("Deleting plan with id: {}", planId);
         Plan plan = planManagementRepository.findByPlanId(planId.getValue())
                                             .orElseThrow(() -> new PlanManagementDomainException(
                                                     PlanManagementErrorCode.INVALID_PLAN_ID));
         plan.deletePlan();
         log.info("Plan with id: {} is deleted", planId.getValue());
-        persistPlan(plan, false);
+        Plan persistedPlan = persistPlan(plan, false);
 
         createOutboxMessageAndePersist(planId, plan, PlanStatus.CANCELLED, PlanMealStatus.UNCHANGED);
+        return planDataMapper.mapPlanToPlanDto(persistedPlan);
     }
 
     @Override
@@ -179,6 +192,8 @@ public class PlanManagementCommandServiceImpl implements PlanManagementCommandSe
 
     @Override
     @Transactional
+    @PostAuthorize("returnObject.providerUserId.toString() == principal.toString() and hasRole('PROVIDER')")
+    @HandleAuthorizationDenied(handlerClass = ProviderOrOwnerAccessDeniedAuthorizationHandler.class)
     public PlanResponseDto addMealToPlan(PlanId planId, PlanMealRequestDto planMealRequestDto) {
         log.info("Adding meal to plan with id: {}", planId);
         Plan plan = planManagementRepository.findByPlanId(planId.getValue())
@@ -195,6 +210,8 @@ public class PlanManagementCommandServiceImpl implements PlanManagementCommandSe
 
     @Override
     @Transactional
+    @PostAuthorize("returnObject.providerUserId.toString() == principal.toString() and hasRole('PROVIDER')")
+    @HandleAuthorizationDenied(handlerClass = ProviderOrOwnerAccessDeniedAuthorizationHandler.class)
     public PlanResponseDto removeMealFromPlan(PlanId planId, PlanMealId planMealId) {
         log.info("Removing meal with id:{} from plan with id: {}", planMealId, planId);
         Plan plan = planManagementRepository.findByPlanId(planId.getValue())
@@ -215,6 +232,8 @@ public class PlanManagementCommandServiceImpl implements PlanManagementCommandSe
 
     @Override
     @Transactional
+    @PostAuthorize("returnObject.providerUserId.toString() == principal.toString() and hasRole('PROVIDER')")
+    @HandleAuthorizationDenied(handlerClass = ProviderOrOwnerAccessDeniedAuthorizationHandler.class)
     public PlanResponseDto updateMealFromPlan(PlanId planId, PlanMealId planMealId, PlanMealRequestDto planMealRequestDto) {
         log.info("Updating meal with id: {} from plan with id: {}", planMealId, planId);
         if (!businessCalendarService.isUpdatableDate(LocalDate.now())) {
@@ -245,7 +264,7 @@ public class PlanManagementCommandServiceImpl implements PlanManagementCommandSe
         LocalDate startDate = today.with(TemporalAdjusters.firstDayOfMonth());
         LocalDate endDate = today.with(TemporalAdjusters.lastDayOfMonth());
 
-        List<Plan> activePlansBetweenDates = planManagementRepository.findActivePlansBetweenDates(startDate, endDate);
+        List<Plan> activePlansBetweenDates = planManagementRepository.findActivePlansBetweenDates(startDate);
 
         List<DeliverySchedule> deliverySchedules = new ArrayList<>();
 
@@ -325,6 +344,8 @@ public class PlanManagementCommandServiceImpl implements PlanManagementCommandSe
 
     @Override
     @Transactional
+    @PreAuthorize(value = "hasAnyRole('ADMIN', 'PROVIDER')")
+    @HandleAuthorizationDenied(handlerClass = AdminOrProviderAccessDeniedAuthorizationHandler.class)
     public CategoryDto createCategory(CategoryDto categoryDto) {
         if (categoryDto == null || categoryDto.getName().isBlank())
             throw new PlanManagementDomainException(PlanManagementErrorCode.INVALID_CATEGORY_NAME);

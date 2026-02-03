@@ -20,9 +20,12 @@ import com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.ou
 import com.nyihtuun.bentosystem.subscriptionservice.domain.entity.Subscription;
 import com.nyihtuun.bentosystem.subscriptionservice.domain.exception.SubscriptionDomainException;
 import com.nyihtuun.bentosystem.subscriptionservice.domain.exception.SubscriptionErrorCode;
+import com.nyihtuun.bentosystem.subscriptionservice.security.authorization_handler.SubscriptionServiceAccessDeniedHandler;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.authorization.method.HandleAuthorizationDenied;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import subscription.events.UserPlanSubscriptionEvent;
@@ -67,6 +70,8 @@ public class SubscriptionCommandServiceImpl implements SubscriptionCommandServic
 
     @Override
     @Transactional
+    @PostAuthorize("returnObject.userId.toString() == principal.toString()")
+    @HandleAuthorizationDenied(handlerClass = SubscriptionServiceAccessDeniedHandler.class)
     public SubscriptionResponseDto validateAndUpdateSubscription(SubscriptionId subscriptionId,
                                                                  SubscriptionRequestDto subscriptionRequestDto) {
         log.info("Validating and updating subscription with id: {} with new data: {}.", subscriptionId, subscriptionRequestDto);
@@ -102,6 +107,8 @@ public class SubscriptionCommandServiceImpl implements SubscriptionCommandServic
 
     @Override
     @Transactional
+    @PostAuthorize("returnObject.userId.toString() == principal.toString()")
+    @HandleAuthorizationDenied(handlerClass = SubscriptionServiceAccessDeniedHandler.class)
     public SubscriptionResponseDto cancelSubscription(SubscriptionId subscriptionId) {
         log.info("Cancelling subscription with id: {}", subscriptionId);
         Subscription subscription = subscriptionRepository.findBySubscriptionId(subscriptionId.getValue())

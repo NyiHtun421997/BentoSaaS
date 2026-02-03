@@ -8,6 +8,7 @@ COPY plan-management-service/pom.xml plan-management-service/
 COPY subscription-service/pom.xml subscription-service/
 COPY invoice-service/pom.xml invoice-service/
 COPY api-gateway/pom.xml api-gateway/
+COPY user-service/pom.xml user-service/
 
 RUN mvn dependency:go-offline -B
 

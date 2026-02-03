@@ -70,10 +70,10 @@ public class SubscriptionController {
     @Operation(summary = "Create a subscription", description = "Initiates a new subscription to a bento plan.")
     @ApiResponse(responseCode = "200", description = "Subscription created successfully")
     public ResponseEntity<SubscriptionResponseDto> createSubscription(
-            @Valid @RequestBody SubscriptionRequestDto subscriptionRequestDto) {
-        // TODO : implement authentication and jwt related services
-        // temporarily assume we will get user id from jwt
-        UUID userId = UUID.randomUUID();
+            @Valid @RequestBody SubscriptionRequestDto subscriptionRequestDto,
+            @RequestHeader(name = "X-USER-ID") String userIdStr) {
+
+        UUID userId = UUID.fromString(userIdStr);
 
         log.info("Creating subscription: {}", subscriptionRequestDto);
         SubscriptionResponseDto createdSubscription = subscriptionCommandService.validateAndInitiateSubscription(subscriptionRequestDto,
@@ -96,11 +96,12 @@ public class SubscriptionController {
     @DeleteMapping(SUBSCRIPTION_ID)
     @Operation(summary = "Cancel subscription", description = "Cancels an active subscription.")
     @ApiResponse(responseCode = "200", description = "Subscription cancelled successfully")
-    public ResponseEntity<?> cancelSubscription(@PathVariable UUID subscriptionId) {
+    public ResponseEntity<SubscriptionResponseDto> cancelSubscription(@PathVariable UUID subscriptionId) {
         log.info("Cancelling subscription with id: {}", subscriptionId);
-        subscriptionCommandService.cancelSubscription(new SubscriptionId(subscriptionId));
+        SubscriptionResponseDto subscriptionResponseDto = subscriptionCommandService.cancelSubscription(new SubscriptionId(
+                subscriptionId));
         log.info("Subscription with id: {} is cancelled", subscriptionId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(subscriptionResponseDto);
     }
 
 }

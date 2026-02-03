@@ -17,7 +17,7 @@ public interface PlanManagementCommandService {
 
     PlanResponseDto validateAndUpdatePlanInfo(PlanId planId, PlanRequestDto planRequestDto);
 
-    void deletePlan(PlanId planId);
+    PlanResponseDto deletePlan(PlanId planId);
 
     PlanResponseDto reflectUserSubscription(PlanId planId, List<PlanMealId> appliedPlanMealIds, List<PlanMealId> unappliedPlanMealIds);
 

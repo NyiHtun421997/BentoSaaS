@@ -16,20 +16,20 @@ import java.util.UUID;
 
 @Repository
 public interface PlanJpaRepository extends JpaRepository<PlanEntity, UUID> {
+    public Optional<PlanEntity> findByIdAndDeleteFlagFalse(UUID id);
     public List<PlanEntity> findPlanEntitiesByDeleteFlag(Boolean deleteFlag, Pageable pageable);
 
-    public Optional<PlanEntity> findPlanEntityByTitleContainingIgnoreCaseAndCode(String title, String code);
+    Optional<PlanEntity> findPlanEntityByTitleContainingIgnoreCaseAndCodeAndDeleteFlagFalse(String title, String code);
 
     @Query("select distinct p from PlanEntity p join p.categoryEntities c where c.id = :categoryId and p.deleteFlag = false")
     List<PlanEntity> findPlanEntityByCategoryId(@Param("categoryId") UUID categoryId);
 
     List<PlanEntity> findPlanEntitiesByDeleteFlagFalseAndCreatedAtBetween(Instant from, Instant to, Pageable pageable);
 
-    List<PlanEntity> findPlanEntitiesByDeleteFlagFalseAndCreatedAtBetweenAndPlanStatus(Instant from,
-                                                                                       Instant to,
+    List<PlanEntity> findPlanEntitiesByDeleteFlagFalseAndCreatedAtBeforeAndPlanStatus(Instant before,
                                                                                        PlanStatus planStatus);
 
-    List<PlanEntity> findPlanEntitiesByUserId(UUID userId);
+    List<PlanEntity> findPlanEntitiesByUserIdAndDeleteFlagFalse(UUID userId);
 
     @NativeQuery(
             value = """
@@ -48,7 +48,7 @@ public interface PlanJpaRepository extends JpaRepository<PlanEntity, UUID> {
                           )
                     """
     )
-    List<PlanEntity> findActivePlansNearLocation(
+    List<PlanEntity> findActivePlansNearLocationAndDeleteFlagFalse(
             @Param("lat") double lat,
             @Param("lng") double lng,
             @Param("radiusMeters") double radiusMeters

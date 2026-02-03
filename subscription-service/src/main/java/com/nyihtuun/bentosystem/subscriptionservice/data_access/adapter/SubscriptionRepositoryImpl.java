@@ -11,9 +11,12 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import static com.nyihtuun.bentosystem.subscriptionservice.SubscriptionConstants.ASIA_TOKYO_ZONE;
 
 @Component
 public class SubscriptionRepositoryImpl implements SubscriptionRepository {
@@ -30,7 +33,7 @@ public class SubscriptionRepositoryImpl implements SubscriptionRepository {
 
     @Override
     public List<Subscription> findAllSubscriptionsByUserIdAndDate(UUID userId, LocalDate since) {
-        return subscriptionJpaRepository.findAllByUserIdAndAppliedAtAfter(userId, Instant.from(since.atStartOfDay()))
+        return subscriptionJpaRepository.findAllByUserIdAndAppliedAtAfter(userId, since.atStartOfDay(ZoneId.of(ASIA_TOKYO_ZONE)).toInstant())
                 .stream()
                 .map(subscriptionDataMapper::subscriptionEntityToSubscription)
                 .toList();

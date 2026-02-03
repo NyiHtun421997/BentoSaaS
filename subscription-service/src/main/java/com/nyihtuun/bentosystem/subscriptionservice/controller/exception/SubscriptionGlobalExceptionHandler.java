@@ -1,12 +1,15 @@
 package com.nyihtuun.bentosystem.subscriptionservice.controller.exception;
 
 import com.nyihtuun.bentosystem.subscriptionservice.domain.exception.SubscriptionDomainException;
+import com.nyihtuun.bentosystem.subscriptionservice.domain.exception.SubscriptionErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -25,7 +28,7 @@ public class SubscriptionGlobalExceptionHandler {
     }
 
     @ExceptionHandler(SubscriptionDomainException.class)
-    public ResponseEntity<?> handle(SubscriptionDomainException exception) {
+    public ResponseEntity<?> handleSubscriptionDomainException(SubscriptionDomainException exception) {
         log.error(
                 "SubscriptionDomainException occurred. errorCode={}, message={}",
                 exception.getErrorCode(),
@@ -35,16 +38,41 @@ public class SubscriptionGlobalExceptionHandler {
         String messageKey = SUBSCRIPTION_ERROR + toKey(exception.getErrorCode().name());
         String message =
                 messageSource.getMessage(messageKey, null, LocaleContextHolder.getLocale());
+
+        if (exception.getErrorCode() == SubscriptionErrorCode.ACCESS_DENIED) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(message);
+        }
+
         return ResponseEntity.badRequest().body(message);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleErrors(MethodArgumentNotValidException ex) {
+    public ResponseEntity<Map<String, String>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         Map<String, String> response = new LinkedHashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(error ->
                                                                response.put(error.getField(), error.getDefaultMessage())
         );
         return ResponseEntity.badRequest().body(response);
+    }
+
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    public ResponseEntity<Map<String, String>> handleMissingHeaderException(MissingRequestHeaderException ex) {
+        return ResponseEntity
+                .badRequest()
+                .body(Map.of(
+                        "error", "MISSING_HEADER",
+                        "message", "Required header '" + ex.getHeaderName() + "' is missing"
+                ));
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<Map<String, String>> handleMissingServletRequestParameterException(MissingServletRequestParameterException ex) {
+        return ResponseEntity
+                .badRequest()
+                .body(Map.of(
+                        "error", "MISSING_PARAMETERS",
+                        "message", "Required parameters '" + ex.getParameterName() + "' are missing"
+                ));
     }
 
     @ExceptionHandler(Exception.class)

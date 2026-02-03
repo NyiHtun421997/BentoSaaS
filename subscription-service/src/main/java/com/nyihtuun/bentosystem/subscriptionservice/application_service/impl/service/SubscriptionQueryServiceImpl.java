@@ -4,8 +4,12 @@ import com.nyihtuun.bentosystem.subscriptionservice.application_service.dto.Subs
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.mapper.SubscriptionDataMapper;
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.input.service.SubscriptionQueryService;
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.output.repository.SubscriptionRepository;
+import com.nyihtuun.bentosystem.subscriptionservice.security.authorization_handler.SubscriptionServiceAccessDeniedHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authorization.method.HandleAuthorizationDenied;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +34,8 @@ public class SubscriptionQueryServiceImpl implements SubscriptionQueryService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("principal.toString() == #userId.toString()")
+    @HandleAuthorizationDenied(handlerClass = SubscriptionServiceAccessDeniedHandler.class)
     public List<SubscriptionResponseDto> getMySubscriptions(UUID userId, LocalDate since) {
         return subscriptionRepository.findAllSubscriptionsByUserIdAndDate(userId, since)
                                      .stream()
@@ -39,6 +45,8 @@ public class SubscriptionQueryServiceImpl implements SubscriptionQueryService {
 
     @Override
     @Transactional(readOnly = true)
+    @PostAuthorize("returnObject.isPresent() ? returnObject.get().userId.toString() == principal.toString() : true")
+    @HandleAuthorizationDenied(handlerClass = SubscriptionServiceAccessDeniedHandler.class)
     public Optional<SubscriptionResponseDto> getSubscriptionById(UUID subscriptionId) {
         return subscriptionRepository.findBySubscriptionId(subscriptionId)
                                      .map(subscriptionDataMapper::mapSubscriptionToSubscriptionDto);

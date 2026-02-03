@@ -14,7 +14,7 @@ public interface PlanManagementRepository {
     Optional<Plan> findPlanByTitleAndCode(String planName, String code);
     List<Plan> findPlansByCategory(UUID categoryId, int page, int size);
     List<Plan> findActivePlansBetweenDates(LocalDate start, LocalDate end, int page, int size);
-    List<Plan> findActivePlansBetweenDates(LocalDate start, LocalDate end);
+    List<Plan> findActivePlansBetweenDates(LocalDate before);
     Optional<Plan> findByPlanId(UUID planId);
     List<Plan> findPlansByUserId(UUID userId);
     List<Plan> findPlansNearMe(double latitude, double longitude, double radiusMeters, int page, int size);

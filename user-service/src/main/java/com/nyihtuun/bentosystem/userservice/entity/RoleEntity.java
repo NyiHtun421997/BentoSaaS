@@ -2,6 +2,8 @@ package com.nyihtuun.bentosystem.userservice.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.Set;
 
@@ -25,6 +27,8 @@ public class RoleEntity {
     @EqualsAndHashCode.Include
     private long id;
 
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "name", nullable = false)
     private Role name;
 

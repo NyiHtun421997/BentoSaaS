@@ -65,6 +65,7 @@ public class PlanDataMapper {
                               .description(plan.getDescription())
                               .categoryIds(plan.getCategoryIds().stream().map(BaseId::getValue).collect(Collectors.toSet()))
                               .address(mapAddressToAddressDto(plan.getAddress()))
+                              .providerUserId(plan.getProviderUserId().getValue())
                               .skipDays(plan.getSkipDays())
                               .displaySubscriptionFee(plan.getDisplaySubscriptionFee().amount())
                               .planMealResponseDtos(mapPlanMealsToPlanMealResponseDtos(plan.getPlanMeals()))
@@ -75,16 +76,16 @@ public class PlanDataMapper {
         return planMeals.stream()
                         .filter(planMeal -> !planMeal.isDeleteFlag())
                         .<PlanMealResponseDto>map(planMeal -> PlanMealResponseDto.builder()
-                                                               .planMealId(planMeal.getId().getValue())
-                                                               .planId(planMeal.getPlanId().getValue())
-                                                               .name(planMeal.getName())
-                                                               .description(planMeal.getDescription())
-                                                               .pricePerMonth(planMeal.getPricePerMonth().amount())
-                                                               .primary(planMeal.isPrimary())
-                                                               .minSubCount(planMeal.getMinSubCount().min())
-                                                               .currentSubCount(planMeal.getCurrentSubCount())
-                                                               .imageUrl(planMeal.getImageUrl())
-                                                               .build())
+                                                                                 .planMealId(planMeal.getId().getValue())
+                                                                                 .planId(planMeal.getPlanId().getValue())
+                                                                                 .name(planMeal.getName())
+                                                                                 .description(planMeal.getDescription())
+                                                                                 .pricePerMonth(planMeal.getPricePerMonth().amount())
+                                                                                 .primary(planMeal.isPrimary())
+                                                                                 .minSubCount(planMeal.getMinSubCount().min())
+                                                                                 .currentSubCount(planMeal.getCurrentSubCount())
+                                                                                 .imageUrl(planMeal.getImageUrl())
+                                                                                 .build())
                         .toList();
     }
 
@@ -116,12 +117,12 @@ public class PlanDataMapper {
 
     public PlanMealUpdateCommand mapPlanMealDtoToPlanMealUpdateCommand(PlanMealRequestDto planMealRequestDto) {
         return PlanMealUpdateCommand.builder()
-                .name(planMealRequestDto.getName())
-                .description(planMealRequestDto.getDescription())
-                .pricePerMonth(new Money(planMealRequestDto.getPricePerMonth()))
-                .isPrimary(planMealRequestDto.isPrimary())
-                .minSubCount(new Threshold(planMealRequestDto.getMinSubCount()))
-                .imageUrl(planMealRequestDto.getImageUrl())
-                .build();
+                                    .name(planMealRequestDto.getName())
+                                    .description(planMealRequestDto.getDescription())
+                                    .pricePerMonth(new Money(planMealRequestDto.getPricePerMonth()))
+                                    .isPrimary(planMealRequestDto.isPrimary())
+                                    .minSubCount(new Threshold(planMealRequestDto.getMinSubCount()))
+                                    .imageUrl(planMealRequestDto.getImageUrl())
+                                    .build();
     }
 }

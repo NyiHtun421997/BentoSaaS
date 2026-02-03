@@ -6,7 +6,12 @@ import com.nyihtuun.bentosystem.planmanagementservice.application_service.mapper
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.input.service.PlanManagementQueryService;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.output.repository.PlanManagementRepository;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.entity.DeliverySchedule;
+import com.nyihtuun.bentosystem.planmanagementservice.security.authorization_handler.AdminOrProviderAccessDeniedAuthorizationHandler;
+import com.nyihtuun.bentosystem.planmanagementservice.security.authorization_handler.GenericAccessDeniedAuthorizationHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authorization.method.HandleAuthorizationDenied;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,6 +69,8 @@ public class PlanManagementQueryServiceImpl implements PlanManagementQueryServic
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("principal.toString() == #userId.toString()")
+    @HandleAuthorizationDenied(handlerClass = GenericAccessDeniedAuthorizationHandler.class)
     public List<PlanResponseDto> getPlansByUserId(UUID userId) {
         return planManagementRepository.findPlansByUserId(userId)
                                        .stream()

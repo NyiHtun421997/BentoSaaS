@@ -33,6 +33,7 @@ public class UserRequestDTO {
     @NotBlank(message = "{NotBlank.userRequestDto.phNo}")
     @PhoneNumber(message = "{PhoneNumber.userRequestDto.phNo}")
     private String phNo;
+    
     private String description;
 
     @Valid

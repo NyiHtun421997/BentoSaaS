@@ -7,8 +7,12 @@ import com.nyihtuun.bentosystem.invoiceservice.application_service.ports.output.
 import com.nyihtuun.bentosystem.invoiceservice.domain.entity.Invoice;
 import com.nyihtuun.bentosystem.invoiceservice.domain.exception.InvoiceDomainException;
 import com.nyihtuun.bentosystem.invoiceservice.domain.exception.InvoiceErrorCode;
+import com.nyihtuun.bentosystem.invoiceservice.security.authorization_handler.GenericAccessDeniedAuthorizationHandler;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authorization.method.HandleAuthorizationDenied;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +29,8 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     @Transactional(readOnly = true)
+    @PostAuthorize("returnObject.isPresent() ? returnObject.get().userId.toString() == principal.toString() : true")
+    @HandleAuthorizationDenied(handlerClass = GenericAccessDeniedAuthorizationHandler.class)
     public Optional<InvoiceResponseDto> getInvoiceById(UUID invoiceId) {
         return invoiceRepository.findByInvoiceId(invoiceId)
                 .map(invoiceDataMapper::mapInvoiceToInvoiceResponseDto);
@@ -32,6 +38,8 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     @Transactional(readOnly = true)
+    @PreAuthorize("principal.toString() == #userId.toString()")
+    @HandleAuthorizationDenied(handlerClass = GenericAccessDeniedAuthorizationHandler.class)
     public List<InvoiceResponseDto> getMyInvoicesByDate(UUID userId, LocalDate date) {
         return invoiceRepository.findByUserIdAndDate(userId, date)
                 .stream()
@@ -41,6 +49,8 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     @Transactional
+    @PostAuthorize("returnObject.userId.toString() == principal.toString()")
+    @HandleAuthorizationDenied(handlerClass = GenericAccessDeniedAuthorizationHandler.class)
     public InvoiceResponseDto makePayment(UUID invoiceId) {
         log.info("Making payment for invoice with id: {}", invoiceId);
         Invoice invoice = findInvoiceById(invoiceId);
@@ -53,6 +63,8 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     @Transactional
+    @PostAuthorize("returnObject.userId.toString() == principal.toString()")
+    @HandleAuthorizationDenied(handlerClass = GenericAccessDeniedAuthorizationHandler.class)
     public InvoiceResponseDto cancelPayment(UUID invoiceId) {
         log.info("Cancelling payment for invoice with id: {}", invoiceId);
         Invoice invoice = findInvoiceById(invoiceId);
@@ -65,6 +77,8 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     @Transactional
+    @PostAuthorize("returnObject.userId.toString() == principal.toString()")
+    @HandleAuthorizationDenied(handlerClass = GenericAccessDeniedAuthorizationHandler.class)
     public InvoiceResponseDto markPaymentFailed(UUID invoiceId) {
         log.info("Marking payment for invoice with id: {} as failed", invoiceId);
         Invoice invoice = findInvoiceById(invoiceId);

@@ -6,6 +6,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -25,7 +26,7 @@ public class UserServiceGlobalExceptionHandler {
     }
 
     @ExceptionHandler(UserServiceException.class)
-    public ResponseEntity<?> handle(UserServiceException exception) {
+    public ResponseEntity<?> handleUserServiceException(UserServiceException exception) {
         log.error(
                 "UserServiceException occurred. errorCode={}, message={}",
                 exception.getErrorCode(),
@@ -35,16 +36,32 @@ public class UserServiceGlobalExceptionHandler {
         String messageKey = USER_ERROR + toKey(exception.getErrorCode().name());
         String message =
                 messageSource.getMessage(messageKey, null, LocaleContextHolder.getLocale());
+
+        if (exception.getErrorCode() == UserServiceErrorCode.GENERIC_ACCESS_DENIED ||
+                exception.getErrorCode() == UserServiceErrorCode.ADMIN_ACCESS_DENIED) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(message);
+        }
+
         return ResponseEntity.badRequest().body(message);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleErrors(MethodArgumentNotValidException ex) {
+    public ResponseEntity<Map<String, String>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         Map<String, String> response = new LinkedHashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(error ->
                                                                response.put(error.getField(), error.getDefaultMessage())
         );
         return ResponseEntity.badRequest().body(response);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<Map<String, String>> handleMissingServletRequestParameterException(MissingServletRequestParameterException ex) {
+        return ResponseEntity
+                .badRequest()
+                .body(Map.of(
+                        "error", "MISSING_PARAMETERS",
+                        "message", "Required parameters '" + ex.getParameterName() + "' are missing"
+                ));
     }
 
     @ExceptionHandler(Exception.class)

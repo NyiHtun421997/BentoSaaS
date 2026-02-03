@@ -15,15 +15,20 @@ import java.util.UUID;
 import static com.nyihtuun.bentosystem.userservice.controller.ApiPaths.*;
 
 @RestController
-@RequestMapping(VERSION1 + USER)
+@RequestMapping(VERSION1)
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
 
-    @PostMapping
-    public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(userRequestDTO));
+    @PostMapping("/signup/regular")
+    public ResponseEntity<UserResponseDTO> createRegularUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(userRequestDTO, false));
+    }
+
+    @PostMapping("/signup/provider")
+    public ResponseEntity<UserResponseDTO> createProviderUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(userRequestDTO, true));
     }
 
     @GetMapping(USER_ID)

@@ -59,7 +59,6 @@ CREATE TABLE "userinfo"."user"
 
     CONSTRAINT user_pk PRIMARY KEY (user_id),
     CONSTRAINT user_unique_email UNIQUE (email),
-    CONSTRAINT user_unique_pswd UNIQUE (encrypted_password),
 
     CONSTRAINT user_address_fk FOREIGN KEY (address_id)
         REFERENCES "userinfo".address (id)

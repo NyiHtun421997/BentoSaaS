@@ -159,7 +159,7 @@ public class Plan extends AggregateRoot<PlanId> {
 
     public void removeMeal(PlanMealId planMealId) {
         PlanMeal planMealToRemove = this.getPlanMeals().stream()
-                                        .filter(planMeal -> planMeal.getId().equals(planMealId))
+                                        .filter(planMeal -> planMeal.getId().equals(planMealId) && !planMeal.isDeleteFlag())
                                         .findFirst()
                                         .orElseThrow(() -> new PlanManagementDomainException(PlanManagementErrorCode.INVALID_PLANMEAL_ID));
 
@@ -180,7 +180,7 @@ public class Plan extends AggregateRoot<PlanId> {
 
     public void updateMeal(PlanMealId planMealId, PlanMealUpdateCommand planMealUpdateCommand) {
         PlanMeal planMealToUpdate = this.getPlanMeals().stream()
-                                        .filter(planMeal -> planMeal.getId().equals(planMealId))
+                                        .filter(planMeal -> planMeal.getId().equals(planMealId) && !planMeal.isDeleteFlag())
                                         .findFirst()
                                         .orElseThrow(() -> new PlanManagementDomainException(PlanManagementErrorCode.INVALID_PLANMEAL_ID));
         planMealToUpdate.updateMeal(planMealUpdateCommand);

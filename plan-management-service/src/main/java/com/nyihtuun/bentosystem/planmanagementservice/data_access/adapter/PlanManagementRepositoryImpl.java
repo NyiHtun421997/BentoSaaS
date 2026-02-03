@@ -63,7 +63,7 @@ public class PlanManagementRepositoryImpl implements PlanManagementRepository {
 
     @Override
     public Optional<Plan> findPlanByTitleAndCode(String title, String code) {
-        return planJpaRepository.findPlanEntityByTitleContainingIgnoreCaseAndCode(title, code)
+        return planJpaRepository.findPlanEntityByTitleContainingIgnoreCaseAndCodeAndDeleteFlagFalse(title, code)
                                 .map(planEntity -> mapper.planEntityToPlan(planEntity, true));
     }
 
@@ -88,12 +88,10 @@ public class PlanManagementRepositoryImpl implements PlanManagementRepository {
     }
 
     @Override
-    public List<Plan> findActivePlansBetweenDates(LocalDate start, LocalDate end) {
-        Instant from = start.atStartOfDay(ZoneId.of(ASIA_TOKYO_ZONE)).toInstant();
-        Instant to = end.plusDays(1).atStartOfDay(ZoneId.of(ASIA_TOKYO_ZONE)).toInstant();
+    public List<Plan> findActivePlansBetweenDates(LocalDate before) {
+        Instant beforeInst = before.atStartOfDay(ZoneId.of(ASIA_TOKYO_ZONE)).toInstant();
 
-        return planJpaRepository.findPlanEntitiesByDeleteFlagFalseAndCreatedAtBetweenAndPlanStatus(from,
-                                                                                                   to,
+        return planJpaRepository.findPlanEntitiesByDeleteFlagFalseAndCreatedAtBeforeAndPlanStatus(beforeInst,
                                                                                                    PlanStatus.ACTIVE)
                                 .stream()
                                 .map(planEntity -> mapper.planEntityToPlan(planEntity, true))
@@ -102,13 +100,13 @@ public class PlanManagementRepositoryImpl implements PlanManagementRepository {
 
     @Override
     public Optional<Plan> findByPlanId(UUID planId) {
-        return planJpaRepository.findById(planId)
+        return planJpaRepository.findByIdAndDeleteFlagFalse(planId)
                                 .map(planEntity -> mapper.planEntityToPlan(planEntity, true));
     }
 
     @Override
     public List<Plan> findPlansByUserId(UUID userId) {
-        return planJpaRepository.findPlanEntitiesByUserId(userId)
+        return planJpaRepository.findPlanEntitiesByUserIdAndDeleteFlagFalse(userId)
                                 .stream()
                                 .map(planEntity -> mapper.planEntityToPlan(planEntity, false))
                                 .toList();
@@ -116,7 +114,7 @@ public class PlanManagementRepositoryImpl implements PlanManagementRepository {
 
     @Override
     public List<Plan> findPlansNearMe(double latitude, double longitude, double radiusMeters, int page, int size) {
-        return planJpaRepository.findActivePlansNearLocation(latitude, longitude, radiusMeters)
+        return planJpaRepository.findActivePlansNearLocationAndDeleteFlagFalse(latitude, longitude, radiusMeters)
                                 .stream()
                                 .map(planEntity -> mapper.planEntityToPlan(planEntity, false))
                                 .toList();
