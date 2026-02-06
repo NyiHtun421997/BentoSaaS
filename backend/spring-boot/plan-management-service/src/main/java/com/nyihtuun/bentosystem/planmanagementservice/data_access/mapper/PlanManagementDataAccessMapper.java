@@ -32,6 +32,7 @@ public class PlanManagementDataAccessMapper {
                                           .collect(Collectors.toSet()))
                    .providerUserId(new UserId(planEntity.getUserId()))
                    .displaySubscriptionFee(new Money(planEntity.getDisplaySubscriptionFee()))
+                   .imageUrl(planEntity.getImageUrl())
                    .planMeals(planMealEntitiesToPlanMeals(mapPlanMealEntities ? planEntity.getPlanMealEntities() : new ArrayList<>(),
                                                           planId))
                    .deleteFlag(planEntity.getDeleteFlag())
@@ -88,6 +89,7 @@ public class PlanManagementDataAccessMapper {
                                           .addressEntity(addressToAddressEntity(plan.getAddress()))
                                           .categoryEntities(new HashSet<>(categoryEntities))
                                           .displaySubscriptionFee(plan.getDisplaySubscriptionFee().amount())
+                                          .imageUrl(plan.getImageUrl())
                                           .deleteFlag(plan.isDeleteFlag())
                                           .deletedAt(plan.getDeletedAt())
                                           .planMealEntities(planMealsToPlanMealEntities(plan.getPlanMeals()))

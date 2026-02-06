@@ -19,4 +19,5 @@ public class PlanUpdateCommand {
     private List<LocalDate> skipDays;
     private Address address;
     private Money displaySubscriptionFee;
+    private String imageUrl;
 }

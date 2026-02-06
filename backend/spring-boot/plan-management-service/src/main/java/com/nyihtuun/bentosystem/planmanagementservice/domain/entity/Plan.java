@@ -28,6 +28,7 @@ public class Plan extends AggregateRoot<PlanId> {
     private List<LocalDate> skipDays;
     private Address address;
     private Money displaySubscriptionFee;
+    private String imageUrl;
     private Instant createdAt;
     private Instant updatedAt;
 
@@ -46,6 +47,7 @@ public class Plan extends AggregateRoot<PlanId> {
         skipDays = builder.skipDays;
         address = builder.address;
         displaySubscriptionFee = builder.displaySubscriptionFee;
+        imageUrl = builder.imageUrl;
         createdAt = builder.createdAt;
         updatedAt = builder.updatedAt;
         planMeals = builder.planMeals;
@@ -87,6 +89,9 @@ public class Plan extends AggregateRoot<PlanId> {
         validateSubscriptionFee();
         checkAtLeasOnePrimaryMeal();
         this.planMeals.forEach(PlanMeal::validateMeal);
+        if (imageUrl != null && !imageUrl.startsWith("https")) {
+            throw new PlanManagementDomainException(PlanManagementErrorCode.INVALID_IMAGE_URL);
+        }
         validateSubscriptionFee();
         uniquifyAndValidateSkipDays();
     }
@@ -108,6 +113,7 @@ public class Plan extends AggregateRoot<PlanId> {
         this.skipDays = planUpdateCommand.getSkipDays();
         this.address = planUpdateCommand.getAddress();
         this.displaySubscriptionFee = planUpdateCommand.getDisplaySubscriptionFee();
+        this.imageUrl = planUpdateCommand.getImageUrl();
         this.updatedAt = Instant.now();
     }
 
@@ -207,6 +213,7 @@ public class Plan extends AggregateRoot<PlanId> {
         private List<LocalDate> skipDays;
         private Address address;
         private Money displaySubscriptionFee;
+        private String imageUrl;
         private Instant createdAt;
         private Instant updatedAt;
         private List<PlanMeal> planMeals;
@@ -258,6 +265,11 @@ public class Plan extends AggregateRoot<PlanId> {
 
         public Builder displaySubscriptionFee(Money val) {
             displaySubscriptionFee = val;
+            return this;
+        }
+        
+        public Builder imageUrl(String val) {
+            imageUrl = val;
             return this;
         }
 

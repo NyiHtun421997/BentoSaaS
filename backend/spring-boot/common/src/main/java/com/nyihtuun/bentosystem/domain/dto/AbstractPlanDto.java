@@ -41,4 +41,8 @@ public abstract class AbstractPlanDto {
 
     @Size(max = 2, message = "{Size.planRequestDto.skipDays}")
     private List<@NotNull LocalDate> skipDays;
+
+    @Size(max = 255, message = "{Size.planRequestDto.imageUrl}")
+    @Pattern(regexp = "^(https?://).*$", message = "{Pattern.planRequestDto.imageUrl}")
+    private String imageUrl;
 }

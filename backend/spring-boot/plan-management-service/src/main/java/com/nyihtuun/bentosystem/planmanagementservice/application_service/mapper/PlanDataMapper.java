@@ -23,6 +23,7 @@ public class PlanDataMapper {
                    .skipDays(planRequestDto.getSkipDays())
                    .address(mapAddressDtoToAddress(planRequestDto.getAddress()))
                    .displaySubscriptionFee(new Money(planRequestDto.getDisplaySubscriptionFee()))
+                   .imageUrl(planRequestDto.getImageUrl())
                    .planMeals(mapPlanMealRequestDtosToPlanMeals(planRequestDto.getPlanMealRequestDtos()))
                    .build();
     }
@@ -68,6 +69,7 @@ public class PlanDataMapper {
                               .providerUserId(plan.getProviderUserId().getValue())
                               .skipDays(plan.getSkipDays())
                               .displaySubscriptionFee(plan.getDisplaySubscriptionFee().amount())
+                              .imageUrl(plan.getImageUrl())
                               .planMealResponseDtos(mapPlanMealsToPlanMealResponseDtos(plan.getPlanMeals()))
                               .build();
     }
@@ -112,6 +114,7 @@ public class PlanDataMapper {
                                 .skipDays(planRequestDto.getSkipDays())
                                 .address(mapAddressDtoToAddress(planRequestDto.getAddress()))
                                 .displaySubscriptionFee(new Money(planRequestDto.getDisplaySubscriptionFee()))
+                                .imageUrl(planRequestDto.getImageUrl())
                                 .build();
     }
 

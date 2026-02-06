@@ -44,6 +44,7 @@ CREATE TABLE "planmanagement".plan
     skip_dates               jsonb          NOT NULL DEFAULT '[]',
     address_id               uuid           NOT NULL,
     display_subscription_fee NUMERIC(10, 2) NOT NULL CHECK ( display_subscription_fee > 0 ),
+    image_url                VARCHAR,
     delete_flag              BOOLEAN                 DEFAULT FALSE,
     deleted_at               TIMESTAMPTZ,
     CONSTRAINT plan_pk PRIMARY KEY (id),
@@ -107,10 +108,10 @@ DROP TABLE IF EXISTS "planmanagement".delivery_schedule CASCADE;
 
 CREATE TABLE "planmanagement".delivery_schedule
 (
-    id           uuid      NOT NULL,
-    plan_id      uuid      NOT NULL,
-    period_start DATE      NOT NULL,
-    period_end   DATE      NOT NULL,
+    id           uuid        NOT NULL,
+    plan_id      uuid        NOT NULL,
+    period_start DATE        NOT NULL,
+    period_end   DATE        NOT NULL,
     created_at   TIMESTAMPTZ NOT NULL,
     CONSTRAINT delivery_schedule_pk PRIMARY KEY (id),
     CONSTRAINT delivery_schedule_unique UNIQUE (plan_id, period_start, period_end),
@@ -150,24 +151,24 @@ CREATE TABLE "planmanagement".job_run
 (
     id            uuid PRIMARY KEY,
 
-    job_type      VARCHAR(100) NOT NULL,
+    job_type      VARCHAR(100)   NOT NULL,
 
-    period_start  DATE         NOT NULL,
-    period_end    DATE         NOT NULL,
+    period_start  DATE           NOT NULL,
+    period_end    DATE           NOT NULL,
 
-    status        job_run_status  NOT NULL, -- SUCCESS / PARTIAL_SUCCESS / FAILED
+    status        job_run_status NOT NULL, -- SUCCESS / PARTIAL_SUCCESS / FAILED
 
-    started_at    TIMESTAMPTZ  NOT NULL,
+    started_at    TIMESTAMPTZ    NOT NULL,
     finished_at   TIMESTAMPTZ,
 
-    total_targets INT          NOT NULL DEFAULT 0,
-    success_count INT          NOT NULL DEFAULT 0,
-    failure_count INT          NOT NULL DEFAULT 0,
+    total_targets INT            NOT NULL DEFAULT 0,
+    success_count INT            NOT NULL DEFAULT 0,
+    failure_count INT            NOT NULL DEFAULT 0,
 
-    results       jsonb        NOT NULL DEFAULT '[]'::jsonb,
+    results       jsonb          NOT NULL DEFAULT '[]'::jsonb,
     error         jsonb,
 
-    created_at    TIMESTAMPTZ  NOT NULL DEFAULT now()
+    created_at    TIMESTAMPTZ    NOT NULL DEFAULT now()
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS ux_pm_job_run_job_period
@@ -176,7 +177,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS ux_pm_job_run_job_period
 CREATE INDEX IF NOT EXISTS ix_pm_job_run_job_type_started_at
     on "planmanagement".job_run (job_type, started_at desc);
 
-CREATE INDEX IF NOT EXISTS  ix_pm_job_run_job_type_status
+CREATE INDEX IF NOT EXISTS ix_pm_job_run_job_type_status
     on "planmanagement".job_run (job_type, status);
 
 -- ==========================================================
@@ -189,11 +190,11 @@ CREATE TYPE outbox_status AS ENUM ('STARTED', 'COMPLETED', 'FAILED');
 DROP TABLE IF EXISTS "planmanagement".plan_changed_event_outbox CASCADE;
 CREATE TABLE "planmanagement".plan_changed_event_outbox
 (
-    id uuid NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL,
-    processed_at TIMESTAMPTZ,
-    payload jsonb NOT NULL,
+    id            uuid          NOT NULL,
+    created_at    TIMESTAMPTZ   NOT NULL,
+    processed_at  TIMESTAMPTZ,
+    payload       jsonb         NOT NULL,
     outbox_status outbox_status NOT NULL,
-    version integer NOT NULL,
+    version       integer       NOT NULL,
     CONSTRAINT plan_changed_event_outbox_pkey PRIMARY KEY (id)
 );

@@ -78,6 +78,9 @@ public class PlanEntity {
     )
     private BigDecimal displaySubscriptionFee;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
     @Column(name = "delete_flag")
     private Boolean deleteFlag;
 
