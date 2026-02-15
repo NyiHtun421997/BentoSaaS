@@ -1,5 +1,6 @@
 package com.nyihtuun.bentosystem.userservice.controller;
 
+import com.nyihtuun.bentosystem.userservice.dto.user.SignupRequestDTO;
 import com.nyihtuun.bentosystem.userservice.dto.user.UserRequestDTO;
 import com.nyihtuun.bentosystem.userservice.dto.user.UserResponseDTO;
 import com.nyihtuun.bentosystem.userservice.service.UserService;
@@ -28,15 +29,15 @@ public class UserController {
     @PostMapping("/signup/regular")
     @Operation(summary = "Register a regular user", description = "Creates a new user account with the ROLE_USER role.")
     @ApiResponse(responseCode = "201", description = "User created successfully")
-    public ResponseEntity<UserResponseDTO> createRegularUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(userRequestDTO, false));
+    public ResponseEntity<UserResponseDTO> createRegularUser(@Valid @RequestBody SignupRequestDTO signupRequestDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(signupRequestDTO, false));
     }
 
     @PostMapping("/signup/provider")
     @Operation(summary = "Register a provider user", description = "Creates a new user account with both ROLE_USER and ROLE_PROVIDER roles.")
     @ApiResponse(responseCode = "201", description = "Provider user created successfully")
-    public ResponseEntity<UserResponseDTO> createProviderUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(userRequestDTO, true));
+    public ResponseEntity<UserResponseDTO> createProviderUser(@Valid @RequestBody SignupRequestDTO signupRequestDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(signupRequestDTO, true));
     }
 
     @GetMapping(USER_ID)

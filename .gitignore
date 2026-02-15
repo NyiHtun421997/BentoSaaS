@@ -44,8 +44,13 @@ out/
 *.class
 
 # Logs
+logs
 *.log
-logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
 # JAR / WAR / EAR (never commit build outputs)
 *.jar
@@ -131,6 +136,10 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+node_modules
+dist
+dist-ssr
+*.local
 
 ############################
 # Docker
@@ -160,3 +169,14 @@ docker-compose.override.yml
 !gradle/wrapper/gradle-wrapper.properties
 !mvnw
 !mvnw.cmd
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

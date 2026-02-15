@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-@Profile("dev")
+@Profile({"local"})
 public class SchedulerStartupRunner {
 
     private final PlanManagementCommandService commandService;

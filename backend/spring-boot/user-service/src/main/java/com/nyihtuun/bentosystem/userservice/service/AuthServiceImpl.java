@@ -1,6 +1,5 @@
 package com.nyihtuun.bentosystem.userservice.service;
 
-import com.nyihtuun.bentosystem.userservice.security.WebSecurity;
 import io.jsonwebtoken.Claims;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -41,8 +40,8 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String generateToken(String userId, Collection<? extends GrantedAuthority> authorities) {
-        return jwtHelper.generateToken(userId, authorities);
+    public String generateToken(String userId, Collection<? extends GrantedAuthority> authorities, String email) {
+        return jwtHelper.generateToken(userId, authorities, email);
     }
 
     @Override

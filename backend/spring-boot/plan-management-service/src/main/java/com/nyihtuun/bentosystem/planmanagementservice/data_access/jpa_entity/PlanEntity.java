@@ -53,6 +53,9 @@ public class PlanEntity {
     @Column(name = "user_id", nullable = false)
     private UUID userId;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "skip_dates", columnDefinition = "jsonb", nullable = false)
     private List<LocalDate> skipDates = new ArrayList<>();
@@ -77,9 +80,6 @@ public class PlanEntity {
             scale = 2
     )
     private BigDecimal displaySubscriptionFee;
-
-    @Column(name = "image_url")
-    private String imageUrl;
 
     @Column(name = "delete_flag")
     private Boolean deleteFlag;

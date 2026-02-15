@@ -1,5 +1,6 @@
 package com.nyihtuun.bentosystem.invoiceservice.application_service.mapper;
 
+import com.nyihtuun.bentosystem.domain.valueobject.PlanMealId;
 import com.nyihtuun.bentosystem.invoiceservice.application_service.dto.response.InvoiceResponseDto;
 import com.nyihtuun.bentosystem.invoiceservice.domain.entity.Invoice;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,10 @@ public class InvoiceDataMapper {
                 .providedUserId(invoice.getProvidedUserId().getValue())
                 .invoiceStatus(invoice.getInvoiceStatus())
                 .amount(invoice.getAmount().amount())
+                .subscribedMealIds(invoice.getSubscribedMealIds()
+                                          .stream()
+                                          .map(PlanMealId::getValue)
+                                          .toList())
                 .issuedAt(invoice.getIssuedAt() != null ? invoice.getIssuedAt().atZone(ZoneId.of(ASIA_TOKYO_ZONE)) : null)
                 .updatedAt(invoice.getUpdatedAt() != null ? invoice.getUpdatedAt().atZone(ZoneId.of(ASIA_TOKYO_ZONE)) : null)
                 .paidAt(invoice.getPaidAt() != null ? invoice.getPaidAt().atZone(ZoneId.of(ASIA_TOKYO_ZONE)) : null)

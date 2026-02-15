@@ -12,6 +12,7 @@ import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -29,15 +30,16 @@ public class SubscriptionGlobalExceptionHandler {
 
     @ExceptionHandler(SubscriptionDomainException.class)
     public ResponseEntity<?> handleSubscriptionDomainException(SubscriptionDomainException exception) {
-        log.error(
-                "SubscriptionDomainException occurred. errorCode={}, message={}",
-                exception.getErrorCode(),
-                exception.getMessage(),
-                exception
-        );
         String messageKey = SUBSCRIPTION_ERROR + toKey(exception.getErrorCode().name());
         String message =
                 messageSource.getMessage(messageKey, null, LocaleContextHolder.getLocale());
+
+        log.error(
+                "SubscriptionDomainException occurred. errorCode={}, message={}",
+                exception.getErrorCode(),
+                message,
+                exception
+        );
 
         if (exception.getErrorCode() == SubscriptionErrorCode.ACCESS_DENIED) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(message);
@@ -73,6 +75,12 @@ public class SubscriptionGlobalExceptionHandler {
                         "error", "MISSING_PARAMETERS",
                         "message", "Required parameters '" + ex.getParameterName() + "' are missing"
                 ));
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<String> handleNoResourceFoundException(NoResourceFoundException e) {
+        log.error("No resource found: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("The requested resource was not found.");
     }
 
     @ExceptionHandler(Exception.class)

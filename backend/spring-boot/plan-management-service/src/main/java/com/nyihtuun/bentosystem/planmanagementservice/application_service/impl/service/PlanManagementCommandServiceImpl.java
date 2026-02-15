@@ -178,7 +178,7 @@ public class PlanManagementCommandServiceImpl implements PlanManagementCommandSe
 
         Plan updatedPlan = persistPlan(plan, false);
 
-        if (planStatusBefore != updatedPlan.getStatus()) {
+        if (planStatusBefore == PlanStatus.ACTIVE || planStatusBefore != updatedPlan.getStatus()) {
             createOutboxMessageAndePersist(planId, plan, updatedPlan.getStatus(), PlanMealStatus.UNCHANGED);
         }
         return planDataMapper.mapPlanToPlanDto(updatedPlan);

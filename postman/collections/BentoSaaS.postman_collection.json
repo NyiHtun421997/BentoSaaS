@@ -142,7 +142,7 @@
                   "bearer": [
                     {
                       "key": "token",
-                      "value": "eyJhbGciOiJIUzM4NCJ9.eyJyb2xlIjpbeyJhdXRob3JpdHkiOiJST0xFX0FETUlOIn0seyJhdXRob3JpdHkiOiJST0xFX1BST1ZJREVSIn0seyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sInN1YiI6IjIyMjIyMjIyLTAwMDAtMDAwMC0wMDAwLTAwMDAwMDAwMDAwMSIsImlhdCI6MTc3MDA0Mzg0NiwiZXhwIjoxNzcwMDUxMDQ2fQ.gqJOfAWMHMhk7EuSC0J6y9Q7Z3KuIMc2P2MbBhH8gAqPJtbLJpIaz40lP5msxfFj",
+                      "value": "eyJhbGciOiJIUzM4NCJ9.eyJyb2xlIjpbeyJhdXRob3JpdHkiOiJST0xFX0FETUlOIn0seyJhdXRob3JpdHkiOiJST0xFX1BST1ZJREVSIn0seyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sInN1YiI6IjIyMjIyMjIyLTAwMDAtMDAwMC0wMDAwLTAwMDAwMDAwMDAwMSIsImVtYWlsIjoiYWRtaW5AYmVudG8uZGV2IiwiaWF0IjoxNzcwNjEyNjI2LCJleHAiOjE3NzA2MTk4MjZ9.pmoLxaDUsgQ3yoi4oPMoOEe6pULf59KgG-chthvXZxsf3TnhbWf16TwaNu0t-b0i",
                       "type": "string"
                     }
                   ]

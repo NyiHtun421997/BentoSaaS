@@ -57,7 +57,8 @@ public class WebSecurity {
 
         return http.csrf(AbstractHttpConfigurer::disable)
                    .authorizeHttpRequests(auth ->
-                                                  auth.requestMatchers(HttpMethod.GET, "/v1/validate-token")
+                                                  auth.requestMatchers("/v3/api-docs")
+                                                      .permitAll().requestMatchers(HttpMethod.GET, "/v1/validate-token")
                                                       .permitAll()
                                                       .requestMatchers(HttpMethod.POST, "/v1/signup/**")
                                                       .permitAll()

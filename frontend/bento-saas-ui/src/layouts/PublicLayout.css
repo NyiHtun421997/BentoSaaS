@@ -1,0 +1,39 @@
+.public-layout {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #ffffff 0%, #f7f6f2 100%);
+}
+
+.public-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #ffffffcc;
+  backdrop-filter: blur(8px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.public-nav-links {
+  display: flex;
+  gap: 16px;
+  font-weight: 600;
+}
+
+.public-nav a {
+  color: #1f2937;
+  text-decoration: none;
+}
+
+.public-nav a:hover {
+  color: #0f766e;
+}
+
+.nav-signout:hover {
+  border-color: #e2e8f0;
+  color: #0f172a;
+  background: rgba(15, 23, 42, 0.03);
+}

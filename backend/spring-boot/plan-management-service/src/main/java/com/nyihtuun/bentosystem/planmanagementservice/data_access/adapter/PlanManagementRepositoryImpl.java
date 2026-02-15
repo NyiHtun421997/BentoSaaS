@@ -16,6 +16,7 @@ import com.nyihtuun.bentosystem.planmanagementservice.domain.entity.Plan;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.exception.PlanManagementDomainException;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.exception.PlanManagementErrorCode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -37,9 +38,12 @@ public class PlanManagementRepositoryImpl implements PlanManagementRepository {
     private final DeliveryScheduleJpaRepository deliveryScheduleJpaRepository;
     private final PlanManagementDataAccessMapper mapper;
 
+    @Value("${plan-management.max-page-size:5}")
+    private int maxPageSize;
+
     private Pageable getPageable(int page, int size) {
         int safePage = Math.max(page, 0);
-        int safeSize = Math.min(Math.max(size, 1), 5);
+        int safeSize = Math.min(Math.max(size, 1), maxPageSize);
         return PageRequest.of(safePage, safeSize);
     }
 

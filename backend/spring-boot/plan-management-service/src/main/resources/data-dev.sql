@@ -6,11 +6,11 @@
 -- ==========================================================
 -- PLAN MANAGEMENT BC
 -- ==========================================================
-TRUNCATE planmanagement.plan_category CASCADE;
-TRUNCATE planmanagement.plan_meal CASCADE;
-TRUNCATE planmanagement.plan CASCADE;
-TRUNCATE planmanagement.category CASCADE;
-TRUNCATE planmanagement.address CASCADE;
+-- TRUNCATE planmanagement.plan_category CASCADE;
+-- TRUNCATE planmanagement.plan_meal CASCADE;
+-- TRUNCATE planmanagement.plan CASCADE;
+-- TRUNCATE planmanagement.category CASCADE;
+-- TRUNCATE planmanagement.address CASCADE;
 
 -- ----------------------------------------------------------
 -- address (5)
@@ -27,7 +27,7 @@ VALUES
     ('aaaaaaaa-0000-0000-0000-000000000007','TENNOJI PARKSIDE 1104','5-55-10','TENNOJI','543-0063','OSAKA','OSAKA',ST_GeogFromText('POINT(135.5168 34.6532)')),
     ('aaaaaaaa-0000-0000-0000-000000000008','SANNOMIYA CENTRAL 403','2-11-3','SANNOMIYA','650-0021','KOBE','HYOGO',ST_GeogFromText('POINT(135.1955 34.6940)')),
     ('aaaaaaaa-0000-0000-0000-000000000009','GINZA RESIDENCE 1501','4-6-16','GINZA','104-0061','TOKYO','TOKYO',ST_GeogFromText('POINT(139.7671 35.6717)')),
-    ('aaaaaaaa-0000-0000-0000-000000000010','YOKOHAMA BAYFRONT 707','1-1-7','MINATOMIRAI','220-0012','YOKOHAMA','KANAGAWA',ST_GeogFromText('POINT(139.6368 35.4576)'));
+    ('aaaaaaaa-0000-0000-0000-000000000010','YOKOHAMA BAYFRONT 707','1-1-7','MINATOMIRAI','220-0012','YOKOHAMA','KANAGAWA',ST_GeogFromText('POINT(139.6368 35.4576)'))^^
 
 -- ----------------------------------------------------------
 -- category (7)  ※ ALL CAPS
@@ -40,7 +40,7 @@ VALUES
     ('cccccccc-0000-0000-0000-000000000004','MEAT'),
     ('cccccccc-0000-0000-0000-000000000005','VEGETARIAN'),
     ('cccccccc-0000-0000-0000-000000000006','SPICY'),
-    ('cccccccc-0000-0000-0000-000000000007','PREMIUM');
+    ('cccccccc-0000-0000-0000-000000000007','PREMIUM')^^
 
 -- ----------------------------------------------------------
 -- plan (10)
@@ -49,16 +49,16 @@ VALUES
 INSERT INTO planmanagement.plan
 (id, code, title, description, plan_status, created_at, updated_at, user_id, skip_dates, address_id, display_subscription_fee, image_url, delete_flag, deleted_at)
 VALUES
-    ('10000000-0000-0000-0000-000000000001','AA00001','OSAKA CLASSIC','Balanced bento','ACTIVE','2026-01-01 10:00:00+09','2026-01-15 09:00:00+09','11111111-0000-0000-0000-000000000001','[]'::jsonb,'aaaaaaaa-0000-0000-0000-000000000001',9800.00,'https://images.unsplash.com/photo-1546069901-ba9599a7e63c',false,NULL),
-    ('10000000-0000-0000-0000-000000000002','AA00002','KYOTO HEALTHY','Light meals','RECRUITING','2026-01-02 10:00:00+09','2026-01-12 09:00:00+09','11111111-0000-0000-0000-000000000002','[]'::jsonb,'aaaaaaaa-0000-0000-0000-000000000002',9200.00,'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe',false,NULL),
-    ('10000000-0000-0000-0000-000000000003','AA00003','TOKYO SEAFOOD','Premium seafood','ACTIVE','2026-01-03 10:00:00+09','2026-01-18 09:00:00+09','11111111-0000-0000-0000-000000000003','[]'::jsonb,'aaaaaaaa-0000-0000-0000-000000000003',12800.00,'https://upload.wikimedia.org/wikipedia/commons/3/37/Sushi_bento.jpg',false,NULL),
-    ('10000000-0000-0000-0000-000000000004','AA00004','KOBE MEAT','Meat lovers','RECRUITING','2026-01-04 10:00:00+09','2026-01-14 09:00:00+09','11111111-0000-0000-0000-000000000004','[]'::jsonb,'aaaaaaaa-0000-0000-0000-000000000004',11500.00,'https://upload.wikimedia.org/wikipedia/commons/9/9a/Gyuu-don_003.jpg',false,NULL),
-    ('10000000-0000-0000-0000-000000000005','AA00005','TOKYO QUICK','Fast meals','ACTIVE','2026-01-05 10:00:00+09','2026-01-19 09:00:00+09','11111111-0000-0000-0000-000000000005','[]'::jsonb,'aaaaaaaa-0000-0000-0000-000000000005',8900.00,'https://images.unsplash.com/photo-1555939594-58d7cb561ad1',false,NULL),
-    ('10000000-0000-0000-0000-000000000006','AA00006','SPICY CURRY','Curry week','ACTIVE','2026-01-06 10:00:00+09','2026-01-20 09:00:00+09','11111111-0000-0000-0000-000000000006','[]'::jsonb,'aaaaaaaa-0000-0000-0000-000000000006',9900.00,'https://upload.wikimedia.org/wikipedia/commons/4/44/Jiyuken_curry_rice_20100320.jpg',false,NULL),
-    ('10000000-0000-0000-0000-000000000007','AA00007','VEGGIE JAPAN','Plant based','RECRUITING','2026-01-07 10:00:00+09','2026-01-17 09:00:00+09','11111111-0000-0000-0000-000000000007','[]'::jsonb,'aaaaaaaa-0000-0000-0000-000000000007',9000.00,'https://upload.wikimedia.org/wikipedia/commons/8/8e/Tempura_bento_-_Boston%2C_MA.jpg',false,NULL),
-    ('10000000-0000-0000-0000-000000000008','AA00008','EKIBEN TRIP','Station bento','ACTIVE','2026-01-08 10:00:00+09','2026-01-21 09:00:00+09','11111111-0000-0000-0000-000000000008','[]'::jsonb,'aaaaaaaa-0000-0000-0000-000000000008',10800.00,'https://upload.wikimedia.org/wikipedia/commons/c/c2/Onigiri_001.jpg',false,NULL),
-    ('10000000-0000-0000-0000-000000000009','AA00009','TEMPURA PREMIUM','Weekend tempura','RECRUITING','2026-01-09 10:00:00+09','2026-01-16 09:00:00+09','11111111-0000-0000-0000-000000000009','[]'::jsonb,'aaaaaaaa-0000-0000-0000-000000000009',13500.00,'https://upload.wikimedia.org/wikipedia/commons/5/50/Bento_-_sushi_-_sashimi_-_ravioli.jpg',false,NULL),
-    ('10000000-0000-0000-0000-000000000010','AA00010','GYUDON POWER','Beef bowl','ACTIVE','2026-01-10 10:00:00+09','2026-01-22 09:00:00+09','11111111-0000-0000-0000-000000000010','[]'::jsonb,'aaaaaaaa-0000-0000-0000-000000000010',9800.00,'https://upload.wikimedia.org/wikipedia/commons/9/9a/Gyuu-don_003.jpg',false,NULL);
+    ('10000000-0000-0000-0000-000000000001','AA00001','OSAKA CLASSIC','Balanced bento','ACTIVE','2026-01-01 10:00:00+09','2026-01-15 09:00:00+09','11111111-0000-0000-0000-000000000001','[]'::jsonb,'aaaaaaaa-0000-0000-0000-000000000001',12200.00,'https://images.unsplash.com/photo-1546069901-ba9599a7e63c',false,NULL),
+    ('10000000-0000-0000-0000-000000000002','AA00002','KYOTO HEALTHY','Light meals','RECRUITING','2026-01-02 10:00:00+09','2026-01-12 09:00:00+09','11111111-0000-0000-0000-000000000002','[]'::jsonb,'aaaaaaaa-0000-0000-0000-000000000002',10700.00,'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe',false,NULL),
+    ('10000000-0000-0000-0000-000000000003','AA00003','TOKYO SEAFOOD','Premium seafood','ACTIVE','2026-01-03 10:00:00+09','2026-01-18 09:00:00+09','11111111-0000-0000-0000-000000000003','[]'::jsonb,'aaaaaaaa-0000-0000-0000-000000000003',15400.00,'https://upload.wikimedia.org/wikipedia/commons/3/37/Sushi_bento.jpg',false,NULL),
+    ('10000000-0000-0000-0000-000000000004','AA00004','KOBE MEAT','Meat lovers','RECRUITING','2026-01-04 10:00:00+09','2026-01-14 09:00:00+09','11111111-0000-0000-0000-000000000004','[]'::jsonb,'aaaaaaaa-0000-0000-0000-000000000004',12300.00,'https://upload.wikimedia.org/wikipedia/commons/9/9a/Gyuu-don_003.jpg',false,NULL),
+    ('10000000-0000-0000-0000-000000000005','AA00005','TOKYO QUICK','Fast meals','ACTIVE','2026-01-05 10:00:00+09','2026-01-19 09:00:00+09','11111111-0000-0000-0000-000000000005','[]'::jsonb,'aaaaaaaa-0000-0000-0000-000000000005',10000.00,'https://images.unsplash.com/photo-1555939594-58d7cb561ad1',false,NULL),
+    ('10000000-0000-0000-0000-000000000006','AA00006','SPICY CURRY','Curry week','ACTIVE','2026-01-06 10:00:00+09','2026-01-20 09:00:00+09','11111111-0000-0000-0000-000000000006','[]'::jsonb,'aaaaaaaa-0000-0000-0000-000000000006',13000.00,'https://upload.wikimedia.org/wikipedia/commons/4/44/Jiyuken_curry_rice_20100320.jpg',false,NULL),
+    ('10000000-0000-0000-0000-000000000007','AA00007','VEGGIE JAPAN','Plant based','RECRUITING','2026-01-07 10:00:00+09','2026-01-17 09:00:00+09','11111111-0000-0000-0000-000000000007','[]'::jsonb,'aaaaaaaa-0000-0000-0000-000000000007',9300.00,'https://upload.wikimedia.org/wikipedia/commons/8/8e/Tempura_bento_-_Boston%2C_MA.jpg',false,NULL),
+    ('10000000-0000-0000-0000-000000000008','AA00008','EKIBEN TRIP','Station bento','ACTIVE','2026-01-08 10:00:00+09','2026-01-21 09:00:00+09','11111111-0000-0000-0000-000000000008','[]'::jsonb,'aaaaaaaa-0000-0000-0000-000000000008',11400.00,'https://upload.wikimedia.org/wikipedia/commons/c/c2/Onigiri_001.jpg',false,NULL),
+    ('10000000-0000-0000-0000-000000000009','AA00009','TEMPURA PREMIUM','Weekend tempura','RECRUITING','2026-01-09 10:00:00+09','2026-01-16 09:00:00+09','11111111-0000-0000-0000-000000000009','[]'::jsonb,'aaaaaaaa-0000-0000-0000-000000000009',16200.00,'https://upload.wikimedia.org/wikipedia/commons/5/50/Bento_-_sushi_-_sashimi_-_ravioli.jpg',false,NULL),
+    ('10000000-0000-0000-0000-000000000010','AA00010','GYUDON POWER','Beef bowl','ACTIVE','2026-10-10 10:00:00+09','2026-10-22 09:00:00+09','11111111-0000-0000-0000-000000000010','[]'::jsonb,'aaaaaaaa-0000-0000-0000-000000000010',9800.00,'https://upload.wikimedia.org/wikipedia/commons/9/9a/Gyuu-don_003.jpg',false,NULL)^^
 
 -- ----------------------------------------------------------
 -- plan_category (>=5, here 20)
@@ -93,7 +93,7 @@ VALUES
     ('10000000-0000-0000-0000-000000000009','cccccccc-0000-0000-0000-000000000003'),
 
     ('10000000-0000-0000-0000-000000000010','cccccccc-0000-0000-0000-000000000004'),
-    ('10000000-0000-0000-0000-000000000010','cccccccc-0000-0000-0000-000000000001');
+    ('10000000-0000-0000-0000-000000000010','cccccccc-0000-0000-0000-000000000001')^^
 
 -- ----------------------------------------------------------
 -- plan_meal (30)
@@ -152,4 +152,4 @@ VALUES
 -- PLAN 10 (2 primary)
 ('20000000-0000-0000-0000-000000000028','10000000-0000-0000-0000-000000000010','GYUDON CLASSIC','Beef bowl',4200.00,true, 3, 4,'https://upload.wikimedia.org/wikipedia/commons/9/9a/Gyuu-don_003.jpg','2026-01-10 10:05:00+09','2026-01-22 09:05:00+09',false,NULL),
 ('20000000-0000-0000-0000-000000000029','10000000-0000-0000-0000-000000000010','GYUDON + ONIGIRI','Beef bowl + rice ball',4500.00,true, 4, 1,'https://upload.wikimedia.org/wikipedia/commons/c/c2/Onigiri_001.jpg','2026-01-10 10:05:00+09','2026-01-22 09:05:00+09',false,NULL),
-('20000000-0000-0000-0000-000000000030','10000000-0000-0000-0000-000000000010','MISO SIDE SET','Soup + small sides',1100.00,false,1, 12,'https://images.unsplash.com/photo-1548940740-204726a19be3','2026-01-10 10:05:00+09','2026-01-22 09:05:00+09',false,NULL);
+('20000000-0000-0000-0000-000000000030','10000000-0000-0000-0000-000000000010','MISO SIDE SET','Soup + small sides',1100.00,false,1, 12,'https://images.unsplash.com/photo-1548940740-204726a19be3','2026-01-10 10:05:00+09','2026-01-22 09:05:00+09',false,NULL)^^

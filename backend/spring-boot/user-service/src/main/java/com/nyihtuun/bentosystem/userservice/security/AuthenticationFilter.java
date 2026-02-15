@@ -1,5 +1,6 @@
 package com.nyihtuun.bentosystem.userservice.security;
 
+import com.nyihtuun.bentosystem.userservice.security.principal.UserPrincipal;
 import com.nyihtuun.bentosystem.userservice.service.AuthService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -14,7 +15,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
@@ -43,16 +43,18 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             Authentication authResult) throws IOException, ServletException {
 
         log.info("Authentication successful for user: {}", authResult.getName());
-        User user = ((User) Objects.requireNonNull(authResult.getPrincipal()));
-        String username = user.getUsername();
+        UserPrincipal user = ((UserPrincipal) Objects.requireNonNull(authResult.getPrincipal()));
+        String userId = user.getUsername();
+        String email = user.getEmail();
 
-        log.info("Generating JWT token for user: {}", username);
-        String token = authService.generateToken(username, user.getAuthorities());
+        log.info("Generating JWT token for user: {}, email: {}", userId, email);
+        String token = authService.generateToken(userId, user.getAuthorities(), email);
 
         response.addHeader(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + token);
-        response.addHeader("X-USER-ID", username);
+        response.addHeader("X-USER-ID", userId);
+        response.addHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Authorization, X-USER-ID");
 
-        log.info("JWT token generated for user: {}", username);
+        log.info("JWT token generated for user: {}", userId);
 
 
         String msg = environment.getProperty(

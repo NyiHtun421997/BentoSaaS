@@ -1,14 +1,18 @@
-DROP SCHEMA IF EXISTS "subscription" CASCADE;
+-- DROP SCHEMA IF EXISTS "subscription" CASCADE;^^
 
-CREATE SCHEMA "subscription";
+CREATE SCHEMA IF NOT EXISTS "subscription";^^
 
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";^^
 
-DROP TYPE IF EXISTS subscription_status;
-CREATE TYPE subscription_status AS ENUM ('APPLIED', 'SUBSCRIBED', 'CANCELLED', 'SUSPENDED');
+-- DROP TYPE IF EXISTS subscription_status;^^
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'subscription_status') THEN
+        CREATE TYPE subscription_status AS ENUM ('APPLIED', 'SUBSCRIBED', 'CANCELLED', 'SUSPENDED');
+    END IF;
+END $$^^
 
-DROP TABLE IF EXISTS "subscription".subscription;
-CREATE TABLE "subscription".subscription
+-- DROP TABLE IF EXISTS "subscription".subscription;^^
+CREATE TABLE IF NOT EXISTS "subscription".subscription
 (
     id                  uuid                NOT NULL,
     user_id             uuid                NOT NULL,
@@ -19,12 +23,15 @@ CREATE TABLE "subscription".subscription
     updated_at          TIMESTAMPTZ         NOT NULL,
     cancelled_at        TIMESTAMPTZ,
     activated_at        TIMESTAMPTZ,
-    CONSTRAINT subscription_pk PRIMARY KEY (id),
-    CONSTRAINT subscription_unique_user_id_plan_id UNIQUE (user_id, plan_id)
-);
+    CONSTRAINT subscription_pk PRIMARY KEY (id)
+)^^
 
-DROP TABLE IF EXISTS "subscription".meal_selection;
-CREATE TABLE "subscription".meal_selection
+CREATE UNIQUE INDEX IF NOT EXISTS subscription_unique_active_user_plan
+    ON "subscription".subscription (user_id, plan_id)
+    WHERE (cancelled_at IS NULL)^^
+
+-- DROP TABLE IF EXISTS "subscription".meal_selection;^^
+CREATE TABLE IF NOT EXISTS "subscription".meal_selection
 (
     subscription_id uuid NOT NULL,
     plan_meal_id    uuid NOT NULL,
@@ -33,17 +40,21 @@ CREATE TABLE "subscription".meal_selection
         REFERENCES "subscription".subscription (id)
         ON UPDATE NO ACTION
         ON DELETE CASCADE
-);
+)^^
 
 -- ==========================================================
 -- Subscription BC: Outbox Table
 -- ==========================================================
 
-DROP TYPE IF EXISTS outbox_status;
-CREATE TYPE outbox_status AS ENUM ('STARTED', 'COMPLETED', 'FAILED');
+-- DROP TYPE IF EXISTS outbox_status;^^
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'outbox_status') THEN
+        CREATE TYPE outbox_status AS ENUM ('STARTED', 'COMPLETED', 'FAILED');
+    END IF;
+END $$^^
 
-DROP TABLE IF EXISTS "subscription".user_plan_subscription_event_outbox CASCADE;
-CREATE TABLE "subscription".user_plan_subscription_event_outbox
+-- DROP TABLE IF EXISTS "subscription".user_plan_subscription_event_outbox CASCADE;^^
+CREATE TABLE IF NOT EXISTS "subscription".user_plan_subscription_event_outbox
 (
     id uuid NOT NULL,
     created_at TIMESTAMPTZ NOT NULL,
@@ -52,4 +63,4 @@ CREATE TABLE "subscription".user_plan_subscription_event_outbox
     outbox_status outbox_status NOT NULL,
     version integer NOT NULL,
     CONSTRAINT user_plan_subscription_event_outbox_pkey PRIMARY KEY (id)
-);
+)^^

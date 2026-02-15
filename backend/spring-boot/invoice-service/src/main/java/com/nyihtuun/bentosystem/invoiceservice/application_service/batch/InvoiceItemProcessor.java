@@ -1,6 +1,7 @@
 package com.nyihtuun.bentosystem.invoiceservice.application_service.batch;
 
 import com.nyihtuun.bentosystem.domain.valueobject.Money;
+import com.nyihtuun.bentosystem.domain.valueobject.PlanMealId;
 import com.nyihtuun.bentosystem.domain.valueobject.SubscriptionId;
 import com.nyihtuun.bentosystem.domain.valueobject.UserId;
 import com.nyihtuun.bentosystem.invoiceservice.InvoiceConstants;
@@ -40,12 +41,16 @@ public class InvoiceItemProcessor implements ItemProcessor<SubscriptionContext, 
     public @Nullable InvoiceEntity process(SubscriptionContext subscription) throws Exception {
         log.info("Processing subscription: {}", subscription);
         Invoice processedInvoice = Invoice.builder()
-                               .subscriptionId(new SubscriptionId(subscription.getSubscriptionId()))
-                               .userId(new UserId(subscription.getUserId()))
-                               .providedUserId(new UserId(subscription.getProvidedUserId()))
-                               .amount(this.calculateBillingAmount(subscription.getPlanMealIds(),
-                                                                   planMealPriceContext.getPriceMap()))
-                               .build();
+                                          .subscriptionId(new SubscriptionId(subscription.getSubscriptionId()))
+                                          .userId(new UserId(subscription.getUserId()))
+                                          .providedUserId(new UserId(subscription.getProvidedUserId()))
+                                          .amount(this.calculateBillingAmount(subscription.getPlanMealIds(),
+                                                                              planMealPriceContext.getPriceMap()))
+                                          .subscribedMealIds(subscription.getPlanMealIds()
+                                                                         .stream()
+                                                                         .map(PlanMealId::new)
+                                                                         .toList())
+                                          .build();
 
         LocalDate today = LocalDate.now();
         LocalDate periodStart = today.with(TemporalAdjusters.firstDayOfMonth());

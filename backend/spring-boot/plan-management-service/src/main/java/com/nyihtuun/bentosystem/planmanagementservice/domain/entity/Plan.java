@@ -27,8 +27,8 @@ public class Plan extends AggregateRoot<PlanId> {
     private UserId providerUserId;
     private List<LocalDate> skipDays;
     private Address address;
-    private Money displaySubscriptionFee;
     private String imageUrl;
+    private Money displaySubscriptionFee;
     private Instant createdAt;
     private Instant updatedAt;
 
@@ -46,8 +46,8 @@ public class Plan extends AggregateRoot<PlanId> {
         providerUserId = builder.providerUserId;
         skipDays = builder.skipDays;
         address = builder.address;
-        displaySubscriptionFee = builder.displaySubscriptionFee;
         imageUrl = builder.imageUrl;
+        displaySubscriptionFee = builder.displaySubscriptionFee;
         createdAt = builder.createdAt;
         updatedAt = builder.updatedAt;
         planMeals = builder.planMeals;
@@ -85,13 +85,12 @@ public class Plan extends AggregateRoot<PlanId> {
     }
 
     public void validatePlan() {
+        if (!imageUrl.startsWith("https"))
+            throw new PlanManagementDomainException(PlanManagementErrorCode.INVALID_IMAGE_URL);
         checkEmptyPlanMeals();
         validateSubscriptionFee();
         checkAtLeasOnePrimaryMeal();
         this.planMeals.forEach(PlanMeal::validateMeal);
-        if (imageUrl != null && !imageUrl.startsWith("https")) {
-            throw new PlanManagementDomainException(PlanManagementErrorCode.INVALID_IMAGE_URL);
-        }
         validateSubscriptionFee();
         uniquifyAndValidateSkipDays();
     }
@@ -112,8 +111,8 @@ public class Plan extends AggregateRoot<PlanId> {
         this.categoryIds = planUpdateCommand.getCategoryIds();
         this.skipDays = planUpdateCommand.getSkipDays();
         this.address = planUpdateCommand.getAddress();
-        this.displaySubscriptionFee = planUpdateCommand.getDisplaySubscriptionFee();
         this.imageUrl = planUpdateCommand.getImageUrl();
+        this.displaySubscriptionFee = planUpdateCommand.getDisplaySubscriptionFee();
         this.updatedAt = Instant.now();
     }
 
@@ -212,8 +211,8 @@ public class Plan extends AggregateRoot<PlanId> {
         private UserId providerUserId;
         private List<LocalDate> skipDays;
         private Address address;
-        private Money displaySubscriptionFee;
         private String imageUrl;
+        private Money displaySubscriptionFee;
         private Instant createdAt;
         private Instant updatedAt;
         private List<PlanMeal> planMeals;
@@ -263,13 +262,13 @@ public class Plan extends AggregateRoot<PlanId> {
             return this;
         }
 
-        public Builder displaySubscriptionFee(Money val) {
-            displaySubscriptionFee = val;
-            return this;
-        }
-        
         public Builder imageUrl(String val) {
             imageUrl = val;
+            return this;
+        }
+
+        public Builder displaySubscriptionFee(Money val) {
+            displaySubscriptionFee = val;
             return this;
         }
 

@@ -9,9 +9,9 @@ import java.util.UUID;
 
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @ToString(exclude = {"addressEntity", "roleEntities"})
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
@@ -29,17 +29,17 @@ public class UserEntity {
     @Column(name = "encrypted_password", nullable = false)
     private String encryptedPassword;
 
-    @Column(name = "first_name", nullable = false)
+    @Column(name = "first_name")
     private String firstName;
 
-    @Column(name = "last_name", nullable = false)
+    @Column(name = "last_name")
     private String lastName;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "address_id", referencedColumnName = "id")
     private AddressEntity addressEntity;
 
-    @Column(name = "ph_no", nullable = false)
+    @Column(name = "ph_no")
     private String phNo;
 
     @Column(name = "created_at", nullable = false)
@@ -50,6 +50,9 @@ public class UserEntity {
 
     @Column(name = "description")
     private String description;
+
+    @Column(name = "image_url")
+    private String imageUrl;
 
     @ManyToMany
     @JoinTable(

@@ -4,30 +4,30 @@
 -- Tables: role, address, "user", user_role
 -- ==========================================================
 
-DROP SCHEMA IF EXISTS "userinfo" CASCADE;
+-- DROP SCHEMA IF EXISTS "userinfo" CASCADE;
 
-CREATE SCHEMA "userinfo";
+CREATE SCHEMA IF NOT EXISTS "userinfo"^^
 
 -- UUID generator
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp"^^
 
 -- ==========================================================
 -- role
 -- ==========================================================
-DROP TABLE IF EXISTS "userinfo".role;
-CREATE TABLE "userinfo".role
+-- DROP TABLE IF EXISTS "userinfo".role;
+CREATE TABLE IF NOT EXISTS "userinfo".role
 (
     id   BIGINT  NOT NULL,
     name VARCHAR NOT NULL,
     CONSTRAINT role_pk PRIMARY KEY (id),
     CONSTRAINT role_unique_name UNIQUE (name)
-);
+)^^
 
 -- ==========================================================
 -- address
 -- ==========================================================
-DROP TABLE IF EXISTS "userinfo".address;
-CREATE TABLE "userinfo".address
+-- DROP TABLE IF EXISTS "userinfo".address;
+CREATE TABLE IF NOT EXISTS "userinfo".address
 (
     id                    uuid                 NOT NULL,
     building_name_room_no VARCHAR              NOT NULL,
@@ -38,24 +38,25 @@ CREATE TABLE "userinfo".address
     prefecture            VARCHAR              NOT NULL,
 
     CONSTRAINT address_pk PRIMARY KEY (id)
-);
+)^^
 
 -- ==========================================================
 -- user
 -- ==========================================================
-DROP TABLE IF EXISTS "userinfo"."user";
-CREATE TABLE "userinfo"."user"
+-- DROP TABLE IF EXISTS "userinfo"."user";
+CREATE TABLE IF NOT EXISTS "userinfo"."user"
 (
     user_id            uuid      NOT NULL,
     email              VARCHAR   NOT NULL,
     encrypted_password VARCHAR   NOT NULL,
-    first_name         VARCHAR   NOT NULL,
-    last_name          VARCHAR   NOT NULL,
+    first_name         VARCHAR,
+    last_name          VARCHAR,
     address_id         uuid,
-    ph_no              VARCHAR   NOT NULL,
+    ph_no              VARCHAR,
     created_at         TIMESTAMP NOT NULL,
     updated_at         TIMESTAMP NOT NULL,
     description        VARCHAR,
+    image_url          VARCHAR,
 
     CONSTRAINT user_pk PRIMARY KEY (user_id),
     CONSTRAINT user_unique_email UNIQUE (email),
@@ -64,13 +65,13 @@ CREATE TABLE "userinfo"."user"
         REFERENCES "userinfo".address (id)
         ON UPDATE NO ACTION
         ON DELETE SET NULL
-);
+)^^
 
 -- ==========================================================
 -- Many-to-many
 -- ==========================================================
-DROP TABLE IF EXISTS "userinfo".user_role;
-CREATE TABLE "userinfo".user_role
+-- DROP TABLE IF EXISTS "userinfo".user_role;
+CREATE TABLE IF NOT EXISTS "userinfo".user_role
 (
     user_id uuid   NOT NULL,
     role_id BIGINT NOT NULL,
@@ -86,4 +87,4 @@ CREATE TABLE "userinfo".user_role
         REFERENCES "userinfo".role (id)
         ON UPDATE NO ACTION
         ON DELETE RESTRICT
-);
+)^^

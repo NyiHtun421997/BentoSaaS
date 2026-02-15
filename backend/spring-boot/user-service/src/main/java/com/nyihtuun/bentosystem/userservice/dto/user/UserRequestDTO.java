@@ -4,6 +4,7 @@ import com.nyihtuun.bentosystem.userservice.dto.validation.PhoneNumber;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,17 +25,18 @@ public class UserRequestDTO {
     @Size(min = 8, message = "{Size.userRequestDto.password}")
     private String password;
 
-    @NotBlank(message = "{NotBlank.userRequestDto.firstName}")
     private String firstName;
 
-    @NotBlank(message = "{NotBlank.userRequestDto.lastName}")
     private String lastName;
 
-    @NotBlank(message = "{NotBlank.userRequestDto.phNo}")
     @PhoneNumber(message = "{PhoneNumber.userRequestDto.phNo}")
     private String phNo;
     
     private String description;
+
+    @Size(max = 255, message = "{Size.planRequestDto.imageUrl}")
+    @Pattern(regexp = "^(https?://).*$", message = "{Pattern.planRequestDto.imageUrl}")
+    private String imageUrl;
 
     @Valid
     private AddressRequestDTO address;

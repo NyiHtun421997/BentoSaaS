@@ -1,0 +1,39 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap");
+@import "tailwindcss";
+
+:root {
+  color-scheme: light;
+  overflow: hidden;
+  height: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Manrope", "Helvetica Neue", Helvetica, sans-serif;
+  background: #f7f6f2;
+  color: #1f2937;
+  height: 100%;
+}
+
+.page-shell {
+  flex: 1;
+  padding: 0px 24px 48px;
+  min-height: 0;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+
+.page-subtitle {
+  color: #64748b;
+  margin: 0 0 20px;
+}

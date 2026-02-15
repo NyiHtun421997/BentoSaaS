@@ -1,10 +1,7 @@
 package com.nyihtuun.bentosystem.invoiceservice.domain.entity;
 
 import com.nyihtuun.bentosystem.domain.entity.AggregateRoot;
-import com.nyihtuun.bentosystem.domain.valueobject.InvoiceId;
-import com.nyihtuun.bentosystem.domain.valueobject.Money;
-import com.nyihtuun.bentosystem.domain.valueobject.SubscriptionId;
-import com.nyihtuun.bentosystem.domain.valueobject.UserId;
+import com.nyihtuun.bentosystem.domain.valueobject.*;
 import com.nyihtuun.bentosystem.domain.valueobject.status.InvoiceStatus;
 import com.nyihtuun.bentosystem.invoiceservice.domain.exception.InvoiceDomainException;
 import com.nyihtuun.bentosystem.invoiceservice.domain.exception.InvoiceErrorCode;
@@ -13,6 +10,7 @@ import lombok.ToString;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -23,6 +21,7 @@ public class Invoice extends AggregateRoot<InvoiceId> {
     private final UserId providedUserId;
     private InvoiceStatus invoiceStatus;
     private final Money amount;
+    private final List<PlanMealId> subscribedMealIds;
     private Instant issuedAt;
     private Instant updatedAt;
     private Instant paidAt;
@@ -36,6 +35,7 @@ public class Invoice extends AggregateRoot<InvoiceId> {
         providedUserId = builder.providedUserId;
         invoiceStatus = builder.invoiceStatus;
         amount = builder.amount;
+        subscribedMealIds = builder.subscribedMealIds;
         issuedAt = builder.issuedAt;
         updatedAt = builder.updatedAt;
         paidAt = builder.paidAt;
@@ -93,6 +93,7 @@ public class Invoice extends AggregateRoot<InvoiceId> {
         private UserId providedUserId;
         private InvoiceStatus invoiceStatus;
         private Money amount;
+        private List<PlanMealId> subscribedMealIds;
         private Instant issuedAt;
         private Instant updatedAt;
         private Instant paidAt;
@@ -129,6 +130,11 @@ public class Invoice extends AggregateRoot<InvoiceId> {
 
         public Builder amount(Money val) {
             amount = val;
+            return this;
+        }
+
+        public Builder subscribedMealIds(List<PlanMealId> val) {
+            subscribedMealIds = val;
             return this;
         }
 

@@ -22,8 +22,8 @@ public class PlanDataMapper {
                    .categoryIds(planRequestDto.getCategoryIds().stream().map(CategoryId::new).collect(Collectors.toSet()))
                    .skipDays(planRequestDto.getSkipDays())
                    .address(mapAddressDtoToAddress(planRequestDto.getAddress()))
-                   .displaySubscriptionFee(new Money(planRequestDto.getDisplaySubscriptionFee()))
                    .imageUrl(planRequestDto.getImageUrl())
+                   .displaySubscriptionFee(new Money(planRequestDto.getDisplaySubscriptionFee()))
                    .planMeals(mapPlanMealRequestDtosToPlanMeals(planRequestDto.getPlanMealRequestDtos()))
                    .build();
     }
@@ -66,10 +66,10 @@ public class PlanDataMapper {
                               .description(plan.getDescription())
                               .categoryIds(plan.getCategoryIds().stream().map(BaseId::getValue).collect(Collectors.toSet()))
                               .address(mapAddressToAddressDto(plan.getAddress()))
+                              .imageUrl(plan.getImageUrl())
                               .providerUserId(plan.getProviderUserId().getValue())
                               .skipDays(plan.getSkipDays())
                               .displaySubscriptionFee(plan.getDisplaySubscriptionFee().amount())
-                              .imageUrl(plan.getImageUrl())
                               .planMealResponseDtos(mapPlanMealsToPlanMealResponseDtos(plan.getPlanMeals()))
                               .build();
     }
@@ -113,8 +113,8 @@ public class PlanDataMapper {
                                                            .collect(Collectors.toSet()))
                                 .skipDays(planRequestDto.getSkipDays())
                                 .address(mapAddressDtoToAddress(planRequestDto.getAddress()))
-                                .displaySubscriptionFee(new Money(planRequestDto.getDisplaySubscriptionFee()))
                                 .imageUrl(planRequestDto.getImageUrl())
+                                .displaySubscriptionFee(new Money(planRequestDto.getDisplaySubscriptionFee()))
                                 .build();
     }
 

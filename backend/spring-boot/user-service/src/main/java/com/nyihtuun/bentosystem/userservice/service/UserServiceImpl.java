@@ -1,5 +1,6 @@
 package com.nyihtuun.bentosystem.userservice.service;
 
+import com.nyihtuun.bentosystem.userservice.dto.user.SignupRequestDTO;
 import com.nyihtuun.bentosystem.userservice.dto.user.UserRequestDTO;
 import com.nyihtuun.bentosystem.userservice.dto.user.UserResponseDTO;
 import com.nyihtuun.bentosystem.userservice.entity.AddressEntity;
@@ -12,12 +13,14 @@ import com.nyihtuun.bentosystem.userservice.repository.RoleRepository;
 import com.nyihtuun.bentosystem.userservice.repository.UserRepository;
 import com.nyihtuun.bentosystem.userservice.security.authorization_handler.AdminAccessDeniedAuthorizationHandler;
 import com.nyihtuun.bentosystem.userservice.security.authorization_handler.GenericAccessDeniedAuthorizationHandler;
+import com.nyihtuun.bentosystem.userservice.security.principal.UserPrincipal;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authorization.method.HandleAuthorizationDenied;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -32,6 +35,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService, UserDetailsService {
@@ -43,10 +47,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     @Transactional
-    public UserResponseDTO createUser(UserRequestDTO userRequestDTO, boolean isProvider) {
-        UserEntity userEntity = userMapper.toEntity(userRequestDTO);
+    public UserResponseDTO createUser(SignupRequestDTO signupRequestDTO, boolean isProvider) {
+        log.info("Creating user: {}", signupRequestDTO);
+        UserEntity userEntity = userMapper.toEntity(signupRequestDTO);
         userEntity.setUserId(UUID.randomUUID());
-        userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(userRequestDTO.getPassword()));
+        userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(signupRequestDTO.getPassword()));
 
         RoleEntity regularUser = roleRepository.findByName(RoleEntity.Role.ROLE_USER);
 
@@ -62,17 +67,25 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         userEntity.setCreatedAt(now);
         userEntity.setUpdatedAt(now);
 
-        UserEntity savedUser = userRepository.save(userEntity);
-        return userMapper.toResponseDTO(savedUser);
+        UserEntity savedUser = null;
+        try {
+            savedUser = userRepository.saveAndFlush(userEntity);
+            log.info("User created successfully: {}", savedUser);
+            return userMapper.toResponseDTO(savedUser);
+        } catch (DataIntegrityViolationException e) {
+            log.error("Failed to save user: {}", signupRequestDTO, e);
+            throw new UserServiceException(UserServiceErrorCode.EMAIL_ALREADY_EXISTS);
+        }
     }
 
     @Override
     @Transactional(readOnly = true)
-    @PreAuthorize("principal.toString() == #userId.toString() or hasRole('ADMIN')")
     @HandleAuthorizationDenied(handlerClass = GenericAccessDeniedAuthorizationHandler.class)
     public UserResponseDTO getUserById(UUID userId) {
+        log.info("Fetching user with id: {}", userId);
         UserEntity userEntity = userRepository.findById(userId)
                                               .orElseThrow(() -> new UserServiceException(UserServiceErrorCode.USER_NOT_FOUND));
+        log.info("User fetched successfully: {}", userEntity);
         return userMapper.toResponseDTO(userEntity);
     }
 
@@ -81,6 +94,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @PreAuthorize("hasRole('ADMIN')")
     @HandleAuthorizationDenied(handlerClass = AdminAccessDeniedAuthorizationHandler.class)
     public List<UserResponseDTO> getAllUsers() {
+        log.info("Fetching all users");
         return userRepository.findAll().stream()
                              .map(userMapper::toResponseDTO)
                              .collect(Collectors.toList());
@@ -91,6 +105,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @PreAuthorize("principal.toString() == #userId.toString() or hasRole('ADMIN')")
     @HandleAuthorizationDenied(handlerClass = GenericAccessDeniedAuthorizationHandler.class)
     public UserResponseDTO updateUser(UUID userId, UserRequestDTO userRequestDTO) {
+        log.info("Updating user: {}", userRequestDTO);
         UserEntity userEntity = userRepository.findById(userId)
                                               .orElseThrow(() -> new UserServiceException(UserServiceErrorCode.USER_NOT_FOUND));
 
@@ -119,8 +134,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             userEntity.setAddressEntity(null);
         }
 
-        UserEntity updatedUser = userRepository.save(userEntity);
-        return userMapper.toResponseDTO(updatedUser);
+        UserEntity updatedUser = null;
+        try {
+            updatedUser = userRepository.saveAndFlush(userEntity);
+            log.info("User updated successfully: {}", updatedUser);
+            return userMapper.toResponseDTO(updatedUser);
+        } catch (DataIntegrityViolationException e) {
+            log.error("Failed to save user: {}", userRequestDTO, e);
+            throw new UserServiceException(UserServiceErrorCode.EMAIL_ALREADY_EXISTS);
+        }
     }
 
     @Override
@@ -128,16 +150,20 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @PreAuthorize("principal.toString() == #userId.toString() or hasRole('ADMIN')")
     @HandleAuthorizationDenied(handlerClass = GenericAccessDeniedAuthorizationHandler.class)
     public void deleteUser(UUID userId) {
+        log.info("Deleting user with id: {}", userId);
         if (!userRepository.existsById(userId)) {
+            log.error("User with id {} not found", userId);
             throw new UserServiceException(UserServiceErrorCode.USER_NOT_FOUND);
         }
         userRepository.deleteById(userId);
+        log.info("User deleted successfully");
     }
 
     @Override
     @NullMarked
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        log.info("Loading user by username: {}", username);
         UserEntity userEntity = userRepository.findByEmail(username)
                                               .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
 
@@ -147,12 +173,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                                                                                                                      .name()))
                                                              .toList();
 
-        return new User(userEntity.getUserId().toString(),
+        log.info("User loaded successfully: {}", userEntity);
+        return new UserPrincipal(userEntity.getUserId().toString(),
                         userEntity.getEncryptedPassword(),
                         true,
                         true,
                         true,
                         true,
+                        userEntity.getEmail(),
                         authorities);
     }
 }

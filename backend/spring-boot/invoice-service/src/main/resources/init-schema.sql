@@ -1,26 +1,34 @@
-DROP SCHEMA IF EXISTS "invoice" CASCADE;
+-- DROP SCHEMA IF EXISTS "invoice" CASCADE;
 
-CREATE SCHEMA "invoice";
+CREATE SCHEMA IF NOT EXISTS "invoice"^^
 
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp"^^
 
-DROP TYPE IF EXISTS invoice_status;
-CREATE TYPE invoice_status AS ENUM ('ISSUED', 'PAID', 'CANCELLED', 'FAILED');
+-- DROP TYPE IF EXISTS invoice_status;
+DO
+$$
+    BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'invoice_status') THEN
+            CREATE TYPE invoice_status AS ENUM ('ISSUED', 'PAID', 'CANCELLED', 'FAILED');
+        END IF;
+    END
+$$^^
 
-DROP TABLE IF EXISTS "invoice".invoice;
-CREATE TABLE "invoice".invoice
+-- DROP TABLE IF EXISTS "invoice".invoice;
+CREATE TABLE IF NOT EXISTS "invoice".invoice
 (
-    id             uuid           NOT NULL,
-    subscription_id uuid          NOT NULL,
-    user_id        uuid           NOT NULL,
-    provided_user_id uuid         NOT NULL,
-    invoice_status invoice_status NOT NULL,
-    amount         NUMERIC(10, 2) NOT NULL CHECK ( amount > 0 ),
-    issued_at      TIMESTAMPTZ    NOT NULL,
-    updated_at     TIMESTAMPTZ,
-    paid_at        TIMESTAMPTZ,
-    period_start   DATE           NOT NULL,
-    period_end     DATE           NOT NULL,
+    id                  uuid           NOT NULL,
+    subscription_id     uuid           NOT NULL,
+    user_id             uuid           NOT NULL,
+    provided_user_id    uuid           NOT NULL,
+    invoice_status      invoice_status NOT NULL,
+    amount              NUMERIC(10, 2) NOT NULL CHECK ( amount > 0 ),
+    subscribed_meal_ids jsonb          NOT NULL DEFAULT '[]',
+    issued_at           TIMESTAMPTZ    NOT NULL,
+    updated_at          TIMESTAMPTZ,
+    paid_at             TIMESTAMPTZ,
+    period_start        DATE           NOT NULL,
+    period_end          DATE           NOT NULL,
 
     CONSTRAINT invoice_pk PRIMARY KEY (id),
 
@@ -35,4 +43,4 @@ CREATE TABLE "invoice".invoice
         (invoice_status = 'PAID' AND paid_at IS NOT NULL)
             OR (invoice_status <> 'PAID' AND paid_at IS NULL)
         )
-);
+) ^^

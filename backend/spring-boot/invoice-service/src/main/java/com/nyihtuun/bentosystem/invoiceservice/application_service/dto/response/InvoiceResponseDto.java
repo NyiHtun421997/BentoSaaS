@@ -6,6 +6,7 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -22,6 +23,7 @@ public class InvoiceResponseDto {
     private final UUID providedUserId;
     private final InvoiceStatus invoiceStatus;
     private final BigDecimal amount;
+    private final List<UUID> subscribedMealIds;
     private final ZonedDateTime issuedAt;
     private final ZonedDateTime updatedAt;
     private final ZonedDateTime paidAt;

@@ -1,0 +1,26 @@
+.signup-page {
+  display: grid;
+  place-items: center;
+  min-height: calc(100vh - 64px);
+  padding: 32px 16px 48px;
+}
+
+.signup-card {
+  width: min(520px, 100%);
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  padding: 28px;
+  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08);
+}
+
+.signup-title {
+  font-size: 26px;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+
+.signup-subtitle {
+  margin: 0 0 20px;
+  color: #64748b;
+}

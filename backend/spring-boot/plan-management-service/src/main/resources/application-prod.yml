@@ -13,8 +13,12 @@ spring:
   sql:
     init:
       mode: always
+      separator: ^^
       schema-locations: classpath:init-schema.sql
 
 logging:
   level:
     com.nyihtuun.bentosystem.planmanagementservice: INFO
+
+plan-management:
+  max-page-size: ${PLAN_MAX_PAGE_SIZE:8}

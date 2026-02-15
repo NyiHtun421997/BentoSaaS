@@ -9,6 +9,7 @@ import org.hibernate.type.SqlTypes;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -42,6 +43,10 @@ public class InvoiceEntity {
 
     @Column(name = "amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal amount;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "subscribed_meal_ids", columnDefinition = "jsonb", nullable = false)
+    private List<UUID> subscribedMealIds;
 
     @Column(name = "issued_at", nullable = false)
     private Instant issuedAt;

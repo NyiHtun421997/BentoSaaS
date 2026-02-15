@@ -1,9 +1,6 @@
 package com.nyihtuun.bentosystem.invoiceservice.data_access.mapper;
 
-import com.nyihtuun.bentosystem.domain.valueobject.InvoiceId;
-import com.nyihtuun.bentosystem.domain.valueobject.Money;
-import com.nyihtuun.bentosystem.domain.valueobject.SubscriptionId;
-import com.nyihtuun.bentosystem.domain.valueobject.UserId;
+import com.nyihtuun.bentosystem.domain.valueobject.*;
 import com.nyihtuun.bentosystem.invoiceservice.data_access.jpa_entity.InvoiceEntity;
 import com.nyihtuun.bentosystem.invoiceservice.domain.entity.Invoice;
 import org.springframework.stereotype.Component;
@@ -19,6 +16,10 @@ public class InvoiceDataAccessMapper {
                             .providedUserId(invoice.getProvidedUserId().getValue())
                             .invoiceStatus(invoice.getInvoiceStatus())
                             .amount(invoice.getAmount().amount())
+                            .subscribedMealIds(invoice.getSubscribedMealIds()
+                                                      .stream()
+                                                      .map(PlanMealId::getValue)
+                                                      .toList())
                             .issuedAt(invoice.getIssuedAt())
                             .updatedAt(invoice.getUpdatedAt())
                             .paidAt(invoice.getPaidAt())
@@ -35,6 +36,10 @@ public class InvoiceDataAccessMapper {
                       .providedUserId(new UserId(invoiceEntity.getProvidedUserId()))
                       .invoiceStatus(invoiceEntity.getInvoiceStatus())
                       .amount(new Money(invoiceEntity.getAmount()))
+                      .subscribedMealIds(invoiceEntity.getSubscribedMealIds()
+                                                      .stream()
+                                                      .map(PlanMealId::new)
+                                                      .toList())
                       .issuedAt(invoiceEntity.getIssuedAt())
                       .updatedAt(invoiceEntity.getUpdatedAt())
                       .paidAt(invoiceEntity.getPaidAt())

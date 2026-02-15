@@ -1,9 +1,6 @@
 package com.nyihtuun.bentosystem.userservice.mapper;
 
-import com.nyihtuun.bentosystem.userservice.dto.user.AddressRequestDTO;
-import com.nyihtuun.bentosystem.userservice.dto.user.AddressResponseDTO;
-import com.nyihtuun.bentosystem.userservice.dto.user.UserRequestDTO;
-import com.nyihtuun.bentosystem.userservice.dto.user.UserResponseDTO;
+import com.nyihtuun.bentosystem.userservice.dto.user.*;
 import com.nyihtuun.bentosystem.userservice.entity.AddressEntity;
 import com.nyihtuun.bentosystem.userservice.entity.UserEntity;
 import org.springframework.stereotype.Component;
@@ -23,7 +20,8 @@ public class UserMapper {
                 .lastName(userEntity.getLastName())
                 .phNo(userEntity.getPhNo())
                 .description(userEntity.getDescription())
-                .createdAt(userEntity.getCreatedAt())
+                .imageUrl(userEntity.getImageUrl())
+                .joinedOn(userEntity.getCreatedAt())
                 .updatedAt(userEntity.getUpdatedAt())
                 .address(toAddressResponseDTO(userEntity.getAddressEntity()))
                 .build();
@@ -56,7 +54,18 @@ public class UserMapper {
                 .lastName(userRequestDTO.getLastName())
                 .phNo(userRequestDTO.getPhNo())
                 .description(userRequestDTO.getDescription())
+                .imageUrl(userRequestDTO.getImageUrl())
                 .addressEntity(toAddressEntity(userRequestDTO.getAddress()))
+                .build();
+    }
+
+    public UserEntity toEntity(SignupRequestDTO signupRequestDTO) {
+        if (signupRequestDTO == null) {
+            return null;
+        }
+
+        return UserEntity.builder()
+                .email(signupRequestDTO.getEmail())
                 .build();
     }
 

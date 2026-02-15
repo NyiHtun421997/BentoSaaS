@@ -6,7 +6,7 @@ import java.util.Collection;
 
 public interface AuthService {
     boolean validateToken(String token);
-    String generateToken(String userId, Collection<? extends GrantedAuthority> authorities);
+    String generateToken(String userId, Collection<? extends GrantedAuthority> authorities, String email);
     Collection<? extends GrantedAuthority> getAuthorities(String token);
     String getSubject(String token);
 }

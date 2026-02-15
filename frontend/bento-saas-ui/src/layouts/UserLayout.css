@@ -1,0 +1,80 @@
+.app-layout {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f7f6f2;
+}
+
+.app-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #fffaf0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.app-nav-links {
+  display: flex;
+  gap: 16px;
+  font-weight: 600;
+  min-width: 0;
+}
+
+.app-nav a {
+  color: #1f2937;
+  text-decoration: none;
+}
+
+.app-nav a:hover {
+  color: #2563eb;
+}
+
+.app-nav-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.nav-signout:hover {
+  border-color: #e2e8f0;
+  color: #0f172a;
+  background: rgba(15, 23, 42, 0.03);
+}
+
+@media (max-width: 640px) {
+  .app-nav {
+    padding: 12px 12px;
+    gap: 8px;
+  }
+
+  .app-nav-links {
+    gap: 8px;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    flex: 1; /* links take available space */
+  }
+
+  .app-nav-links a {
+    flex: 0 0 auto; /* keep each link as a chip */
+    padding: 6px 8px;
+    border-radius: 10px;
+    font-size: 13px;
+  }
+
+  .app-nav-meta span {
+    display: none; /* hide email on small */
+  }
+
+  .nav-signout {
+    padding: 6px 10px; /* smaller button */
+    font-size: 13px;
+  }
+}

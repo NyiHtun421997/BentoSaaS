@@ -18,6 +18,7 @@ import static com.nyihtuun.bentosystem.userservice.security.WebSecurity.ROLE;
 @Component
 public class JwtHelper {
 
+    public static final String EMAIL = "email";
     private final SecretKey secretKey;
     private final long expirationTime;
 
@@ -33,11 +34,12 @@ public class JwtHelper {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateToken(String subject, Collection<? extends GrantedAuthority> authorities) {
+    public String generateToken(String subject, Collection<? extends GrantedAuthority> authorities, String email) {
         return Jwts.builder()
                    .signWith(secretKey)
                    .claim(ROLE, authorities)
                    .subject(subject)
+                   .claim(EMAIL, email)
                    .issuedAt(new Date())
                    .expiration(new Date(System.currentTimeMillis() + expirationTime))
                    .compact();

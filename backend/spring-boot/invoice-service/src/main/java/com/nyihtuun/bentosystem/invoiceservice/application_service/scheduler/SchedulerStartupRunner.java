@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-@Profile({"local", "dev"})
+@Profile({"local"})
 public class SchedulerStartupRunner {
 
     private final InvoiceGenerationScheduler scheduler;
