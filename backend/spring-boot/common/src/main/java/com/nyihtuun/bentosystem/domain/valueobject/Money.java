@@ -21,4 +21,16 @@ public record Money(BigDecimal amount) {
     private BigDecimal setScale(BigDecimal input) {
         return input.setScale(2, RoundingMode.HALF_EVEN);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Money(BigDecimal amount1))) return false;
+        return amount != null && amount1 != null && amount.compareTo(amount1) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        return amount != null ? amount.stripTrailingZeros().hashCode() : 0;
+    }
 }

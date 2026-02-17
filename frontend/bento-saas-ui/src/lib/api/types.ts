@@ -14,15 +14,6 @@ export type AddressDto = {
 
 export type CategoryDto = { id?: UUID; name: string };
 
-export type PlanMealRequestDto = {
-  name: string;
-  description: string;
-  pricePerMonth: number;
-  primary?: boolean;
-  minSubCount?: number;
-  imageUrl?: string;
-};
-
 export type PlanRequestDto = {
   title: string;
   description: string;
@@ -30,25 +21,39 @@ export type PlanRequestDto = {
   address: AddressDto;
   displaySubscriptionFee: number;
   skipDays?: string[];
-  imageUrl?: string;
+  imageKey?: string;
   planMealRequestDtos?: PlanMealRequestDto[];
 };
 
-export type PlanMealResponseDto = PlanMealRequestDto & {
-  planMealId?: UUID;
-  planId?: UUID;
-  currentSubCount?: number;
-};
-
-export type PlanStatus = "RECRUITING" | "ACTIVE" | "SUSPENDED" | "CANCELLED";
-
-export type PlanResponseDto = Omit<PlanRequestDto, "planMealRequestDtos"> & {
+export type PlanResponseDto = Omit<
+  PlanRequestDto,
+  "planMealRequestDtos" | "imageKey"
+> & {
   planId?: UUID;
   code?: string;
   status?: PlanStatus;
   providerUserId?: UUID;
   planMealResponseDtos?: PlanMealResponseDto[];
+  image?: string;
 };
+
+export type PlanMealRequestDto = {
+  name: string;
+  description: string;
+  pricePerMonth: number;
+  primary?: boolean;
+  minSubCount?: number;
+  imageKey?: string;
+};
+
+export type PlanMealResponseDto = Omit<PlanMealRequestDto, "imageKey"> & {
+  planMealId?: UUID;
+  planId?: UUID;
+  currentSubCount?: number;
+  image?: string;
+};
+
+export type PlanStatus = "RECRUITING" | "ACTIVE" | "SUSPENDED" | "CANCELLED";
 
 export type IdWrapper = {
   value: UUID;
@@ -119,13 +124,11 @@ export type AddressRequestDTO = {
 };
 
 export type UserRequestDTO = {
-  email: string;
-  password: string;
   firstName: string;
   lastName: string;
   phNo: string;
   description?: string;
-  imageUrl?: string;
+  imageKey?: string;
   address?: AddressRequestDTO;
 };
 
@@ -138,7 +141,7 @@ export type UserResponseDTO = {
   description?: string;
   joinedOn?: string;
   updatedAt?: string;
-  imageUrl?: string;
+  image?: string;
   address?: AddressDto;
 };
 

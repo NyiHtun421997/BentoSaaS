@@ -80,7 +80,7 @@ const ProviderUserInfoModal = ({
                 <span className="absolute right-0 m-3 h-3 w-3 rounded-full bg-green-500 ring-2 ring-green-300 ring-offset-2" />
                 <img
                   className="mx-auto h-auto w-full rounded-full"
-                  src={providerUser.imageUrl ?? ""}
+                  src={providerUser.image ?? ""}
                   alt="Provider"
                 />
               </div>

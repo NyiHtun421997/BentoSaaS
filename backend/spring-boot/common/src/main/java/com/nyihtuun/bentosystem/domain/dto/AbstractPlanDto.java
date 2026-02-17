@@ -5,6 +5,7 @@ import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
@@ -17,6 +18,7 @@ import java.util.UUID;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public abstract class AbstractPlanDto {
     @NotBlank(message = "{NotBlank.planRequestDto.title}")
     @Size(max = 20, message = "{Size.planRequestDto.title}")
@@ -41,8 +43,4 @@ public abstract class AbstractPlanDto {
 
     @Size(max = 2, message = "{Size.planRequestDto.skipDays}")
     private List<@NotNull LocalDate> skipDays;
-
-    @Size(max = 255, message = "{Size.planRequestDto.imageUrl}")
-    @Pattern(regexp = "^(https?://).*$", message = "{Pattern.planRequestDto.imageUrl}")
-    private String imageUrl;
 }

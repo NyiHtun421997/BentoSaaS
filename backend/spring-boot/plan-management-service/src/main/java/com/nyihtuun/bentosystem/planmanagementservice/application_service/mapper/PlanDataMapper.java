@@ -6,15 +6,23 @@ import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.re
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.request.PlanRequestDto;
 import com.nyihtuun.bentosystem.domain.dto.response.PlanMealResponseDto;
 import com.nyihtuun.bentosystem.domain.dto.response.PlanResponseDto;
+import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.input.service.FileService;
+import com.nyihtuun.bentosystem.planmanagementservice.configuration.AwsConfigData;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.entity.Plan;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.entity.PlanMeal;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@AllArgsConstructor
 @Component
 public class PlanDataMapper {
+
+    private final FileService fileService;
+    private final AwsConfigData awsConfigData;
+
     public Plan mapPlanDtoToPlan(PlanRequestDto planRequestDto) {
         return Plan.builder()
                    .title(planRequestDto.getTitle())
@@ -22,7 +30,7 @@ public class PlanDataMapper {
                    .categoryIds(planRequestDto.getCategoryIds().stream().map(CategoryId::new).collect(Collectors.toSet()))
                    .skipDays(planRequestDto.getSkipDays())
                    .address(mapAddressDtoToAddress(planRequestDto.getAddress()))
-                   .imageUrl(planRequestDto.getImageUrl())
+                   .imageKey(planRequestDto.getImageKey())
                    .displaySubscriptionFee(new Money(planRequestDto.getDisplaySubscriptionFee()))
                    .planMeals(mapPlanMealRequestDtosToPlanMeals(planRequestDto.getPlanMealRequestDtos()))
                    .build();
@@ -41,7 +49,7 @@ public class PlanDataMapper {
                        .pricePerMonth(new Money(planMealRequestDto.getPricePerMonth()))
                        .isPrimary(planMealRequestDto.isPrimary())
                        .minSubCount(new Threshold(planMealRequestDto.getMinSubCount()))
-                       .imageUrl(planMealRequestDto.getImageUrl())
+                       .imageKey(planMealRequestDto.getImageKey())
                        .build();
     }
 
@@ -66,7 +74,7 @@ public class PlanDataMapper {
                               .description(plan.getDescription())
                               .categoryIds(plan.getCategoryIds().stream().map(BaseId::getValue).collect(Collectors.toSet()))
                               .address(mapAddressToAddressDto(plan.getAddress()))
-                              .imageUrl(plan.getImageUrl())
+                              .image(fileService.generatePresignedUrl(plan.getImageKey(), awsConfigData.planImageFolder()))
                               .providerUserId(plan.getProviderUserId().getValue())
                               .skipDays(plan.getSkipDays())
                               .displaySubscriptionFee(plan.getDisplaySubscriptionFee().amount())
@@ -77,17 +85,19 @@ public class PlanDataMapper {
     private List<PlanMealResponseDto> mapPlanMealsToPlanMealResponseDtos(List<PlanMeal> planMeals) {
         return planMeals.stream()
                         .filter(planMeal -> !planMeal.isDeleteFlag())
-                        .<PlanMealResponseDto>map(planMeal -> PlanMealResponseDto.builder()
-                                                                                 .planMealId(planMeal.getId().getValue())
-                                                                                 .planId(planMeal.getPlanId().getValue())
-                                                                                 .name(planMeal.getName())
-                                                                                 .description(planMeal.getDescription())
-                                                                                 .pricePerMonth(planMeal.getPricePerMonth().amount())
-                                                                                 .primary(planMeal.isPrimary())
-                                                                                 .minSubCount(planMeal.getMinSubCount().min())
-                                                                                 .currentSubCount(planMeal.getCurrentSubCount())
-                                                                                 .imageUrl(planMeal.getImageUrl())
-                                                                                 .build())
+                        .<PlanMealResponseDto>map(planMeal ->
+                                                          PlanMealResponseDto.builder()
+                                                                             .planMealId(planMeal.getId().getValue())
+                                                                             .planId(planMeal.getPlanId().getValue())
+                                                                             .name(planMeal.getName())
+                                                                             .description(planMeal.getDescription())
+                                                                             .pricePerMonth(planMeal.getPricePerMonth().amount())
+                                                                             .primary(planMeal.isPrimary())
+                                                                             .minSubCount(planMeal.getMinSubCount().min())
+                                                                             .currentSubCount(planMeal.getCurrentSubCount())
+                                                                             .image(fileService.generatePresignedUrl(planMeal.getImageKey(),
+                                                                                                       awsConfigData.planMealImageFolder()))
+                                                                             .build())
                         .toList();
     }
 
@@ -113,7 +123,7 @@ public class PlanDataMapper {
                                                            .collect(Collectors.toSet()))
                                 .skipDays(planRequestDto.getSkipDays())
                                 .address(mapAddressDtoToAddress(planRequestDto.getAddress()))
-                                .imageUrl(planRequestDto.getImageUrl())
+                                .imageKey(planRequestDto.getImageKey())
                                 .displaySubscriptionFee(new Money(planRequestDto.getDisplaySubscriptionFee()))
                                 .build();
     }
@@ -125,7 +135,7 @@ public class PlanDataMapper {
                                     .pricePerMonth(new Money(planMealRequestDto.getPricePerMonth()))
                                     .isPrimary(planMealRequestDto.isPrimary())
                                     .minSubCount(new Threshold(planMealRequestDto.getMinSubCount()))
-                                    .imageUrl(planMealRequestDto.getImageUrl())
+                                    .imageKey(planMealRequestDto.getImageKey())
                                     .build();
     }
 }

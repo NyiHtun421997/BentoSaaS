@@ -1,7 +1,7 @@
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthContext from "../../state/createContext";
-import { apiGet, apiPut, isApiError } from "../../lib/api/http";
+import { apiGet, apiPost, apiPut, isApiError } from "../../lib/api/http";
 import PageLoading from "../../components/PageLoading";
 import AlertModal from "../../components/AlertModal";
 import type { UserResponseDTO } from "../../lib/api/types";
@@ -13,7 +13,6 @@ import { PhoneNumberUtil } from "google-libphonenumber";
 import {
   FiUser,
   FiPhone,
-  FiImage,
   FiMapPin,
   FiMap,
   FiHome,
@@ -23,7 +22,11 @@ import {
   FiSave,
   FiArrowLeft,
   FiMail,
+  FiUpload,
+  FiCamera,
 } from "react-icons/fi";
+import { TbFileDescription } from "react-icons/tb";
+import { MdDriveFileRenameOutline } from "react-icons/md";
 
 const phoneUtil = PhoneNumberUtil.getInstance();
 
@@ -64,7 +67,11 @@ const UserFormSchema = z.object({
         return false;
       }
     }, "Invalid phone number"),
-  imageUrl: z.url("Please enter a valid URL"),
+  description: z
+    .string()
+    .max(500, "Description must be 500 characters or less")
+    .optional(),
+  imageKey: z.string().optional(),
   address: AddressSchema,
 });
 
@@ -74,7 +81,8 @@ const toFormDefaults = (u: UserResponseDTO): UserForm => ({
   firstName: u.firstName ?? "",
   lastName: u.lastName ?? "",
   phNo: u.phNo ?? "",
-  imageUrl: u.imageUrl ?? "",
+  description: u.description ?? "",
+  imageKey: "",
   address: {
     postalCode: u.address?.postalCode ?? "",
     prefecture: u.address?.prefecture ?? "",
@@ -102,10 +110,16 @@ const ProfileEditPage = () => {
   const [alertMsg, setAlertMsg] = useState<string | null>(null);
   const [alertSuccess, setAlertSuccess] = useState(false);
 
+  const [uploading, setUploading] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadedImageKey, setUploadedImageKey] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const {
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors, isValid },
   } = useForm<UserForm>({
     resolver: zodResolver(UserFormSchema),
@@ -114,7 +128,8 @@ const ProfileEditPage = () => {
       firstName: "",
       lastName: "",
       phNo: "",
-      imageUrl: "",
+      description: "",
+      imageKey: "",
       address: {
         postalCode: "",
         prefecture: "",
@@ -142,6 +157,7 @@ const ProfileEditPage = () => {
       try {
         const data = await apiGet<UserResponseDTO>(`/user/api/v1/${userId}`);
         setUser(data);
+        setImagePreview(data.image || null);
         reset(toFormDefaults(data)); // ✅ populate RHF form
       } catch (e: unknown) {
         setAlertMsg(isApiError(e) ? e.message : "Failed to load profile");
@@ -155,6 +171,72 @@ const ProfileEditPage = () => {
     load();
   }, [userId, reset]);
 
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      setAlertMsg("Please select a valid image file");
+      setAlertSuccess(false);
+      setAlertOpen(true);
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setAlertMsg("Image size must be less than 5MB");
+      setAlertSuccess(false);
+      setAlertOpen(true);
+      return;
+    }
+
+    setUploading(true);
+    setAlertMsg(null);
+
+    try {
+      // Generate unique filename with timestamp and random number
+      const timestamp = Date.now();
+      const randomNum = Math.floor(Math.random() * 10000);
+      const fileExtension = file.name.split(".").pop();
+      const baseFilename = file.name.replace(/\.[^/.]+$/, "");
+      const uniqueFilename = `${baseFilename}_${timestamp}_${randomNum}.${fileExtension}`;
+
+      // Generate pre-signed URL
+      const urlResponse = await apiPost<{ url: string; file: string }>(
+        `/user/api/v1/user/file?filename=${encodeURIComponent(uniqueFilename)}`,
+      );
+
+      // Upload directly to S3
+      const uploadResponse = await fetch(urlResponse.url, {
+        method: "PUT",
+        body: file,
+        headers: {
+          "Content-Type": file.type,
+        },
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error("Failed to upload image");
+      }
+
+      // Set preview and store key
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
+      setUploadedImageKey(urlResponse.file);
+
+      setAlertMsg("Image uploaded successfully! Don't forget to save.");
+      setAlertSuccess(true);
+      setAlertOpen(true);
+    } catch (e: unknown) {
+      setAlertMsg(isApiError(e) ? e.message : "Failed to upload image");
+      setAlertSuccess(false);
+      setAlertOpen(true);
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const onSubmit = async (values: UserForm) => {
     if (!userId) {
       setAlertMsg("Missing userId. Please login again.");
@@ -167,11 +249,22 @@ const ProfileEditPage = () => {
     setAlertMsg(null);
 
     try {
+      // Format phone number to E.164 format
+      let formattedPhNo = values.phNo;
+      try {
+        const parsedPhone = phoneUtil.parse(values.phNo, "JP");
+        formattedPhNo = phoneUtil.format(parsedPhone, 0); // 0 = E164 format
+      } catch {
+        // If parsing fails, use original (validation already passed)
+        formattedPhNo = values.phNo;
+      }
+
       const payload = {
         firstName: values.firstName,
         lastName: values.lastName,
-        phNo: values.phNo,
-        imageUrl: values.imageUrl || undefined,
+        phNo: formattedPhNo,
+        description: values.description || undefined,
+        imageKey: uploadedImageKey || undefined,
         address: values.address,
       };
 
@@ -180,6 +273,8 @@ const ProfileEditPage = () => {
         payload,
       );
       setUser(updated);
+      setImagePreview(updated.image || null);
+      setUploadedImageKey(null);
       reset(toFormDefaults(updated));
 
       setAlertMsg("Profile updated.");
@@ -244,6 +339,62 @@ const ProfileEditPage = () => {
         </div>
 
         <div className="profile-card">
+          {/* Profile Picture Section */}
+          <div className="profile-image-section">
+            <div className="profile-image-container">
+              <div className="profile-image-wrapper">
+                {uploading ? (
+                  <div className="profile-image-loading">
+                    <div className="spinner" />
+                    <span className="loading-text">Uploading...</span>
+                  </div>
+                ) : imagePreview ? (
+                  <img
+                    src={imagePreview}
+                    alt="Profile"
+                    className="profile-image"
+                    onError={() => setImagePreview(null)}
+                  />
+                ) : (
+                  <div className="profile-image-placeholder">
+                    <FiUser className="placeholder-icon" />
+                  </div>
+                )}
+                <button
+                  type="button"
+                  className="profile-image-edit-btn"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                >
+                  <FiCamera className="w-4 h-4" />
+                </button>
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageSelect}
+                className="hidden"
+              />
+            </div>
+            <div className="profile-image-info">
+              <h3 className="profile-image-title">Profile Picture</h3>
+              <p className="profile-image-subtitle">
+                Click the camera icon to upload a new photo
+              </p>
+              <button
+                type="button"
+                className="profile-upload-btn"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+              >
+                <FiUpload className="w-4 h-4" />
+                {uploading ? "Uploading..." : "Choose Image"}
+              </button>
+              <p className="profile-image-hint">JPG, PNG or GIF. Max 5MB</p>
+            </div>
+          </div>
+
           <div className="profile-grid">
             {/* Basic */}
             <div className="profile-section">
@@ -255,7 +406,7 @@ const ProfileEditPage = () => {
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className="profile-label">
-                    <FiUser className="label-icon" />
+                    <MdDriveFileRenameOutline className="label-icon" />
                     First name
                   </label>
                   <div className="input-wrapper">
@@ -270,7 +421,7 @@ const ProfileEditPage = () => {
 
                 <div>
                   <label className="profile-label">
-                    <FiUser className="label-icon" />
+                    <MdDriveFileRenameOutline className="label-icon" />
                     Last name
                   </label>
                   <div className="input-wrapper">
@@ -300,17 +451,22 @@ const ProfileEditPage = () => {
 
                 <div className="sm:col-span-2">
                   <label className="profile-label">
-                    <FiImage className="label-icon" />
-                    Profile Image URL
+                    <TbFileDescription className="label-icon" />
+                    Description
                   </label>
                   <div className="input-wrapper">
-                    <input
-                      className="profile-input"
-                      placeholder="https://..."
-                      {...register("imageUrl")}
+                    <textarea
+                      className="profile-textarea"
+                      placeholder="Tell us about yourself..."
+                      rows={4}
+                      maxLength={500}
+                      {...register("description")}
                     />
                   </div>
-                  {fieldError(errors.imageUrl?.message as string | undefined)}
+                  <div className="char-count">
+                    {watch("description")?.length ?? 0} / 500
+                  </div>
+                  {fieldError(errors.description?.message)}
                 </div>
               </div>
 

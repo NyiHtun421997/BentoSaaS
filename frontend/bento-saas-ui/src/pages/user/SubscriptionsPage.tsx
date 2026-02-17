@@ -301,9 +301,9 @@ const SubscriptionsPage = () => {
                                   : `Meal ${String(mid)}`;
 
                                 const imageUrl =
-                                  planMeal && planMeal.imageUrl
-                                    ? planMeal.imageUrl
-                                    : (plan?.imageUrl ?? "");
+                                  planMeal && planMeal.image
+                                    ? planMeal.image
+                                    : (plan?.image ?? "");
 
                                 return (
                                   <div
@@ -361,7 +361,7 @@ const SubscriptionsPage = () => {
                     flex items-center justify-center"
                     >
                       <img
-                        src={plan?.imageUrl || fallbackImg}
+                        src={plan?.image || fallbackImg}
                         alt="Plan image"
                         className="h-full w-full object-cover"
                       />

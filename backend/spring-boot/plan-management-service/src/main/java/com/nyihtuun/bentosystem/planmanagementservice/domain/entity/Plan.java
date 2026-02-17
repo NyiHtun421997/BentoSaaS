@@ -7,6 +7,7 @@ import com.nyihtuun.bentosystem.domain.valueobject.status.PlanStatus;
 import com.nyihtuun.bentosystem.domain.valueobject.*;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -14,6 +15,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 
+@Slf4j
 @Getter
 @ToString
 public class Plan extends AggregateRoot<PlanId> {
@@ -27,7 +29,7 @@ public class Plan extends AggregateRoot<PlanId> {
     private UserId providerUserId;
     private List<LocalDate> skipDays;
     private Address address;
-    private String imageUrl;
+    private String imageKey;
     private Money displaySubscriptionFee;
     private Instant createdAt;
     private Instant updatedAt;
@@ -46,7 +48,7 @@ public class Plan extends AggregateRoot<PlanId> {
         providerUserId = builder.providerUserId;
         skipDays = builder.skipDays;
         address = builder.address;
-        imageUrl = builder.imageUrl;
+        imageKey = builder.imageKey;
         displaySubscriptionFee = builder.displaySubscriptionFee;
         createdAt = builder.createdAt;
         updatedAt = builder.updatedAt;
@@ -67,6 +69,7 @@ public class Plan extends AggregateRoot<PlanId> {
 
     private void validateSubscriptionFee() {
         Money totalPlanMealsPrice = calculateDisplaySubscriptionFee();
+        log.debug("Total plan meals price: {}, Display subscription fee: {}", totalPlanMealsPrice, this.displaySubscriptionFee);
         if (!totalPlanMealsPrice.equals(this.displaySubscriptionFee) || !this.displaySubscriptionFee.isGreaterThanZero())
             throw new PlanManagementDomainException(PlanManagementErrorCode.INVALID_SUB_FEE);
     }
@@ -85,8 +88,8 @@ public class Plan extends AggregateRoot<PlanId> {
     }
 
     public void validatePlan() {
-        if (!imageUrl.startsWith("https"))
-            throw new PlanManagementDomainException(PlanManagementErrorCode.INVALID_IMAGE_URL);
+        if (imageKey == null || imageKey.isBlank())
+            throw new PlanManagementDomainException(PlanManagementErrorCode.INVALID_IMAGE_KEY);
         checkEmptyPlanMeals();
         validateSubscriptionFee();
         checkAtLeasOnePrimaryMeal();
@@ -111,7 +114,7 @@ public class Plan extends AggregateRoot<PlanId> {
         this.categoryIds = planUpdateCommand.getCategoryIds();
         this.skipDays = planUpdateCommand.getSkipDays();
         this.address = planUpdateCommand.getAddress();
-        this.imageUrl = planUpdateCommand.getImageUrl();
+        this.imageKey = planUpdateCommand.getImageKey();
         this.displaySubscriptionFee = planUpdateCommand.getDisplaySubscriptionFee();
         this.updatedAt = Instant.now();
     }
@@ -211,7 +214,7 @@ public class Plan extends AggregateRoot<PlanId> {
         private UserId providerUserId;
         private List<LocalDate> skipDays;
         private Address address;
-        private String imageUrl;
+        private String imageKey;
         private Money displaySubscriptionFee;
         private Instant createdAt;
         private Instant updatedAt;
@@ -262,8 +265,8 @@ public class Plan extends AggregateRoot<PlanId> {
             return this;
         }
 
-        public Builder imageUrl(String val) {
-            imageUrl = val;
+        public Builder imageKey(String val) {
+            imageKey = val;
             return this;
         }
 

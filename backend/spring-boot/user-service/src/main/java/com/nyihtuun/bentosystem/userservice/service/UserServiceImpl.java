@@ -109,19 +109,19 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         UserEntity userEntity = userRepository.findById(userId)
                                               .orElseThrow(() -> new UserServiceException(UserServiceErrorCode.USER_NOT_FOUND));
 
-        userEntity.setEmail(userRequestDTO.getEmail());
         userEntity.setFirstName(userRequestDTO.getFirstName());
         userEntity.setLastName(userRequestDTO.getLastName());
         userEntity.setPhNo(userRequestDTO.getPhNo());
         userEntity.setDescription(userRequestDTO.getDescription());
+        userEntity.setImageKey(userRequestDTO.getImageKey());
         userEntity.setUpdatedAt(Instant.now());
 
         if (userRequestDTO.getAddress() != null) {
             AddressEntity addressEntity = userEntity.getAddressEntity();
             if (addressEntity == null) {
                 addressEntity = userMapper.toAddressEntity(userRequestDTO.getAddress());
-                addressEntity.setId(UUID.randomUUID());
                 userEntity.setAddressEntity(addressEntity);
+                log.debug("Address was null, created new address entity: {}", addressEntity);
             } else {
                 addressEntity.setBuildingNameRoomNo(userRequestDTO.getAddress().getBuildingNameRoomNo());
                 addressEntity.setChomeBanGo(userRequestDTO.getAddress().getChomeBanGo());
@@ -129,8 +129,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 addressEntity.setPostalCode(userRequestDTO.getAddress().getPostalCode());
                 addressEntity.setCity(userRequestDTO.getAddress().getCity());
                 addressEntity.setPrefecture(userRequestDTO.getAddress().getPrefecture());
+                log.debug("Address was not null, updated address entity: {}", addressEntity);
             }
         } else {
+            log.debug("Address is null");
             userEntity.setAddressEntity(null);
         }
 

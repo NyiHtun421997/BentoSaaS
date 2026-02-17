@@ -18,6 +18,6 @@ public class PlanUpdateCommand {
     private Set<CategoryId> categoryIds;
     private List<LocalDate> skipDays;
     private Address address;
-    private String imageUrl;
+    private String imageKey;
     private Money displaySubscriptionFee;
 }

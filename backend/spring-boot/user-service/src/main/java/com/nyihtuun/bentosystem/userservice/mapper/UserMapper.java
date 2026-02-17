@@ -1,12 +1,19 @@
 package com.nyihtuun.bentosystem.userservice.mapper;
 
+import com.nyihtuun.bentosystem.userservice.configuration.AwsConfigData;
 import com.nyihtuun.bentosystem.userservice.dto.user.*;
 import com.nyihtuun.bentosystem.userservice.entity.AddressEntity;
 import com.nyihtuun.bentosystem.userservice.entity.UserEntity;
+import com.nyihtuun.bentosystem.userservice.service.FileService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class UserMapper {
+
+    private final AwsConfigData awsConfigData;
+    private final FileService fileService;
 
     public UserResponseDTO toResponseDTO(UserEntity userEntity) {
         if (userEntity == null) {
@@ -20,7 +27,7 @@ public class UserMapper {
                 .lastName(userEntity.getLastName())
                 .phNo(userEntity.getPhNo())
                 .description(userEntity.getDescription())
-                .imageUrl(userEntity.getImageUrl())
+                .image(fileService.generatePresignedUrl(userEntity.getImageKey()))
                 .joinedOn(userEntity.getCreatedAt())
                 .updatedAt(userEntity.getUpdatedAt())
                 .address(toAddressResponseDTO(userEntity.getAddressEntity()))
@@ -49,12 +56,11 @@ public class UserMapper {
         }
 
         return UserEntity.builder()
-                .email(userRequestDTO.getEmail())
                 .firstName(userRequestDTO.getFirstName())
                 .lastName(userRequestDTO.getLastName())
                 .phNo(userRequestDTO.getPhNo())
                 .description(userRequestDTO.getDescription())
-                .imageUrl(userRequestDTO.getImageUrl())
+                .imageKey(userRequestDTO.getImageKey())
                 .addressEntity(toAddressEntity(userRequestDTO.getAddress()))
                 .build();
     }

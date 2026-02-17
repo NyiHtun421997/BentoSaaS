@@ -51,8 +51,8 @@ public class UserEntity {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "image_url")
-    private String imageUrl;
+    @Column(name = "image_key")
+    private String imageKey;
 
     @ManyToMany
     @JoinTable(

@@ -264,7 +264,7 @@ const BrowsePlansPage = () => {
                 className="mt-4 hover:opacity-90"
               >
                 <img
-                  src={plan.imageUrl || fallbackImg}
+                  src={plan.image || fallbackImg}
                   alt={plan.title}
                   className="mt-4 h-90 w-full rounded-xl object-cover shadow-md"
                 />

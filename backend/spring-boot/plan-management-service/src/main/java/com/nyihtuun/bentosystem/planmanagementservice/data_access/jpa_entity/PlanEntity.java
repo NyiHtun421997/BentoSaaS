@@ -53,8 +53,8 @@ public class PlanEntity {
     @Column(name = "user_id", nullable = false)
     private UUID userId;
 
-    @Column(name = "image_url")
-    private String imageUrl;
+    @Column(name = "image_key")
+    private String imageKey;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "skip_dates", columnDefinition = "jsonb", nullable = false)

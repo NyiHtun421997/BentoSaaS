@@ -14,5 +14,5 @@ public class PlanMealUpdateCommand {
 
     private boolean isPrimary;
     private Threshold minSubCount;
-    private String imageUrl;
+    private String imageKey;
 }

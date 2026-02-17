@@ -4,6 +4,7 @@ import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
@@ -12,6 +13,7 @@ import java.math.BigDecimal;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public abstract class AbstractPlanMealDto {
     @NotBlank(message = "{NotBlank.planMealRequestDto.name}")
     @Size(max = 20, message = "{Size.planMealRequestDto.name}")
@@ -30,8 +32,4 @@ public abstract class AbstractPlanMealDto {
 
     @Min(value = 0, message = "{Min.planMealRequestDto.minSubCount}")
     private int minSubCount;
-
-    @Size(max = 255, message = "{Size.planMealRequestDto.imageUrl}")
-    @Pattern(regexp = "^(https?://).*$", message = "{Pattern.planMealRequestDto.imageUrl}")
-    private String imageUrl;
 }

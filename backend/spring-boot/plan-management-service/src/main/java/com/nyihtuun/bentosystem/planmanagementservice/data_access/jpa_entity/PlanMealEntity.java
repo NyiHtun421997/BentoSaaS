@@ -48,8 +48,8 @@ public class PlanMealEntity {
     @Column(name = "current_sub_count")
     private Integer currentSubCount;
 
-    @Column(name = "image_url")
-    private String imageUrl;
+    @Column(name = "image_key")
+    private String imageKey;
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;

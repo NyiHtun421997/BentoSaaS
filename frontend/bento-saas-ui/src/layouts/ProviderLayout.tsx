@@ -4,11 +4,11 @@ import AuthContext from "../state/createContext";
 import "./ProviderLayout.css";
 import {
   FiClipboard,
-  FiBarChart2,
   FiLogOut,
   FiBell,
   FiMenu,
   FiUser,
+  FiGrid,
 } from "react-icons/fi";
 
 const ProviderLayout = () => {
@@ -72,13 +72,13 @@ const ProviderLayout = () => {
                   Plans
                 </Link>
                 <Link
-                  to="/provider/insights"
+                  to="/app/browse"
                   role="menuitem"
                   className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
                   onClick={() => setMenuOpen(false)}
                 >
-                  <FiBarChart2 aria-hidden="true" />
-                  Insights
+                  <FiGrid aria-hidden="true" />
+                  Browse
                 </Link>
                 <div className="my-1 h-px bg-slate-200" />
                 <Link
@@ -103,12 +103,10 @@ const ProviderLayout = () => {
               <FiClipboard aria-hidden="true" />
               Plans
             </Link>
-            <Link
-              to="/provider/insights"
-              className="inline-flex items-center gap-2"
-            >
-              <FiBarChart2 aria-hidden="true" />
-              Insights
+
+            <Link to="/app/browse" className="inline-flex items-center gap-2">
+              <FiGrid aria-hidden="true" />
+              Browse
             </Link>
           </div>
         </div>

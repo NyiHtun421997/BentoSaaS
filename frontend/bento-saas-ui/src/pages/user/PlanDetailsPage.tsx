@@ -243,7 +243,7 @@ const PlanDetailsPage = () => {
                     </div>
 
                     <img
-                      src={m.imageUrl || fallbackImg}
+                      src={m.image || fallbackImg}
                       alt={m.name}
                       className="mt-4 w-full h-90 rounded-xl object-cover shadow-md"
                     />

@@ -17,14 +17,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserRequestDTO {
 
-    @NotBlank(message = "{NotBlank.userRequestDto.email}")
-    @Email(message = "{Email.userRequestDto.email}")
-    private String email;
-
-    @NotBlank(message = "{NotBlank.userRequestDto.password}")
-    @Size(min = 8, message = "{Size.userRequestDto.password}")
-    private String password;
-
     private String firstName;
 
     private String lastName;
@@ -34,9 +26,8 @@ public class UserRequestDTO {
     
     private String description;
 
-    @Size(max = 255, message = "{Size.planRequestDto.imageUrl}")
-    @Pattern(regexp = "^(https?://).*$", message = "{Pattern.planRequestDto.imageUrl}")
-    private String imageUrl;
+    @Size(max = 255, message = "{Size.userRequestDto.imageKey}")
+    private String imageKey;
 
     @Valid
     private AddressRequestDTO address;

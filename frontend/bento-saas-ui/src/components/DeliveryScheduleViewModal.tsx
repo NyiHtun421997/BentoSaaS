@@ -73,7 +73,8 @@ const DeliveryScheduleViewModal = ({
       apiGet<DeliverySchedule>(
         `/plan-management/api/v1/plan/delivery-schedule?planId=${encodeURIComponent(
           planId ?? "",
-        )}&start=${encodeURIComponent(formatYmd(monthStart))}&end=${encodeURIComponent(formatYmd(monthEnd))}`),
+        )}&start=${encodeURIComponent(formatYmd(monthStart))}&end=${encodeURIComponent(formatYmd(monthEnd))}`,
+      ),
     enabled: open && !!planId,
   });
 
@@ -254,7 +255,7 @@ const DeliveryScheduleViewModal = ({
 
                                 <img
                                   className="w-[280px] h-[200px] rounded-lg shadow-lg object-cover"
-                                  src={meal?.imageUrl ?? ""}
+                                  src={meal?.image ?? ""}
                                   alt=""
                                 />
                               </div>

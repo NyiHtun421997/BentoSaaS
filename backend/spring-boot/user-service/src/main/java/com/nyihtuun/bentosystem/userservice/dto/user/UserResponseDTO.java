@@ -19,7 +19,7 @@ public class UserResponseDTO {
     private String lastName;
     private String phNo;
     private String description;
-    private String imageUrl;
+    private String image;
     private Instant joinedOn;
     private Instant updatedAt;
     private AddressResponseDTO address;

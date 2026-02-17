@@ -15,7 +15,7 @@ import java.util.UUID;
 @Getter
 @SuperBuilder
 @NoArgsConstructor
-@ToString
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 public class PlanResponseDto extends AbstractPlanDto implements Serializable {
     private UUID planId;
@@ -23,4 +23,5 @@ public class PlanResponseDto extends AbstractPlanDto implements Serializable {
     private PlanStatus status;
     private UUID providerUserId;
     private List<PlanMealResponseDto> planMealResponseDtos;
+    private String image;
 }

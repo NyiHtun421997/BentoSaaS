@@ -1,7 +1,147 @@
+.provider-plans-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.provider-plans-actions {
+  display: flex;
+  gap: 10px;
+}
+
 .provider-plans-panel {
+  margin-top: 14px;
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 16px;
   padding: 18px;
   box-shadow: 0 10px 18px rgba(15, 23, 42, 0.04);
+}
+
+.provider-plans-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 14px;
+}
+
+@media (min-width: 900px) {
+  .provider-plans-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.provider-plan-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 10px 18px rgba(15, 23, 42, 0.04);
+}
+
+.provider-plan-media {
+  height: 180px;
+  background: #f8fafc;
+}
+
+.provider-plan-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.provider-plan-body {
+  padding: 14px;
+}
+
+.provider-plan-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.provider-plan-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.provider-plan-sub {
+  margin-top: 2px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.provider-plan-status {
+  font-weight: 700;
+}
+
+.provider-plan-fee {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+  text-align: right;
+}
+
+.provider-plan-fee-sub {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  margin-left: 6px;
+}
+
+.provider-plan-desc {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #334155;
+}
+
+.provider-plan-meta {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.provider-plan-btns {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.provider-plans-btn {
+  border: 1px solid #e5e7eb;
+  background: white;
+  color: #0f172a;
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  transition: 0.15s;
+}
+
+.provider-plans-btn:hover {
+  background: #f8fafc;
+}
+
+.provider-plans-btn-primary {
+  background: #0f172a;
+  color: white;
+  border-color: #0f172a;
+}
+
+.provider-plans-btn-primary:hover {
+  background: #111827;
+}
+
+.provider-plans-btn-danger {
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+
+.provider-plans-btn-danger:hover {
+  background: #fff1f2;
 }

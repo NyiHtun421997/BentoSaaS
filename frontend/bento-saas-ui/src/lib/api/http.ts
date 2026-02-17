@@ -101,10 +101,25 @@ const handleError = async (res: Response): Promise<never> => {
 
     // If backend returns JSON, try to extract message/error
     if (data && typeof data === "object") {
-      const m =
-        (data as { message?: string }).message ||
-        (data as { error?: string }).error;
-      if (m && String(m).trim()) message = String(m);
+      const obj = data as Record<string, unknown>;
+
+      // 1️⃣ Preferred keys
+      const preferred =
+        (obj.message as string | undefined) ||
+        (obj.error as string | undefined);
+
+      if (preferred?.trim()) {
+        message = preferred;
+      } else {
+        // 2️⃣ Fallback: take first string value in object
+        const firstStringValue = Object.values(obj).find(
+          (v) => typeof v === "string" && v.trim(),
+        ) as string | undefined;
+
+        if (firstStringValue) {
+          message = firstStringValue;
+        }
+      }
     }
   } catch {
     // ignore parse errors
@@ -147,7 +162,7 @@ export const apiGet = <T>(
 
 export const apiPost = <T>(
   path: string,
-  body: unknown,
+  body?: unknown,
   extraHeaders?: Record<string, string>,
 ) => apiRequest<T>("POST", path, body, extraHeaders);
 

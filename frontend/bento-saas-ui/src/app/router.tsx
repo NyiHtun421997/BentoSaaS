@@ -20,6 +20,8 @@ import ProviderInsightsPage from "../pages/provider/ProviderInsightsPage";
 import ForbiddenPage from "../pages/ForbiddenPage";
 import NotFoundPage from "../pages/NotFoundPage";
 import ProfileEditPage from "../pages/user/ProfilePage";
+import ProviderPlanCreatePage from "../pages/provider/ProviderPlanCreatePage";
+import ProviderPlanEditPage from "../pages/provider/ProviderPlanEditPage";
 
 export const router = createBrowserRouter([
   {
@@ -62,6 +64,18 @@ export const router = createBrowserRouter([
     children: [
       { path: "provider/plans", element: <ProviderPlansPage /> },
       { path: "provider/insights", element: <ProviderInsightsPage /> },
+      {
+        path: "/provider/plans/new",
+        element: <ProviderPlanCreatePage />,
+      },
+      {
+        path: "/provider/plans/:planId/edit",
+        element: <ProviderPlanEditPage />,
+      },
+      {
+        path: "/provider/insights/:planId",
+        element: <ProviderInsightsPage />,
+      },
     ],
   },
   { path: "/forbidden", element: <ForbiddenPage /> },

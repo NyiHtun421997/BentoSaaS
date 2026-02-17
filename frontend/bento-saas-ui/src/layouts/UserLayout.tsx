@@ -11,11 +11,13 @@ import {
   FiMenu,
   FiUser,
 } from "react-icons/fi";
+import { LuChefHat } from "react-icons/lu";
 
 const UserLayout = () => {
   const authContext = useContext(AuthContext);
   const token = authContext?.authenticatedUser?.token;
   const email = authContext?.authenticatedUser?.email;
+  const isProvider = authContext?.authenticatedUser?.roles.includes("PROVIDER");
   const navigate = useNavigate();
 
   const [menuOpen, setMenuOpen] = useState(false);
@@ -98,6 +100,17 @@ const UserLayout = () => {
                   <FiUser aria-hidden="true" />
                   Edit
                 </Link>
+                {isProvider ? (
+                  <Link
+                    to="/provider/plans"
+                    role="menuitem"
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    <LuChefHat aria-hidden="true" />
+                    Provider
+                  </Link>
+                ) : null}
               </div>
             ) : null}
           </div>
@@ -119,6 +132,15 @@ const UserLayout = () => {
               <FiFileText aria-hidden="true" />
               Invoices
             </Link>
+            {isProvider ? (
+              <Link
+                to="/provider/plans"
+                className="inline-flex items-center gap-2"
+              >
+                <LuChefHat aria-hidden="true" />
+                Provider
+              </Link>
+            ) : null}
           </div>
         </div>
 

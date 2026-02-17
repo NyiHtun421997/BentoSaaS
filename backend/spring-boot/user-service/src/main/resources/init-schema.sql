@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS "userinfo"."user"
     created_at         TIMESTAMP NOT NULL,
     updated_at         TIMESTAMP NOT NULL,
     description        VARCHAR,
-    image_url          VARCHAR,
+    image_key          VARCHAR,
 
     CONSTRAINT user_pk PRIMARY KEY (user_id),
     CONSTRAINT user_unique_email UNIQUE (email),

@@ -127,7 +127,7 @@ public class PlanManagementServiceTest {
                 .pricePerMonth(new BigDecimal("800.00"))
                 .minSubCount(10)
                 .primary(true)
-                .imageUrl("https://example.com/bento-standard.jpg")
+                .imageKey("bento-standard.jpg")
                 .description("Standard healthy bento meal")
                 .build();
 
@@ -136,7 +136,7 @@ public class PlanManagementServiceTest {
                 .pricePerMonth(new BigDecimal("1200.00"))
                 .minSubCount(5)
                 .primary(false)
-                .imageUrl("https://example.com/bento-premium.jpg")
+                .imageKey("bento-premium.jpg")
                 .description("Premium bento with higher quality ingredients")
                 .build();
 
@@ -146,6 +146,7 @@ public class PlanManagementServiceTest {
         planRequestDto = PlanRequestDto.builder()
                 .title("Healthy Lunch Plan")
                 .description("Weekly healthy lunch subscription")
+                .imageKey("plan-healthy.jpg")
                 .categoryIds(Set.of(CATEGORY_ID_UUID))
                 .skipDays(new ArrayList<>())
                 .planMealRequestDtos(planMealRequestDtos)
@@ -173,6 +174,7 @@ public class PlanManagementServiceTest {
         noMealPlan = PlanRequestDto.builder()
                 .title("Healthy Lunch Plan")
                 .description("Weekly healthy lunch subscription")
+                .imageKey("plan-healthy.jpg")
                 .categoryIds(Set.of(CATEGORY_ID_UUID))
                 .skipDays(new ArrayList<>())
                 .planMealRequestDtos(new ArrayList<>())
@@ -196,7 +198,7 @@ public class PlanManagementServiceTest {
                 .pricePerMonth(new BigDecimal("800.00"))
                 .minSubCount(10)
                 .primary(false)
-                .imageUrl("https://example.com/bento-standard.jpg")
+                .imageKey("bento-standard.jpg")
                 .description("Standard healthy bento meal")
                 .build();
 
@@ -205,7 +207,7 @@ public class PlanManagementServiceTest {
                 .pricePerMonth(new BigDecimal("1200.00"))
                 .minSubCount(5)
                 .primary(false)
-                .imageUrl("https://example.com/bento-premium.jpg")
+                .imageKey("bento-premium.jpg")
                 .description("Premium bento with higher quality ingredients")
                 .build();
 
@@ -215,6 +217,7 @@ public class PlanManagementServiceTest {
         noPrimaryMealPlan = PlanRequestDto.builder()
                 .title("Healthy Lunch Plan")
                 .description("Weekly healthy lunch subscription")
+                .imageKey("plan-healthy.jpg")
                 .categoryIds(Set.of(CATEGORY_ID_UUID))
                 .skipDays(new ArrayList<>())
                 .planMealRequestDtos(noPrimaryMealRequestDtos)
@@ -234,6 +237,7 @@ public class PlanManagementServiceTest {
         invalidSubscriptionFeePlan = PlanRequestDto.builder()
                 .title("Healthy Lunch Plan")
                 .description("Weekly healthy lunch subscription")
+                .imageKey("plan-healthy.jpg")
                 .categoryIds(Set.of(CATEGORY_ID_UUID))
                 .skipDays(new ArrayList<>())
                 .planMealRequestDtos(planMealRequestDtos)
@@ -251,9 +255,10 @@ public class PlanManagementServiceTest {
 
         // given: invalid plan request (invalid subscription fee)
         invalidSkipDaysPlan = PlanRequestDto.builder()
-                                                   .title("Healthy Lunch Plan")
-                                                   .description("Weekly healthy lunch subscription")
-                                                   .categoryIds(Set.of(CATEGORY_ID_UUID))
+                .title("Healthy Lunch Plan")
+                .description("Weekly healthy lunch subscription")
+                .imageKey("plan-healthy.jpg")
+                .categoryIds(Set.of(CATEGORY_ID_UUID))
                                                    .skipDays(List.of(LocalDate.of(2025, 1, 13),
                                                                      LocalDate.of(2025, 1, 14),
                                                                      LocalDate.of(2025, 1, 15)))
@@ -279,7 +284,7 @@ public class PlanManagementServiceTest {
                 .isPrimary(true)
                 .minSubCount(new Threshold(1))
                 .currentSubCount(0)
-                .imageUrl("https://example.com/standard.jpg")
+                .imageKey("standard.jpg")
                 .createdAt(Instant.now())
                 .updatedAt(Instant.now())
                 .build();
@@ -293,7 +298,7 @@ public class PlanManagementServiceTest {
                 .isPrimary(false)
                 .minSubCount(new Threshold(5))
                 .currentSubCount(0)
-                .imageUrl("https://example.com/premium.jpg")
+                .imageKey("premium.jpg")
                 .createdAt(Instant.now())
                 .updatedAt(Instant.now())
                 .build();
@@ -324,12 +329,12 @@ public class PlanManagementServiceTest {
                         .planMeals(dummyPlanMeals)
                         .build();
 
-         validPlanMealRequestDto = PlanMealRequestDto.builder()
+        validPlanMealRequestDto = PlanMealRequestDto.builder()
                                                                    .name("Valid Test Plan Meal")
                                                                    .pricePerMonth(NEW_PLANMEAL_PRICE)
                                                                    .minSubCount(10)
                                                                    .primary(true)
-                                                                   .imageUrl("https://example.com/bento-standard.jpg")
+                                                                   .imageKey("bento-standard.jpg")
                                                                    .description("It is for testing")
                                                                    .build();
 
@@ -338,7 +343,7 @@ public class PlanManagementServiceTest {
                                                                    .pricePerMonth(new BigDecimal("-1200.00"))
                                                                    .minSubCount(5)
                                                                    .primary(false)
-                                                                   .imageUrl("https://example.com/bento-premium.jpg")
+                                                                   .imageKey("bento-premium.jpg")
                                                                    .description("It is for testing")
                                                                    .build();
 
@@ -347,7 +352,7 @@ public class PlanManagementServiceTest {
                                                                   .pricePerMonth(new BigDecimal("1200.00"))
                                                                   .minSubCount(-5)
                                                                   .primary(false)
-                                                                  .imageUrl("https://example.com/bento-premium.jpg")
+                                                                  .imageKey("bento-premium.jpg")
                                                                   .description("It is for testing")
                                                                   .build();
 
@@ -549,7 +554,7 @@ public class PlanManagementServiceTest {
                                           .isPrimary(true)
                                           .minSubCount(new Threshold(2))
                                           .currentSubCount(0)
-                                          .imageUrl("https://example.com/standard.jpg")
+                                          .imageKey("standard.jpg")
                                           .createdAt(Instant.now())
                                           .updatedAt(Instant.now())
                                           .build();
@@ -563,7 +568,7 @@ public class PlanManagementServiceTest {
                                           .isPrimary(false)
                                           .minSubCount(new Threshold(5))
                                           .currentSubCount(0)
-                                          .imageUrl("https://example.com/premium.jpg")
+                                          .imageKey("premium.jpg")
                                           .createdAt(Instant.now())
                                           .updatedAt(Instant.now())
                                           .build();
@@ -618,7 +623,7 @@ public class PlanManagementServiceTest {
                                           .isPrimary(true)
                                           .minSubCount(new Threshold(1))
                                           .currentSubCount(1)
-                                          .imageUrl("https://example.com/standard.jpg")
+                                          .imageKey("standard.jpg")
                                           .createdAt(Instant.now())
                                           .updatedAt(Instant.now())
                                           .build();
@@ -632,7 +637,7 @@ public class PlanManagementServiceTest {
                                           .isPrimary(false)
                                           .minSubCount(new Threshold(5))
                                           .currentSubCount(0)
-                                          .imageUrl("https://example.com/premium.jpg")
+                                          .imageKey("premium.jpg")
                                           .createdAt(Instant.now())
                                           .updatedAt(Instant.now())
                                           .build();
@@ -686,7 +691,7 @@ public class PlanManagementServiceTest {
                                           .isPrimary(true)
                                           .minSubCount(new Threshold(1))
                                           .currentSubCount(2)
-                                          .imageUrl("https://example.com/standard.jpg")
+                                          .imageKey("standard.jpg")
                                           .createdAt(Instant.now())
                                           .updatedAt(Instant.now())
                                           .build();
@@ -700,7 +705,7 @@ public class PlanManagementServiceTest {
                                           .isPrimary(false)
                                           .minSubCount(new Threshold(5))
                                           .currentSubCount(2)
-                                          .imageUrl("https://example.com/premium.jpg")
+                                          .imageKey("premium.jpg")
                                           .createdAt(Instant.now())
                                           .updatedAt(Instant.now())
                                           .build();
@@ -781,7 +786,7 @@ public class PlanManagementServiceTest {
                                           .isPrimary(true)
                                           .minSubCount(new Threshold(1))
                                           .currentSubCount(1)
-                                          .imageUrl("https://example.com/standard.jpg")
+                                          .imageKey("standard.jpg")
                                           .createdAt(Instant.now())
                                           .updatedAt(Instant.now())
                                           .build();
@@ -795,7 +800,7 @@ public class PlanManagementServiceTest {
                                           .isPrimary(false)
                                           .minSubCount(new Threshold(5))
                                           .currentSubCount(0)
-                                          .imageUrl("https://example.com/premium.jpg")
+                                          .imageKey("premium.jpg")
                                           .createdAt(Instant.now())
                                           .updatedAt(Instant.now())
                                           .build();
@@ -910,7 +915,7 @@ public class PlanManagementServiceTest {
         assertNotNull(updatedPlanMealResponseDto);
         assertEquals(NEW_PLANMEAL_PRICE, updatedPlanMealResponseDto.getPricePerMonth());
         assertEquals(10, updatedPlanMealResponseDto.getMinSubCount());
-        assertEquals("https://example.com/bento-standard.jpg", updatedPlanMealResponseDto.getImageUrl());
+        assertEquals("bento-standard.jpg", updatedPlanMealResponseDto.getImage());
         assertEquals("It is for testing", updatedPlanMealResponseDto.getDescription());
     }
 
@@ -926,7 +931,7 @@ public class PlanManagementServiceTest {
                                  .isPrimary(true)
                                  .minSubCount(new Threshold(1))
                                  .currentSubCount(1)
-                                 .imageUrl("https://example.com/standard.jpg")
+                                 .imageKey("standard.jpg")
                                  .createdAt(Instant.now())
                                  .updatedAt(Instant.now())
                                  .build();
@@ -961,7 +966,7 @@ public class PlanManagementServiceTest {
                                                     .pricePerMonth(NEW_PLANMEAL_PRICE)
                                                     .minSubCount(10)
                                                     .primary(false)
-                                                    .imageUrl("https://example.com/bento-standard.jpg")
+                                                    .imageKey("bento-standard.jpg")
                                                     .description("It is for testing")
                                                     .build();
         PlanResponseDto planResponseDto = planManagementCommandService.updateMealFromPlan(dummyPlanId, dummyPlanMealId2, validPlanMealRequestDto);
@@ -977,7 +982,7 @@ public class PlanManagementServiceTest {
         assertNotNull(updatedPlanMealResponseDto);
         assertEquals(NEW_PLANMEAL_PRICE, updatedPlanMealResponseDto.getPricePerMonth());
         assertEquals(10, updatedPlanMealResponseDto.getMinSubCount());
-        assertEquals("https://example.com/bento-standard.jpg", updatedPlanMealResponseDto.getImageUrl());
+        assertEquals("bento-standard.jpg", updatedPlanMealResponseDto.getImage());
         assertEquals("It is for testing", updatedPlanMealResponseDto.getDescription());
     }
 
@@ -993,7 +998,7 @@ public class PlanManagementServiceTest {
                                  .isPrimary(true)
                                  .minSubCount(new Threshold(1))
                                  .currentSubCount(1)
-                                 .imageUrl("https://example.com/standard.jpg")
+                                 .imageKey("standard.jpg")
                                  .createdAt(Instant.now())
                                  .updatedAt(Instant.now())
                                  .build();
@@ -1007,7 +1012,7 @@ public class PlanManagementServiceTest {
                                  .isPrimary(false)
                                  .minSubCount(new Threshold(5))
                                  .currentSubCount(5)
-                                 .imageUrl("https://example.com/premium.jpg")
+                                 .imageKey("premium.jpg")
                                  .createdAt(Instant.now())
                                  .updatedAt(Instant.now())
                                  .build();
@@ -1066,7 +1071,7 @@ public class PlanManagementServiceTest {
                                  .isPrimary(true)
                                  .minSubCount(new Threshold(1))
                                  .currentSubCount(1)
-                                 .imageUrl("https://example.com/standard.jpg")
+                                 .imageKey("standard.jpg")
                                  .createdAt(Instant.now())
                                  .updatedAt(Instant.now())
                                  .build();
@@ -1080,7 +1085,7 @@ public class PlanManagementServiceTest {
                                  .isPrimary(false)
                                  .minSubCount(new Threshold(5))
                                  .currentSubCount(1)
-                                 .imageUrl("https://example.com/premium.jpg")
+                                 .imageKey("premium.jpg")
                                  .createdAt(Instant.now())
                                  .updatedAt(Instant.now())
                                  .build();

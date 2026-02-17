@@ -23,7 +23,7 @@ public class PlanMeal extends BaseEntity<PlanMealId> {
     private Threshold minSubCount;
     private int currentSubCount;
 
-    private String imageUrl;
+    private String imageKey;
 
     private Instant createdAt;
 
@@ -42,7 +42,7 @@ public class PlanMeal extends BaseEntity<PlanMealId> {
         isPrimary = builder.isPrimary;
         minSubCount = builder.minSubCount;
         currentSubCount = builder.currentSubCount;
-        imageUrl = builder.imageUrl;
+        imageKey = builder.imageKey;
         createdAt = builder.createdAt;
         updatedAt = builder.updatedAt;
         deleteFlag = builder.deleteFlag;
@@ -56,8 +56,8 @@ public class PlanMeal extends BaseEntity<PlanMealId> {
             throw new PlanManagementDomainException(PlanManagementErrorCode.NEGATIVE_PLANMEAL_MINSUBCOUNT);
         if (isPrimary && !minSubCount.isGreaterThanZero())
             throw new PlanManagementDomainException(PlanManagementErrorCode.PRIMARYMEAL_INVALID_THRESHOLD);
-        if (!imageUrl.startsWith("https"))
-            throw new PlanManagementDomainException(PlanManagementErrorCode.INVALID_IMAGE_URL);
+        if (imageKey == null || imageKey.isBlank())
+            throw new PlanManagementDomainException(PlanManagementErrorCode.INVALID_IMAGE_KEY);
     }
 
     void initializeMeal(PlanId planId) {
@@ -92,7 +92,7 @@ public class PlanMeal extends BaseEntity<PlanMealId> {
         this.pricePerMonth = planMealUpdateCommand.getPricePerMonth();
         this.isPrimary = planMealUpdateCommand.isPrimary();
         this.minSubCount = planMealUpdateCommand.getMinSubCount();
-        this.imageUrl = planMealUpdateCommand.getImageUrl();
+        this.imageKey = planMealUpdateCommand.getImageKey();
         this.updatedAt = Instant.now();
     }
 
@@ -109,7 +109,7 @@ public class PlanMeal extends BaseEntity<PlanMealId> {
         private boolean isPrimary;
         private Threshold minSubCount;
         private int currentSubCount;
-        private String imageUrl;
+        private String imageKey;
         private Instant createdAt;
         private Instant updatedAt;
         private boolean deleteFlag;
@@ -158,8 +158,8 @@ public class PlanMeal extends BaseEntity<PlanMealId> {
             return this;
         }
 
-        public Builder imageUrl(String val) {
-            imageUrl = val;
+        public Builder imageKey(String val) {
+            imageKey = val;
             return this;
         }
 

@@ -12,9 +12,13 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 @Configuration
-@EnableConfigurationProperties(PlanManagementConfigData.class)
+@EnableConfigurationProperties({PlanManagementConfigData.class, AwsConfigData.class})
 public class BeanConfiguration {
 
     @Bean
@@ -35,5 +39,15 @@ public class BeanConfiguration {
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         return mapper;
+    }
+
+    @Bean
+    public S3Presigner s3Presigner(AwsConfigData awsConfigData) {
+        Region awsRegion = Region.of(awsConfigData.region());
+        return S3Presigner.builder()
+                          .region(awsRegion)
+                          .credentialsProvider(StaticCredentialsProvider.create(
+                                  AwsBasicCredentials.create(awsConfigData.accessKey(), awsConfigData.secretKey())))
+                          .build();
     }
 }

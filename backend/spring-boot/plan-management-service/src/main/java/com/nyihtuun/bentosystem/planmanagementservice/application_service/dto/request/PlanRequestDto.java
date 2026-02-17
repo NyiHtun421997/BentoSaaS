@@ -17,11 +17,14 @@ import java.util.List;
 @Getter
 @SuperBuilder
 @NoArgsConstructor
-@ToString
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 public class PlanRequestDto extends AbstractPlanDto implements Serializable {
 
     @NotNull(groups = CreatePlanValidationGroup.class)
     @Size(min = 1, groups = CreatePlanValidationGroup.class)
     private List<@NotNull(groups = CreatePlanValidationGroup.class) @Valid PlanMealRequestDto> planMealRequestDtos;
+
+    @Size(max = 255, message = "{Size.planRequestDto.imageKey}")
+    private String imageKey;
 }

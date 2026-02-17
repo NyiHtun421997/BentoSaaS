@@ -13,10 +13,11 @@ import java.util.UUID;
 @Getter
 @SuperBuilder
 @NoArgsConstructor
-@ToString
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 public class PlanMealResponseDto extends AbstractPlanMealDto implements Serializable {
     private UUID planMealId;
     private UUID planId;
     private int currentSubCount;
+    private String image;
 }

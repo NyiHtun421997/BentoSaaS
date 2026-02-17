@@ -56,112 +56,112 @@ VALUES
 -- Others use the shared bcrypt string you provided.
 -- ==========================================================
 INSERT INTO "userinfo"."user"
-(user_id, email, encrypted_password, first_name, last_name, address_id, ph_no, created_at, updated_at, description, image_url)
+(user_id, email, encrypted_password, first_name, last_name, address_id, ph_no, created_at, updated_at, description, image_key)
 VALUES
 -- (1) end-user admin
 ('22222222-0000-0000-0000-000000000001','admin@bento.dev',
  '$2a$10$tDtl.NzIKQ.j7ENhGIPj4OfBRouIQ3FLlQCXaHhKH6e1L8GvOcSM.',
  'Admin','User','aaaaaaaa-0000-0000-0000-000000000001','090-1111-1111',
- '2026-01-01 09:00:00','2026-01-01 09:00:00','System administrator', 'https://api.dicebear.com/7.x/avataaars/svg?seed=Admin'),
+ '2026-01-01 09:00:00','2026-01-01 09:00:00','System administrator', 'user-admin.jpg'),
 
 -- (2) end-user
 ('22222222-0000-0000-0000-000000000002','user1@bento.dev',
  '$2a$10$5JpyCBetWxOABgqFI5nYzeDU8L2ivdIy/ZJifCB4GnOKUWNfNSiya',
  'Taro','Yamada','aaaaaaaa-0000-0000-0000-000000000002','090-2222-2222',
- '2026-01-05 10:30:00','2026-01-10 12:00:00','End user', 'https://api.dicebear.com/7.x/avataaars/svg?seed=Taro'),
+ '2026-01-05 10:30:00','2026-01-10 12:00:00','End user', 'user-taro.jpg'),
 
 -- (3) end-user
 ('22222222-0000-0000-0000-000000000003','user2@bento.dev',
  '$2a$10$Kkn3s4X5XIRqJvj2Pkp/PeTz6eoLB/t5mWKp6wv9DIDtkihVF74.G',
  'Hanako','Suzuki','aaaaaaaa-0000-0000-0000-000000000003','090-3333-3333',
- '2026-01-07 14:00:00','2026-01-15 16:20:00','End user', 'https://api.dicebear.com/7.x/avataaars/svg?seed=Hanako'),
+ '2026-01-07 14:00:00','2026-01-15 16:20:00','End user', 'user-hanako.jpg'),
 
 -- (4) .. (10) end-users for subscription
 ('22222222-0000-0000-0000-000000000004','user4@bento.dev',
  '$2a$10$b.Ro7SO7qVgOxIBjd5U12eZnJZrshpiqDHQAGDXLDWfA0vGWzmZea',
  'Ken','Tanaka','aaaaaaaa-0000-0000-0000-000000000004','090-4444-4444',
- '2026-01-04 09:00:00','2026-01-04 09:00:00','End user', 'https://api.dicebear.com/7.x/avataaars/svg?seed=Ken'),
+ '2026-01-04 09:00:00','2026-01-04 09:00:00','End user', 'user-ken.jpg'),
 
 ('22222222-0000-0000-0000-000000000005','user5@bento.dev',
  '$2a$10$b.Ro7SO7qVgOxIBjd5U12eZnJZrshpiqDHQAGDXLDWfA0vGWzmZea',
  'Yui','Sato','aaaaaaaa-0000-0000-0000-000000000005','090-5555-5555',
- '2026-01-05 09:00:00','2026-01-05 09:00:00','End user', 'https://api.dicebear.com/7.x/avataaars/svg?seed=Yui'),
+ '2026-01-05 09:00:00','2026-01-05 09:00:00','End user', 'user-yui.jpg'),
 
 ('22222222-0000-0000-0000-000000000006','user6@bento.dev',
  '$2a$10$b.Ro7SO7qVgOxIBjd5U12eZnJZrshpiqDHQAGDXLDWfA0vGWzmZea',
  'Daichi','Ito','aaaaaaaa-0000-0000-0000-000000000006','090-6666-6666',
- '2026-01-06 09:00:00','2026-01-06 09:00:00','End user', 'https://api.dicebear.com/7.x/avataaars/svg?seed=Daichi'),
+ '2026-01-06 09:00:00','2026-01-06 09:00:00','End user', 'user-daichi.jpg'),
 
 ('22222222-0000-0000-0000-000000000007','user7@bento.dev',
  '$2a$10$b.Ro7SO7qVgOxIBjd5U12eZnJZrshpiqDHQAGDXLDWfA0vGWzmZea',
  'Miki','Kato','aaaaaaaa-0000-0000-0000-000000000007','090-7777-7777',
- '2026-01-07 09:00:00','2026-01-07 09:00:00','End user', 'https://api.dicebear.com/7.x/avataaars/svg?seed=Miki'),
+ '2026-01-07 09:00:00','2026-01-07 09:00:00','End user', 'user-miki.jpg'),
 
 ('22222222-0000-0000-0000-000000000008','user8@bento.dev',
  '$2a$10$b.Ro7SO7qVgOxIBjd5U12eZnJZrshpiqDHQAGDXLDWfA0vGWzmZea',
  'Sota','Nakamura','aaaaaaaa-0000-0000-0000-000000000008','090-8888-8888',
- '2026-01-08 09:00:00','2026-01-08 09:00:00','End user', 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sota'),
+ '2026-01-08 09:00:00','2026-01-08 09:00:00','End user', 'user-sota.jpg'),
 
 ('22222222-0000-0000-0000-000000000009','user9@bento.dev',
  '$2a$10$b.Ro7SO7qVgOxIBjd5U12eZnJZrshpiqDHQAGDXLDWfA0vGWzmZea',
  'Aoi','Kobayashi','aaaaaaaa-0000-0000-0000-000000000009','090-9999-9999',
- '2026-01-09 09:00:00','2026-01-09 09:00:00','End user', 'https://api.dicebear.com/7.x/avataaars/svg?seed=Aoi'),
+ '2026-01-09 09:00:00','2026-01-09 09:00:00','End user', 'user-aoi.jpg'),
 
 ('22222222-0000-0000-0000-000000000010','user10@bento.dev',
  '$2a$10$b.Ro7SO7qVgOxIBjd5U12eZnJZrshpiqDHQAGDXLDWfA0vGWzmZea',
  'Rina','Yoshida','aaaaaaaa-0000-0000-0000-000000000010','090-1010-1010',
- '2026-01-10 09:00:00','2026-01-10 09:00:00','End user', 'https://api.dicebear.com/7.x/avataaars/svg?seed=Rina'),
+ '2026-01-10 09:00:00','2026-01-10 09:00:00','End user', 'user-rina.jpg'),
 
 -- (11) .. (20) providers for planmanagement/subscription.provided_user_id
 ('11111111-0000-0000-0000-000000000001','provider1@bento.dev',
  '$2a$10$b.Ro7SO7qVgOxIBjd5U12eZnJZrshpiqDHQAGDXLDWfA0vGWzmZea',
  'Provider','One','aaaaaaaa-0000-0000-0000-000000000011','080-1111-1111',
- '2025-12-01 09:00:00','2026-01-01 09:00:00','Provider', 'https://api.dicebear.com/7.x/avataaars/svg?seed=ProviderOne'),
+ '2025-12-01 09:00:00','2026-01-01 09:00:00','Provider', 'user-provider1.jpg'),
 
 ('11111111-0000-0000-0000-000000000002','provider2@bento.dev',
  '$2a$10$b.Ro7SO7qVgOxIBjd5U12eZnJZrshpiqDHQAGDXLDWfA0vGWzmZea',
  'Provider','Two','aaaaaaaa-0000-0000-0000-000000000012','080-2222-2222',
- '2025-12-01 09:00:00','2026-01-01 09:00:00','Provider', 'https://api.dicebear.com/7.x/avataaars/svg?seed=ProviderTwo'),
+ '2025-12-01 09:00:00','2026-01-01 09:00:00','Provider', 'user-provider2.jpg'),
 
 ('11111111-0000-0000-0000-000000000003','provider3@bento.dev',
  '$2a$10$b.Ro7SO7qVgOxIBjd5U12eZnJZrshpiqDHQAGDXLDWfA0vGWzmZea',
  'Provider','Three','aaaaaaaa-0000-0000-0000-000000000013','080-3333-3333',
- '2025-12-01 09:00:00','2026-01-01 09:00:00','Provider', 'https://api.dicebear.com/7.x/avataaars/svg?seed=ProviderThree'),
+ '2025-12-01 09:00:00','2026-01-01 09:00:00','Provider', 'user-provider3.jpg'),
 
 ('11111111-0000-0000-0000-000000000004','provider4@bento.dev',
  '$2a$10$b.Ro7SO7qVgOxIBjd5U12eZnJZrshpiqDHQAGDXLDWfA0vGWzmZea',
  'Provider','Four','aaaaaaaa-0000-0000-0000-000000000014','080-4444-4444',
- '2025-12-01 09:00:00','2026-01-01 09:00:00','Provider', 'https://api.dicebear.com/7.x/avataaars/svg?seed=ProviderFour'),
+ '2025-12-01 09:00:00','2026-01-01 09:00:00','Provider', 'user-provider4.jpg'),
 
 ('11111111-0000-0000-0000-000000000005','provider5@bento.dev',
  '$2a$10$b.Ro7SO7qVgOxIBjd5U12eZnJZrshpiqDHQAGDXLDWfA0vGWzmZea',
  'Provider','Five','aaaaaaaa-0000-0000-0000-000000000015','080-5555-5555',
- '2025-12-01 09:00:00','2026-01-01 09:00:00','Provider', 'https://api.dicebear.com/7.x/avataaars/svg?seed=ProviderFive'),
+ '2025-12-01 09:00:00','2026-01-01 09:00:00','Provider', 'user-provider5.jpg'),
 
 ('11111111-0000-0000-0000-000000000006','provider6@bento.dev',
  '$2a$10$b.Ro7SO7qVgOxIBjd5U12eZnJZrshpiqDHQAGDXLDWfA0vGWzmZea',
  'Provider','Six','aaaaaaaa-0000-0000-0000-000000000016','080-6666-6666',
- '2025-12-01 09:00:00','2026-01-01 09:00:00','Provider', 'https://api.dicebear.com/7.x/avataaars/svg?seed=ProviderSix'),
+ '2025-12-01 09:00:00','2026-01-01 09:00:00','Provider', 'user-provider6.jpg'),
 
 ('11111111-0000-0000-0000-000000000007','provider7@bento.dev',
  '$2a$10$b.Ro7SO7qVgOxIBjd5U12eZnJZrshpiqDHQAGDXLDWfA0vGWzmZea',
  'Provider','Seven','aaaaaaaa-0000-0000-0000-000000000017','080-7777-7777',
- '2025-12-01 09:00:00','2026-01-01 09:00:00','Provider', 'https://api.dicebear.com/7.x/avataaars/svg?seed=ProviderSeven'),
+ '2025-12-01 09:00:00','2026-01-01 09:00:00','Provider', 'user-provider7.jpg'),
 
 ('11111111-0000-0000-0000-000000000008','provider8@bento.dev',
  '$2a$10$b.Ro7SO7qVgOxIBjd5U12eZnJZrshpiqDHQAGDXLDWfA0vGWzmZea',
  'Provider','Eight','aaaaaaaa-0000-0000-0000-000000000018','080-8888-8888',
- '2025-12-01 09:00:00','2026-01-01 09:00:00','Provider', 'https://api.dicebear.com/7.x/avataaars/svg?seed=ProviderEight'),
+ '2025-12-01 09:00:00','2026-01-01 09:00:00','Provider', 'user-provider8.jpg'),
 
 ('11111111-0000-0000-0000-000000000009','provider9@bento.dev',
  '$2a$10$b.Ro7SO7qVgOxIBjd5U12eZnJZrshpiqDHQAGDXLDWfA0vGWzmZea',
  'Provider','Nine','aaaaaaaa-0000-0000-0000-000000000019','080-9999-9999',
- '2025-12-01 09:00:00','2026-01-01 09:00:00','Provider', 'https://api.dicebear.com/7.x/avataaars/svg?seed=ProviderNine'),
+ '2025-12-01 09:00:00','2026-01-01 09:00:00','Provider', 'user-provider9.jpg'),
 
 ('11111111-0000-0000-0000-000000000010','provider10@bento.dev',
  '$2a$10$b.Ro7SO7qVgOxIBjd5U12eZnJZrshpiqDHQAGDXLDWfA0vGWzmZea',
  'Provider','Ten','aaaaaaaa-0000-0000-0000-000000000020','080-1010-1010',
- '2025-12-01 09:00:00','2026-01-01 09:00:00','Provider', 'https://api.dicebear.com/7.x/avataaars/svg?seed=ProviderTen')^^
+ '2025-12-01 09:00:00','2026-01-01 09:00:00','Provider', 'user-provider10.jpg')^^
 
 -- ==========================================================
 -- user_role
