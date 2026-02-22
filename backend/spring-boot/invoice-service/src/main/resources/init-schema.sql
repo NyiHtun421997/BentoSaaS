@@ -44,3 +44,33 @@ CREATE TABLE IF NOT EXISTS "invoice".invoice
             OR (invoice_status <> 'PAID' AND paid_at IS NULL)
         )
 ) ^^
+
+-- ==========================================================
+-- Invoice BC: Outbox Table
+-- ==========================================================
+
+-- DROP TYPE IF EXISTS outbox_status;^^
+DO
+$$
+    BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'outbox_status') THEN
+            CREATE TYPE outbox_status AS ENUM ('STARTED', 'COMPLETED', 'FAILED');
+        END IF;
+    END
+$$^^
+
+-- DROP TABLE IF EXISTS "invoice".invoice_event_outbox CASCADE;^^
+CREATE TABLE IF NOT EXISTS "invoice".invoice_event_outbox
+(
+    id            uuid          NOT NULL,
+    user_id       uuid          NOT NULL,
+    created_at    TIMESTAMPTZ   NOT NULL,
+    processed_at  TIMESTAMPTZ,
+    payload       jsonb         NOT NULL,
+    outbox_status outbox_status NOT NULL,
+    version       integer       NOT NULL,
+    topic_name    varchar(255)  NOT NULL,
+    type          varchar(255)  NOT NULL,
+    CONSTRAINT invoice_event_outbox_pkey PRIMARY KEY (id),
+    CONSTRAINT type_allowed CHECK (type IN ('NOTIFICATION'))
+) ^^

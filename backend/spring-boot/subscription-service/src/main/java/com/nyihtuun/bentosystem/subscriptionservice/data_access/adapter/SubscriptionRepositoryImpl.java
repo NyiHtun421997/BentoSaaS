@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.nyihtuun.bentosystem.subscriptionservice.SubscriptionConstants.ASIA_TOKYO_ZONE;
+import static com.nyihtuun.bentosystem.domain.utility.CommonConstants.ASIA_TOKYO_ZONE;
 
 @Component
 public class SubscriptionRepositoryImpl implements SubscriptionRepository {

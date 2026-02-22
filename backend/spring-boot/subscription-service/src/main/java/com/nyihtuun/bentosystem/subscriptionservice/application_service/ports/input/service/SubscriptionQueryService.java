@@ -12,4 +12,5 @@ public interface SubscriptionQueryService {
     List<SubscriptionResponseDto> getMySubscriptions(UUID userId, LocalDate since);
     Optional<SubscriptionResponseDto> getSubscriptionById(UUID subscriptionId);
     List<SubscriptionResponseDto> getActiveSubscriptionsBefore(Instant before);
+    List<SubscriptionResponseDto> getSubscriptionsByPlanId(UUID planId);
 }

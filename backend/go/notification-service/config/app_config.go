@@ -1,0 +1,48 @@
+package config
+
+import (
+	"log"
+	"strings"
+
+	"github.com/spf13/viper"
+)
+
+type Config struct {
+	DBParams struct {
+		Url string `mapstructure:"url"`
+	} `mapstructure:"db_params"`
+
+	KafkaParams struct {
+		BootstrapServers []string `mapstructure:"bootstrap_servers"`
+		Partition        int      `mapstructure:"partition"`
+		TopicName        string   `mapstructure:"topic_name"`
+		GroupID          string   `mapstructure:"group_id"`
+	}
+	ServerAddress string `mapstructure:"server_address"`
+	ServerPort    int    `mapstructure:"server_port"`
+	JwtSecret     string `mapstructure:"jwt_secret"`
+}
+
+var Cfg Config
+
+func LoadConfig() {
+	viper.AddConfigPath("./config")
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	viper.SetEnvPrefix("NOTI")
+	viper.AutomaticEnv()
+
+	err := viper.ReadInConfig()
+	if err != nil {
+		log.Fatalf("Error reading config file, %s", err)
+		return
+	}
+
+	err = viper.Unmarshal(&Cfg)
+	if err != nil {
+		log.Fatalf("Unable to decode into struct, %v", err)
+		return
+	}
+}

@@ -13,6 +13,7 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+      acks: all
     consumer:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
@@ -32,6 +33,8 @@ plan-management:
   zone: Asia/Tokyo
   plan-changed-topic-name: plan-changed-topic
   user-subscription-topic-name: user-plan-subscription-topic
+  plan-changed-notification-topic-name: plan-changed-notification-topic
+  user-notification-topic-name: user-notification-topic
   group-id: plan-management-service
   outbox-scheduler-fixed-rate: 10000
   outbox-scheduler-initial-delay: 10000

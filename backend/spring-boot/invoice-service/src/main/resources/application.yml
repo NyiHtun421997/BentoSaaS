@@ -3,6 +3,11 @@ spring:
     name: invoice-service
   messages:
     basename: messages
+  kafka:
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+      acks: all
   batch:
     job:
       enabled: false
@@ -15,3 +20,6 @@ server:
 invoice:
   scheduler-cron: "0 0 0 25 * ?"
   zone: Asia/Tokyo
+  user-notification-topic-name: user-notification-topic
+  outbox-scheduler-fixed-rate: 10000
+  outbox-scheduler-initial-delay: 10000

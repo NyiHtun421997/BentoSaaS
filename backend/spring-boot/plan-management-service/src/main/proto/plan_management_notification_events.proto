@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package plan_management.notification_events;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+
+option java_multiple_files = true;
+
+message PlanManagementNotificationEvent {
+  string user_id = 1;
+  string plan_id = 2;
+  string notification_event_type = 3;
+  google.protobuf.Struct payload = 4;
+}

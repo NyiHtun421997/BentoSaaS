@@ -17,6 +17,9 @@ import java.util.UUID;
 public abstract class BaseMessagingModel {
     @EqualsAndHashCode.Include
     private UUID id;
+    private UUID userId;
+    private String topicName;
+    private String type;
     private Instant createdAt;
 
     @Setter

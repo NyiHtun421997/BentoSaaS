@@ -16,8 +16,7 @@ import static com.nyihtuun.bentosystem.subscriptionservice.SubscriptionConstants
 public class UserPlanSubscriptionMessageKafkaPublisherImpl extends AbstractMessageProducer<UserPlanSubscriptionEventOutboxMessage> implements UserPlanSubscriptionMessagePublisher {
 
     @Autowired
-    public UserPlanSubscriptionMessageKafkaPublisherImpl(KafkaTemplate<String, byte[]> kafkaTemplate,
-                                                         @Value(SUBSCRIPTION_USER_SUBSCRIPTION_TOPIC_NAME) String topicName) {
-        super(kafkaTemplate, topicName);
+    public UserPlanSubscriptionMessageKafkaPublisherImpl(KafkaTemplate<String, byte[]> kafkaTemplate) {
+        super(kafkaTemplate);
     }
 }

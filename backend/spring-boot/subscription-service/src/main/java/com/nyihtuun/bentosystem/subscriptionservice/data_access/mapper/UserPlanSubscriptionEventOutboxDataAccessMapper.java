@@ -6,29 +6,49 @@ import com.nyihtuun.bentosystem.subscriptionservice.application_service.outbox.m
 import com.nyihtuun.bentosystem.subscriptionservice.data_access.jpa_entity.UserPlanSubscriptionEventOutboxEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import subscription.events.UserPlanSubscriptionEvent;
+
+import java.util.Map;
 
 @Slf4j
 @Component
 public class UserPlanSubscriptionEventOutboxDataAccessMapper {
 
+    private final Map<String, OutboxPayloadReader> outboxPayloadReaderMap;
+
+    public UserPlanSubscriptionEventOutboxDataAccessMapper(Map<String, OutboxPayloadReader> outboxPayloadReaderMap) {
+        this.outboxPayloadReaderMap = outboxPayloadReaderMap;
+    }
+
     public UserPlanSubscriptionEventOutboxEntity outboxMessageToOutboxEntity(UserPlanSubscriptionEventOutboxMessage userPlanSubscriptionEventOutboxMessage) {
         return UserPlanSubscriptionEventOutboxEntity.builder()
                                            .id(userPlanSubscriptionEventOutboxMessage.getId())
+                                           .userId(userPlanSubscriptionEventOutboxMessage.getUserId())
                                            .createdAt(userPlanSubscriptionEventOutboxMessage.getCreatedAt())
                                            .processedAt(userPlanSubscriptionEventOutboxMessage.getProcessedAt())
+                                           .type(userPlanSubscriptionEventOutboxMessage.getType())
                                            .payload(writePayloadAsString(userPlanSubscriptionEventOutboxMessage.getPayload()))
+                                           .topicName(userPlanSubscriptionEventOutboxMessage.getTopicName())
                                            .outboxStatus(userPlanSubscriptionEventOutboxMessage.getOutboxStatus())
                                            .version(userPlanSubscriptionEventOutboxMessage.getVersion())
                                            .build();
     }
 
     public UserPlanSubscriptionEventOutboxMessage outboxEntityToOutboxMessage(UserPlanSubscriptionEventOutboxEntity userPlanSubscriptionEventOutboxEntity) {
+        OutboxPayloadReader outboxPayloadReader = outboxPayloadReaderMap.get(userPlanSubscriptionEventOutboxEntity.getType());
+        if (outboxPayloadReader == null) {
+            throw new RuntimeException("No outbox payload reader found for type: " + userPlanSubscriptionEventOutboxEntity.getType());
+        }
+
+        Message payload = outboxPayloadReader.read(userPlanSubscriptionEventOutboxEntity.getPayload());
+
         return UserPlanSubscriptionEventOutboxMessage.builder()
                                             .id(userPlanSubscriptionEventOutboxEntity.getId())
+                                            .userId(userPlanSubscriptionEventOutboxEntity.getUserId())
                                             .createdAt(userPlanSubscriptionEventOutboxEntity.getCreatedAt())
                                             .processedAt(userPlanSubscriptionEventOutboxEntity.getProcessedAt())
-                                            .payload(readPayloadFromString(userPlanSubscriptionEventOutboxEntity.getPayload()))
+                                            .topicName(userPlanSubscriptionEventOutboxEntity.getTopicName())
+                                            .type(userPlanSubscriptionEventOutboxEntity.getType())
+                                            .payload(payload)
                                             .outboxStatus(userPlanSubscriptionEventOutboxEntity.getOutboxStatus())
                                             .version(userPlanSubscriptionEventOutboxEntity.getVersion())
                                             .build();
@@ -41,21 +61,8 @@ public class UserPlanSubscriptionEventOutboxDataAccessMapper {
                              .omittingInsignificantWhitespace()
                              .print(payload);
         } catch (Exception e) {
-            log.error("Could not write UserPlanSubscriptionEvent as string!", e);
-            throw new RuntimeException("Could not write UserPlanSubscriptionEvent as string!", e);
-        }
-    }
-
-    private UserPlanSubscriptionEvent readPayloadFromString(String payload) {
-        try {
-            UserPlanSubscriptionEvent.Builder builder = UserPlanSubscriptionEvent.newBuilder();
-            JsonFormat.parser()
-                      .ignoringUnknownFields()
-                      .merge(payload, builder);
-            return builder.build();
-        } catch (Exception e) {
-            log.error("Could not read UserPlanSubscriptionEvent from string!", e);
-            throw new RuntimeException("Could not read UserPlanSubscriptionEvent from string!", e);
+            log.error("Could not write payload as string!", e);
+            throw new RuntimeException("Could not write payload as string!", e);
         }
     }
 }

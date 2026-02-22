@@ -16,6 +16,7 @@ import com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.ou
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.output.client.PlanValidationResult;
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.output.repository.SubscriptionRepository;
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.output.repository.UserPlanSubscriptionEventOutboxRepository;
+import com.nyihtuun.bentosystem.subscriptionservice.configuration.SubscriptionConfigData;
 import com.nyihtuun.bentosystem.subscriptionservice.domain.entity.MealSelection;
 import com.nyihtuun.bentosystem.subscriptionservice.domain.entity.Subscription;
 import com.nyihtuun.bentosystem.subscriptionservice.domain.exception.SubscriptionDomainException;
@@ -89,6 +90,9 @@ class SubscriptionServiceApplicationTests {
 
     @MockitoBean
     private UserPlanSubscriptionEventOutboxRepository userPlanSubscriptionEventOutboxRepository;
+
+    @MockitoBean
+    private SubscriptionConfigData subscriptionConfigData;
 
     private UserId userId;
     private UserId providedUserId;
@@ -204,6 +208,9 @@ class SubscriptionServiceApplicationTests {
 
         when(subscriptionRepository.findBySubscriptionId(INVALID_SUBSCRIPTION_ID_UUID))
                 .thenAnswer(invocation -> Optional.empty());
+
+        when(subscriptionConfigData.userSubscriptionTopicName())
+                .thenReturn("user-subscription");
 
         doNothing().when(userPlanSubscriptionEventOutboxRepository).save(any(UserPlanSubscriptionEventOutboxMessage.class));
     }

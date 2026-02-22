@@ -1,5 +1,8 @@
 package com.nyihtuun.bentosystem.invoiceservice.configuration;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.nyihtuun.bentosystem.invoiceservice.InvoiceConstants;
 import com.nyihtuun.bentosystem.invoiceservice.application_service.batch.BatchJobExecutionListener;
 import com.nyihtuun.bentosystem.invoiceservice.application_service.batch.SubscriptionContext;
@@ -18,6 +21,7 @@ import org.springframework.batch.infrastructure.item.data.builder.RepositoryItem
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
@@ -55,5 +59,14 @@ public class BeanConfiguration {
                 .start(step)
                 .listener(batchJobExecutionListener)
                 .build();
+    }
+
+    @Bean
+    @Primary
+    public ObjectMapper objectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        return mapper;
     }
 }

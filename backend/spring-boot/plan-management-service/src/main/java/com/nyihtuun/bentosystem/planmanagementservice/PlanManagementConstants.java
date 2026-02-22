@@ -4,7 +4,6 @@ public class PlanManagementConstants {
     private PlanManagementConstants() {
     }
 
-    public static final String ASIA_TOKYO_ZONE = "Asia/Tokyo";
     public static final String PLAN_MANAGEMENT_SCHEDULER_CRON = "${plan-management.scheduler-cron}";
     public static final String PLAN_MANAGEMENT_ZONE = "${plan-management.zone}";
     public static final String SCHEDULER_FIXED_RATE = "${plan-management.outbox-scheduler-fixed-rate}";

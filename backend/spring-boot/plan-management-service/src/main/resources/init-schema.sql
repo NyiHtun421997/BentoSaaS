@@ -1,16 +1,22 @@
 -- DROP SCHEMA IF EXISTS "planmanagement" CASCADE;^^
 
-CREATE SCHEMA IF NOT EXISTS "planmanagement";^^
+CREATE SCHEMA IF NOT EXISTS "planmanagement";
+^^
 
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";^^
-CREATE EXTENSION IF NOT EXISTS postgis;^^
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+^^
+CREATE EXTENSION IF NOT EXISTS postgis;
+^^
 
 -- DROP TYPE IF EXISTS plan_status;^^
-DO $$ BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'plan_status') THEN
-        CREATE TYPE plan_status AS ENUM ('RECRUITING', 'ACTIVE', 'SUSPENDED', 'CANCELLED', 'PLANS_ADDED', 'PLANS_REMOVED');
-    END IF;
-END $$^^
+DO
+$$
+    BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'plan_status') THEN
+            CREATE TYPE plan_status AS ENUM ('RECRUITING', 'ACTIVE', 'SUSPENDED', 'CANCELLED', 'PLANS_ADDED', 'PLANS_REMOVED');
+        END IF;
+    END
+$$^^
 
 -- DROP TABLE IF EXISTS "planmanagement".address CASCADE;^^
 
@@ -25,11 +31,11 @@ CREATE TABLE IF NOT EXISTS "planmanagement".address
     prefecture            VARCHAR NOT NULL,
     location              geography(Point, 4326),
     CONSTRAINT address_pkey PRIMARY KEY (id)
-)^^
+) ^^
 
 CREATE INDEX IF NOT EXISTS idx_address_location
     ON "planmanagement".address
-        USING GIST (location)^^
+        USING GIST (location) ^^
 
 -- DROP TABLE IF EXISTS "planmanagement".category CASCADE;^^
 
@@ -58,7 +64,7 @@ CREATE TABLE IF NOT EXISTS "planmanagement".plan
         ON UPDATE NO ACTION
         ON DELETE RESTRICT,
     CONSTRAINT plan_skipdates_max2days CHECK ( jsonb_array_length(skip_dates) <= 2 )
-)^^
+) ^^
 
 -- DROP TABLE IF EXISTS "planmanagement".plan_meal CASCADE;^^
 
@@ -82,14 +88,14 @@ CREATE TABLE IF NOT EXISTS "planmanagement".plan_meal
         REFERENCES "planmanagement".plan (id)
         ON UPDATE NO ACTION
         ON DELETE CASCADE
-)^^
+) ^^
 
 CREATE TABLE IF NOT EXISTS "planmanagement".category
 (
     id   uuid    NOT NULL,
     name VARCHAR NOT NULL UNIQUE,
     CONSTRAINT category_pkey PRIMARY KEY (id)
-)^^
+) ^^
 
 -- DROP TABLE IF EXISTS "planmanagement".plan_category CASCADE;^^
 
@@ -106,7 +112,7 @@ CREATE TABLE IF NOT EXISTS "planmanagement".plan_category
         ON UPDATE NO ACTION
         ON DELETE CASCADE,
     CONSTRAINT plan_category_pk PRIMARY KEY (plan_id, category_id)
-)^^
+) ^^
 
 -- DROP TABLE IF EXISTS "planmanagement".delivery_schedule CASCADE;^^
 
@@ -123,7 +129,7 @@ CREATE TABLE IF NOT EXISTS "planmanagement".delivery_schedule
         REFERENCES "planmanagement".plan (id)
         ON UPDATE NO ACTION
         ON DELETE RESTRICT
-)^^
+) ^^
 
 -- DROP TABLE IF EXISTS "planmanagement".delivery_schedule_detail CASCADE;^^
 
@@ -142,17 +148,20 @@ CREATE TABLE IF NOT EXISTS "planmanagement".delivery_schedule_detail
         REFERENCES "planmanagement".plan_meal (id)
         ON UPDATE NO ACTION
         ON DELETE RESTRICT
-)^^
+) ^^
 
 -- ==========================================================
 -- Plan Management BC: Cron job execution results (job_run)
 -- ==========================================================
 -- DROP TYPE IF EXISTS job_run_status;^^
-DO $$ BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'job_run_status') THEN
-        CREATE TYPE job_run_status AS ENUM ('SUCCESS', 'PARTIAL_SUCCESS', 'FAILED');
-    END IF;
-END $$^^
+DO
+$$
+    BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'job_run_status') THEN
+            CREATE TYPE job_run_status AS ENUM ('SUCCESS', 'PARTIAL_SUCCESS', 'FAILED');
+        END IF;
+    END
+$$^^
 
 -- DROP TABLE IF EXISTS "planmanagement".job_run CASCADE;^^
 CREATE TABLE IF NOT EXISTS "planmanagement".job_run
@@ -177,36 +186,43 @@ CREATE TABLE IF NOT EXISTS "planmanagement".job_run
     error         jsonb,
 
     created_at    TIMESTAMPTZ    NOT NULL DEFAULT now()
-)^^
+) ^^
 
 CREATE UNIQUE INDEX IF NOT EXISTS ux_pm_job_run_job_period
-    on "planmanagement".job_run (job_type, period_start, period_end)^^
+    on "planmanagement".job_run (job_type, period_start, period_end) ^^
 
 CREATE INDEX IF NOT EXISTS ix_pm_job_run_job_type_started_at
-    on "planmanagement".job_run (job_type, started_at desc)^^
+    on "planmanagement".job_run (job_type, started_at desc) ^^
 
 CREATE INDEX IF NOT EXISTS ix_pm_job_run_job_type_status
-    on "planmanagement".job_run (job_type, status)^^
+    on "planmanagement".job_run (job_type, status) ^^
 
 -- ==========================================================
 -- Plan Management BC: Outbox Table
 -- ==========================================================
 
 -- DROP TYPE IF EXISTS outbox_status;^^
-DO $$ BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'outbox_status') THEN
-        CREATE TYPE outbox_status AS ENUM ('STARTED', 'COMPLETED', 'FAILED');
-    END IF;
-END $$^^
+DO
+$$
+    BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'outbox_status') THEN
+            CREATE TYPE outbox_status AS ENUM ('STARTED', 'COMPLETED', 'FAILED');
+        END IF;
+    END
+$$^^
 
 -- DROP TABLE IF EXISTS "planmanagement".plan_changed_event_outbox CASCADE;^^
 CREATE TABLE IF NOT EXISTS "planmanagement".plan_changed_event_outbox
 (
     id            uuid          NOT NULL,
+    user_id       uuid          NOT NULL,
     created_at    TIMESTAMPTZ   NOT NULL,
     processed_at  TIMESTAMPTZ,
     payload       jsonb         NOT NULL,
     outbox_status outbox_status NOT NULL,
     version       integer       NOT NULL,
-    CONSTRAINT plan_changed_event_outbox_pkey PRIMARY KEY (id)
-)^^
+    topic_name    varchar(255)  NOT NULL,
+    type          varchar(255)  NOT NULL,
+    CONSTRAINT plan_changed_event_outbox_pkey PRIMARY KEY (id),
+    CONSTRAINT type_allowed CHECK (type IN ('DATA_CHANGED', 'NOTIFICATION'))
+) ^^

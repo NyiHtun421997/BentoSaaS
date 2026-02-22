@@ -1,0 +1,10 @@
+db_params:
+  url: postgres://postgres:admin@localhost:5432/bento_saas?currentSchema=notification
+kafka_params:
+  bootstrap_servers: localhost:9092
+  partitions: 1
+  topic: user-notification-topic
+  group_id: notification-service
+server_address: localhost
+server_port: 4005
+jwt_secret: 3419307D818FD3B5F382094D0598DC6F83C4E969268F0B412542B01DF3847A46

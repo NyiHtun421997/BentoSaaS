@@ -57,10 +57,14 @@ END $$^^
 CREATE TABLE IF NOT EXISTS "subscription".user_plan_subscription_event_outbox
 (
     id uuid NOT NULL,
+    user_id uuid NOT NULL,
     created_at TIMESTAMPTZ NOT NULL,
     processed_at TIMESTAMPTZ,
     payload jsonb NOT NULL,
     outbox_status outbox_status NOT NULL,
     version integer NOT NULL,
-    CONSTRAINT user_plan_subscription_event_outbox_pkey PRIMARY KEY (id)
+    topic_name varchar(255) NOT NULL,
+    type varchar(255) NOT NULL,
+    CONSTRAINT user_plan_subscription_event_outbox_pkey PRIMARY KEY (id),
+    CONSTRAINT type_allowed CHECK (type IN ('DATA_CHANGED', 'NOTIFICATION'))
 )^^

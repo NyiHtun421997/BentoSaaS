@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.ZoneId;
 
-import static com.nyihtuun.bentosystem.invoiceservice.InvoiceConstants.ASIA_TOKYO_ZONE;
+import static com.nyihtuun.bentosystem.domain.utility.CommonConstants.ASIA_TOKYO_ZONE;
 
 @Component
 public class InvoiceDataMapper {

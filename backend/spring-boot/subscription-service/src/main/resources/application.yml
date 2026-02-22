@@ -8,6 +8,7 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+      acks: all
     consumer:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
@@ -23,8 +24,11 @@ grpc:
     port: 9001
 
 subscription:
+  listen-topic-names: plan-changed-topic,plan-changed-notification-topic
   plan-changed-topic-name: plan-changed-topic
+  plan-changed-notification-topic-name: plan-changed-notification-topic
   user-subscription-topic-name: user-plan-subscription-topic
+  user-notification-topic-name: user-notification-topic
   group-id: subscription-service
   outbox-scheduler-fixed-rate: 10000
   outbox-scheduler-initial-delay: 10000

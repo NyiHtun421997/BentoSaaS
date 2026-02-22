@@ -1,5 +1,6 @@
 package com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.input.service;
 
+import com.google.protobuf.Message;
 import com.nyihtuun.bentosystem.domain.valueobject.PlanId;
 import com.nyihtuun.bentosystem.domain.valueobject.PlanMealId;
 import com.nyihtuun.bentosystem.domain.valueobject.SubscriptionId;
@@ -10,6 +11,7 @@ import com.nyihtuun.bentosystem.subscriptionservice.application_service.dto.Subs
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.output.client.PlanManagementServiceClient;
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.output.client.PlanData;
 import com.nyihtuun.bentosystem.subscriptionservice.application_service.ports.output.client.PlanValidationResult;
+import com.nyihtuun.bentosystem.subscriptionservice.domain.entity.Subscription;
 import com.nyihtuun.bentosystem.subscriptionservice.domain.exception.SubscriptionDomainException;
 import com.nyihtuun.bentosystem.subscriptionservice.domain.exception.SubscriptionErrorCode;
 import jakarta.validation.constraints.NotNull;
@@ -18,6 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 public interface SubscriptionCommandService {
     SubscriptionResponseDto validateAndInitiateSubscription(SubscriptionRequestDto subscriptionRequestDto, UserId userId);
@@ -29,6 +32,8 @@ public interface SubscriptionCommandService {
     List<SubscriptionResponseDto> reflectPlanChanged(PlanId planId, PlanStatus planStatus);
 
     List<SubscriptionResponseDto> reflectPlanMealsRemoved(PlanId planId, List<PlanMealId> planMealIds);
+
+    void createOutboxMessageAndPersist(SubscriptionResponseDto subscription, Supplier<Message> eventSupplier, String outboxMsgType, String topicName);
 
     default PlanData validatePlanAndPlanMeals(SubscriptionRequestDto subscriptionRequestDto) {
         PlanValidationResult<PlanData> validationResult = getPlanManagementServiceClient().validateAndFetchExistingPlanAndPlanMeals(

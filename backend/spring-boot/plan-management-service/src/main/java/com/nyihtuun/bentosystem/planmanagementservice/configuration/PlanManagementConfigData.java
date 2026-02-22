@@ -6,10 +6,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public record PlanManagementConfigData(
         String schedulerCron,
         String zone,
-        String outboundMsgTopicName,
         String outboxSchedulerFixedRate,
         String outboxSchedulerInitialDelay,
         String planChangedTopicName,
         String userSubscriptionTopicName,
+        String planChangedNotificationTopicName,
+        String userNotificationTopicName,
         String groupId
 ) {}

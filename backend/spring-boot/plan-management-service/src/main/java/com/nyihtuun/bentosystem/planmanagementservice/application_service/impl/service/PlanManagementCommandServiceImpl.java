@@ -3,7 +3,7 @@ package com.nyihtuun.bentosystem.planmanagementservice.application_service.impl.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.protobuf.Timestamp;
+import com.google.protobuf.Message;
 import com.nyihtuun.bentosystem.domain.valueobject.*;
 import com.nyihtuun.bentosystem.domain.dto.CategoryDto;
 import com.nyihtuun.bentosystem.domain.valueobject.status.PlanMealStatus;
@@ -17,6 +17,7 @@ import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.output.repository.JobRunRepository;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.output.repository.PlanChangedEventOutboxRepository;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.output.repository.PlanManagementRepository;
+import com.nyihtuun.bentosystem.planmanagementservice.configuration.PlanManagementConfigData;
 import com.nyihtuun.bentosystem.planmanagementservice.data_access.jpa_entity.JobRunStatus;
 import com.nyihtuun.bentosystem.domain.valueobject.status.OutboxStatus;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.entity.Category;
@@ -25,7 +26,7 @@ import com.nyihtuun.bentosystem.planmanagementservice.domain.entity.Plan;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.entity.PlanMeal;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.exception.PlanManagementDomainException;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.exception.PlanManagementErrorCode;
-import com.nyihtuun.bentosystem.planmanagementservice.application_service.outbox.model.PlanChangedEventOutboxMessage;
+import com.nyihtuun.bentosystem.planmanagementservice.application_service.outbox.model.PlanOutboxMessage;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.service.GenerateSchedulesResult;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.service.PeriodContext;
 import com.nyihtuun.bentosystem.planmanagementservice.domain.service.PlanManagementDomainService;
@@ -42,17 +43,18 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authorization.method.HandleAuthorizationDenied;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import plan_management.events.PlanChangedEvent;
 
 import java.time.*;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Supplier;
 
+import static com.nyihtuun.bentosystem.domain.utility.CommonConstants.*;
 import static com.nyihtuun.bentosystem.domain.utility.MessageUtil.PLAN_ERROR;
 import static com.nyihtuun.bentosystem.domain.utility.MessageUtil.toKey;
-import static com.nyihtuun.bentosystem.planmanagementservice.PlanManagementConstants.ASIA_TOKYO_ZONE;
+import static com.nyihtuun.bentosystem.planmanagementservice.application_service.impl.service.PlanEventHelper.*;
 
 @Slf4j
 @AllArgsConstructor
@@ -75,6 +77,7 @@ public class PlanManagementCommandServiceImpl implements PlanManagementCommandSe
     private final JobRunRepository jobRunRepository;
     private final ObjectMapper objectMapper;
     private final PlanChangedEventOutboxRepository planChangedEventOutboxRepository;
+    private final PlanManagementConfigData planManagementConfigData;
 
     @Override
     @Transactional
@@ -95,6 +98,34 @@ public class PlanManagementCommandServiceImpl implements PlanManagementCommandSe
         }
     }
 
+    private void createOutboxMessageAndPersist(
+            Plan plan,
+            String topicName,
+            String outboxMsgType,
+            Supplier<Message> eventSupplier
+    ) {
+        log.info("Creating outbox event for plan with id: {}.", plan.getId().getValue().toString());
+        PlanOutboxMessage planOutboxMessage = PlanOutboxMessage.builder()
+                                                               .id(UUID.randomUUID())
+                                                               .userId(plan.getProviderUserId().getValue())
+                                                               .topicName(topicName)
+                                                               .type(outboxMsgType)
+                                                               .outboxStatus(OutboxStatus.STARTED)
+                                                               .createdAt(Instant.now())
+                                                               .payload(eventSupplier.get())
+                                                               .build();
+        planChangedEventOutboxRepository.save(planOutboxMessage);
+        log.info("Outbox event: {} for plan with id: {} was created.",
+                 planOutboxMessage,
+                 plan.getId().getValue().toString());
+    }
+
+    private Plan persistPlan(Plan plan, boolean flush) {
+        Plan savedPlan = planManagementRepository.save(plan, flush);
+        log.info("Plan with id: {} is persisted", plan.getId().getValue());
+        return savedPlan;
+    }
+
     @Override
     @Transactional
     @PostAuthorize("returnObject.providerUserId.toString() == principal.toString() and hasRole('PROVIDER')")
@@ -111,37 +142,48 @@ public class PlanManagementCommandServiceImpl implements PlanManagementCommandSe
         log.info("Plan with id: {} is updated and validated", planId.getValue());
 
         Plan updatedPlan = persistPlan(plan, false);
+
+        // Persist Notification Event in Outbox Table
+        Supplier<Message> eventCreationSupplier = () -> PLAN_NOTIFICATION_EVENT_CREATION_FUNCTION.execute(
+                updatedPlan,
+                PLAN_UPDATED_NOTIFICATION_EVENT,
+                objectMapper.valueToTree(updatedPlan)
+        );
+        createOutboxMessageAndPersist(plan,
+                                      planManagementConfigData.planChangedNotificationTopicName(),
+                                      NOTIFICATION,
+                                      eventCreationSupplier);
+
         return planDataMapper.mapPlanToPlanDto(updatedPlan);
     }
 
-    private void createOutboxMessageAndePersist(PlanId planId, Plan plan, PlanStatus updatedPlan, PlanMealStatus planMealStatus) {
-        log.info("Creating outbox event for plan with id: {}.", planId);
-        PlanChangedEventOutboxMessage planChangedEventOutboxMessage = createOutboxMessage(planId, plan, updatedPlan, planMealStatus);
-        planChangedEventOutboxRepository.save(planChangedEventOutboxMessage);
-        log.info("Outbox event: {} for plan with id: {} was created.", planChangedEventOutboxMessage, planId);
-    }
-
-    private PlanChangedEventOutboxMessage createOutboxMessage(PlanId planId, Plan plan, PlanStatus planStatus, PlanMealStatus planMealStatus) {
-        Instant now = Instant.now();
-        Timestamp timestamp = Timestamp.newBuilder()
-                                       .setSeconds(now.getEpochSecond())
-                                       .setNanos(now.getNano())
-                                       .build();
-
-        PlanChangedEvent planChangedEvent = PlanChangedEvent.newBuilder()
-                                                            .setPlanId(planId.getValue().toString())
-                                                            .setCreatedAt(timestamp)
-                                                            .addAllPlanMealIds(plan.getPlanMeals().stream().map(planMeal -> planMeal.getId().getValue().toString()).toList())
-                                                            .setPlanStatus(plan_management.events.PlanStatus.valueOf(planStatus.toString()))
-                                                            .setPlanMealStatus(plan_management.events.PlanMealStatus.valueOf(planMealStatus.toString()))
-                                                            .build();
-
-        return PlanChangedEventOutboxMessage.builder()
-                                            .id(UUID.randomUUID())
-                                            .outboxStatus(OutboxStatus.STARTED)
-                                            .createdAt(Instant.now())
-                                            .payload(planChangedEvent)
-                                            .build();
+    private void checkPlanChangeAndPersistOutboxMessagesToSubscriptionService(PlanStatus planStatusBefore,
+                                                                              Plan updatedPlan,
+                                                                              Plan plan,
+                                                                              PlanStatus updatedPlanStatus,
+                                                                              PlanMealStatus planMealStatus,
+                                                                              String notificationTopicName,
+                                                                              String planChangedNotificationEventType) {
+        if (updatedPlanStatus == PlanStatus.ACTIVE || planStatusBefore != updatedPlanStatus) {
+            // Persist Plan Changed Event in Outbox Table
+            Supplier<Message> planChangedEventCreationSupplier = () -> PLAN_CHANGED_EVENT_CREATION_FUNCTION.execute(plan,
+                                                                                                                    updatedPlanStatus,
+                                                                                                                    planMealStatus);
+            createOutboxMessageAndPersist(plan,
+                                          planManagementConfigData.planChangedTopicName(),
+                                          DATA_CHANGED,
+                                          planChangedEventCreationSupplier);
+        }
+        // Persist Notification Event in Outbox Table
+        Supplier<Message> notiEventCreationSupplier = () -> PLAN_NOTIFICATION_EVENT_CREATION_FUNCTION.execute(
+                updatedPlan,
+                planChangedNotificationEventType,
+                objectMapper.valueToTree(updatedPlan)
+        );
+        createOutboxMessageAndPersist(updatedPlan,
+                                      notificationTopicName,
+                                      NOTIFICATION,
+                                      notiEventCreationSupplier);
     }
 
     @Override
@@ -153,11 +195,20 @@ public class PlanManagementCommandServiceImpl implements PlanManagementCommandSe
         Plan plan = planManagementRepository.findByPlanId(planId.getValue())
                                             .orElseThrow(() -> new PlanManagementDomainException(
                                                     PlanManagementErrorCode.INVALID_PLAN_ID));
+        PlanStatus planStatusBefore = plan.getStatus();
+
         plan.deletePlan();
         log.info("Plan with id: {} is deleted", planId.getValue());
         Plan persistedPlan = persistPlan(plan, false);
 
-        createOutboxMessageAndePersist(planId, plan, PlanStatus.CANCELLED, PlanMealStatus.UNCHANGED);
+        checkPlanChangeAndPersistOutboxMessagesToSubscriptionService(planStatusBefore,
+                                                                     persistedPlan,
+                                                                     plan,
+                                                                     PlanStatus.CANCELLED,
+                                                                     PlanMealStatus.UNCHANGED,
+                                                                     planManagementConfigData.planChangedNotificationTopicName(),
+                                                                     PLAN_DELETED_NOTIFICATION_EVENT);
+
         return planDataMapper.mapPlanToPlanDto(persistedPlan);
     }
 
@@ -178,16 +229,27 @@ public class PlanManagementCommandServiceImpl implements PlanManagementCommandSe
 
         Plan updatedPlan = persistPlan(plan, false);
 
-        if (planStatusBefore == PlanStatus.ACTIVE || planStatusBefore != updatedPlan.getStatus()) {
-            createOutboxMessageAndePersist(planId, plan, updatedPlan.getStatus(), PlanMealStatus.UNCHANGED);
+        checkPlanChangeAndPersistOutboxMessagesToSubscriptionService(planStatusBefore,
+                                                                     updatedPlan,
+                                                                     plan,
+                                                                     updatedPlan.getStatus(),
+                                                                     PlanMealStatus.UNCHANGED,
+                                                                     planManagementConfigData.planChangedNotificationTopicName(),
+                                                                     PLAN_UPDATED_NOTIFICATION_EVENT);
+        if (updatedPlan.getStatus() == PlanStatus.ACTIVE || planStatusBefore != updatedPlan.getStatus()) {
+            // Persist User Notification Event in Outbox Table
+            Supplier<Message> notiEventCreationSupplier = () -> PLAN_NOTIFICATION_EVENT_CREATION_FUNCTION.execute(
+                    updatedPlan,
+                    PLAN_UPDATED_NOTIFICATION_EVENT,
+                    objectMapper.valueToTree(updatedPlan)
+            );
+            createOutboxMessageAndPersist(updatedPlan,
+                                          planManagementConfigData.userNotificationTopicName(),
+                                          NOTIFICATION,
+                                          notiEventCreationSupplier);
         }
-        return planDataMapper.mapPlanToPlanDto(updatedPlan);
-    }
 
-    private Plan persistPlan(Plan plan, boolean flush) {
-        Plan savedPlan = planManagementRepository.save(plan, flush);
-        log.info("Plan with id: {} is persisted", plan.getId().getValue());
-        return savedPlan;
+        return planDataMapper.mapPlanToPlanDto(updatedPlan);
     }
 
     @Override
@@ -199,12 +261,23 @@ public class PlanManagementCommandServiceImpl implements PlanManagementCommandSe
         Plan plan = planManagementRepository.findByPlanId(planId.getValue())
                                             .orElseThrow(() -> new PlanManagementDomainException(
                                                     PlanManagementErrorCode.INVALID_PLAN_ID));
+        PlanStatus planStatusBefore = plan.getStatus();
+
         PlanMeal planMeal = planDataMapper.mapPlanMealRequestDtoToPlanMeal(planMealRequestDto);
         plan.addMeal(planMeal);
         plan.updatePlanStatus();
         log.info("Plan with id: {} is added to meals", planId.getValue());
 
         Plan updatedPlan = persistPlan(plan, false);
+
+        checkPlanChangeAndPersistOutboxMessagesToSubscriptionService(planStatusBefore,
+                                                                     updatedPlan,
+                                                                     plan,
+                                                                     updatedPlan.getStatus(),
+                                                                     PlanMealStatus.MEALS_ADDED,
+                                                                     planManagementConfigData.planChangedNotificationTopicName(),
+                                                                     PLAN_UPDATED_NOTIFICATION_EVENT);
+
         return planDataMapper.mapPlanToPlanDto(updatedPlan);
     }
 
@@ -224,9 +297,14 @@ public class PlanManagementCommandServiceImpl implements PlanManagementCommandSe
 
         Plan updatedPlan = persistPlan(plan, false);
 
-        if (planStatusBefore != updatedPlan.getStatus()) {
-            createOutboxMessageAndePersist(planId, plan, updatedPlan.getStatus(), PlanMealStatus.MEALS_REMOVED);
-        }
+        checkPlanChangeAndPersistOutboxMessagesToSubscriptionService(planStatusBefore,
+                                                                     updatedPlan,
+                                                                     plan,
+                                                                     updatedPlan.getStatus(),
+                                                                     PlanMealStatus.MEALS_REMOVED,
+                                                                     planManagementConfigData.planChangedNotificationTopicName(),
+                                                                     PLAN_UPDATED_NOTIFICATION_EVENT);
+
         return planDataMapper.mapPlanToPlanDto(updatedPlan);
     }
 
@@ -243,6 +321,7 @@ public class PlanManagementCommandServiceImpl implements PlanManagementCommandSe
         Plan plan = planManagementRepository.findByPlanId(planId.getValue())
                                             .orElseThrow(() -> new PlanManagementDomainException(
                                                     PlanManagementErrorCode.INVALID_PLAN_ID));
+        PlanStatus planStatusBefore = plan.getStatus();
 
         PlanMealUpdateCommand planMealUpdateCommand = planDataMapper.mapPlanMealDtoToPlanMealUpdateCommand(planMealRequestDto);
         plan.updateMeal(planMealId, planMealUpdateCommand);
@@ -250,6 +329,15 @@ public class PlanManagementCommandServiceImpl implements PlanManagementCommandSe
         log.info("Plan Meal with id: {} is updated", planMealId.getValue());
 
         Plan updatedPlan = persistPlan(plan, false);
+
+        checkPlanChangeAndPersistOutboxMessagesToSubscriptionService(planStatusBefore,
+                                                                     updatedPlan,
+                                                                     plan,
+                                                                     updatedPlan.getStatus(),
+                                                                     PlanMealStatus.MEALS_UPDATED,
+                                                                     planManagementConfigData.planChangedNotificationTopicName(),
+                                                                     PLAN_UPDATED_NOTIFICATION_EVENT);
+
         return planDataMapper.mapPlanToPlanDto(updatedPlan);
     }
 

@@ -7,8 +7,9 @@ import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.re
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.dto.request.PlanRequestDto;
 import com.nyihtuun.bentosystem.domain.dto.response.PlanMealResponseDto;
 import com.nyihtuun.bentosystem.domain.dto.response.PlanResponseDto;
-import com.nyihtuun.bentosystem.planmanagementservice.application_service.outbox.model.PlanChangedEventOutboxMessage;
+import com.nyihtuun.bentosystem.planmanagementservice.application_service.outbox.model.PlanOutboxMessage;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.input.service.BusinessCalendarService;
+import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.input.service.FileService;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.input.service.PlanManagementCommandService;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.input.service.PlanManagementQueryService;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.output.repository.JobRunRepository;
@@ -35,12 +36,13 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 import java.math.BigDecimal;
 import java.time.*;
 import java.util.*;
 
-import static com.nyihtuun.bentosystem.planmanagementservice.PlanManagementConstants.ASIA_TOKYO_ZONE;
+import static com.nyihtuun.bentosystem.domain.utility.CommonConstants.ASIA_TOKYO_ZONE;
 import static org.mockito.ArgumentMatchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -92,6 +94,12 @@ public class PlanManagementServiceTest {
 
     @MockitoBean
     private BusinessCalendarService businessCalendarService;
+
+    @MockitoBean
+    private FileService fileService;
+
+    @MockitoBean
+    private S3Presigner s3Presigner;
 
     private PlanRequestDto planRequestDto;
     private PlanRequestDto noMealPlan;
@@ -389,7 +397,10 @@ public class PlanManagementServiceTest {
                 any(Instant.class)
         );
 
-        doNothing().when(planChangedEventOutboxRepository).save(any(PlanChangedEventOutboxMessage.class));
+        doNothing().when(planChangedEventOutboxRepository).save(any(PlanOutboxMessage.class));
+
+        when(fileService.generatePresignedUrl(anyString(), anyString()))
+                .thenAnswer(invocation -> invocation.getArgument(0));
     }
 
     @Test
@@ -915,7 +926,6 @@ public class PlanManagementServiceTest {
         assertNotNull(updatedPlanMealResponseDto);
         assertEquals(NEW_PLANMEAL_PRICE, updatedPlanMealResponseDto.getPricePerMonth());
         assertEquals(10, updatedPlanMealResponseDto.getMinSubCount());
-        assertEquals("bento-standard.jpg", updatedPlanMealResponseDto.getImage());
         assertEquals("It is for testing", updatedPlanMealResponseDto.getDescription());
     }
 
@@ -982,7 +992,6 @@ public class PlanManagementServiceTest {
         assertNotNull(updatedPlanMealResponseDto);
         assertEquals(NEW_PLANMEAL_PRICE, updatedPlanMealResponseDto.getPricePerMonth());
         assertEquals(10, updatedPlanMealResponseDto.getMinSubCount());
-        assertEquals("bento-standard.jpg", updatedPlanMealResponseDto.getImage());
         assertEquals("It is for testing", updatedPlanMealResponseDto.getDescription());
     }
 

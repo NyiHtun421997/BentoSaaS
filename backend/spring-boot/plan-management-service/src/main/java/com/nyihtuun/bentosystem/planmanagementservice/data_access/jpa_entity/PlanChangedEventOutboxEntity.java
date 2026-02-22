@@ -24,6 +24,9 @@ public class PlanChangedEventOutboxEntity {
     private UUID id;
 
     @Column(nullable = false)
+    private UUID userId;
+
+    @Column(nullable = false)
     private Instant createdAt;
 
     @Column
@@ -33,10 +36,16 @@ public class PlanChangedEventOutboxEntity {
     @Column(name = "payload", columnDefinition = "jsonb", nullable = false)
     private String payload;
 
+    @Column(name = "topic_name", nullable = false)
+    private String topicName;
+
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "outbox_status", nullable = false)
     private OutboxStatus outboxStatus;
+
+    @Column(name = "type", nullable = false)
+    private String type;
 
     @Version
     private int version;

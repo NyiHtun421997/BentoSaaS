@@ -1,6 +1,6 @@
 package com.nyihtuun.bentosystem.planmanagementservice.application_service.outbox.scheduler;
 
-import com.nyihtuun.bentosystem.planmanagementservice.application_service.outbox.model.PlanChangedEventOutboxMessage;
+import com.nyihtuun.bentosystem.planmanagementservice.application_service.outbox.model.PlanOutboxMessage;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.output.message.PlanChangedMessagePublisher;
 import com.nyihtuun.bentosystem.planmanagementservice.application_service.ports.output.repository.PlanChangedEventOutboxRepository;
 import com.nyihtuun.bentosystem.domain.valueobject.status.OutboxStatus;
@@ -32,9 +32,8 @@ public class PlanChangedEventOutboxScheduler {
     @Scheduled(fixedDelayString = SCHEDULER_FIXED_RATE, initialDelayString = SCHEDULER_INITIAL_DELAY)
     public void processOutboxMessages() {
         log.info("Processing outbox messages.");
-        List<PlanChangedEventOutboxMessage> planChangedEventOutboxMessages = planChangedEventOutboxRepository.findByOutboxStatus(
-                OutboxStatus.STARTED);
-        planChangedEventOutboxMessages.forEach(planChangedEventOutboxMessage ->
+        List<PlanOutboxMessage> planOutboxMessages = planChangedEventOutboxRepository.findByOutboxStatus(OutboxStatus.STARTED);
+        planOutboxMessages.forEach(planChangedEventOutboxMessage ->
                                                {
                                                    log.info("Publishing PlanChangedEvent: {}", planChangedEventOutboxMessage);
                                                    planChangedMessagePublisher.publish(planChangedEventOutboxMessage,
@@ -42,31 +41,31 @@ public class PlanChangedEventOutboxScheduler {
                                                });
     }
 
-    private BiConsumer<SendResult<String, byte[]>, Throwable> getCallback(PlanChangedEventOutboxMessage planChangedEventOutboxMessage) {
+    private BiConsumer<SendResult<String, byte[]>, Throwable> getCallback(PlanOutboxMessage planOutboxMessage) {
         return (sendResult, throwable) -> {
             if (throwable == null) {
                 RecordMetadata metadata = sendResult.getRecordMetadata();
                 log.info(
                         "Received new metadata from Kafka for PlanChangedEvent: {}. Topic: {}; Partition {}; Offset {}; Timestamp {}, at time {}",
-                        planChangedEventOutboxMessage,
+                        planOutboxMessage,
                         metadata.topic(),
                         metadata.partition(),
                         metadata.offset(),
                         metadata.timestamp(),
                         System.nanoTime());
 
-                changeOutboxStatusAndPersist(planChangedEventOutboxMessage, OutboxStatus.COMPLETED);
+                changeOutboxStatusAndPersist(planOutboxMessage, OutboxStatus.COMPLETED);
             } else {
-                log.error("Error occurred while publishing PlanChangedEvent: {}", planChangedEventOutboxMessage, throwable);
-                changeOutboxStatusAndPersist(planChangedEventOutboxMessage, OutboxStatus.FAILED);
+                log.error("Error occurred while publishing PlanChangedEvent: {}", planOutboxMessage, throwable);
+                changeOutboxStatusAndPersist(planOutboxMessage, OutboxStatus.FAILED);
             }
         };
     }
 
-    private void changeOutboxStatusAndPersist(PlanChangedEventOutboxMessage planChangedEventOutboxMessage,
+    private void changeOutboxStatusAndPersist(PlanOutboxMessage planOutboxMessage,
                                               OutboxStatus outboxStatus) {
         PlanChangedEventOutboxEntity planChangedEventOutboxEntity = mapper.outboxMessageToOutboxEntity(
-                planChangedEventOutboxMessage);
+                planOutboxMessage);
 
         planChangedEventOutboxEntity.setOutboxStatus(outboxStatus);
         planChangedEventOutboxEntity.setProcessedAt(Instant.now());

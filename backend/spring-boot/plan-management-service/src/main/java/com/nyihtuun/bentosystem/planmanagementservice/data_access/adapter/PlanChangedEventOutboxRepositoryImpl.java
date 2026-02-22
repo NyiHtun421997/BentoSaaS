@@ -5,7 +5,7 @@ import com.nyihtuun.bentosystem.planmanagementservice.data_access.jpa_entity.Pla
 import com.nyihtuun.bentosystem.domain.valueobject.status.OutboxStatus;
 import com.nyihtuun.bentosystem.planmanagementservice.data_access.jpa_repository.PlanChangedEventOutboxJpaRepository;
 import com.nyihtuun.bentosystem.planmanagementservice.data_access.mapper.PlanChangedEventOutboxDataAccessMapper;
-import com.nyihtuun.bentosystem.planmanagementservice.application_service.outbox.model.PlanChangedEventOutboxMessage;
+import com.nyihtuun.bentosystem.planmanagementservice.application_service.outbox.model.PlanOutboxMessage;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -19,13 +19,13 @@ public class PlanChangedEventOutboxRepositoryImpl implements PlanChangedEventOut
     private final PlanChangedEventOutboxDataAccessMapper mapper;
 
     @Override
-    public void save(PlanChangedEventOutboxMessage planChangedEventOutboxMessage) {
-        PlanChangedEventOutboxEntity planChangedEventOutboxEntity = mapper.outboxMessageToOutboxEntity(planChangedEventOutboxMessage);
+    public void save(PlanOutboxMessage planOutboxMessage) {
+        PlanChangedEventOutboxEntity planChangedEventOutboxEntity = mapper.outboxMessageToOutboxEntity(planOutboxMessage);
         mapper.outboxEntityToOutboxMessage(planChangedEventOutboxJpaRepository.save(planChangedEventOutboxEntity));
     }
 
     @Override
-    public List<PlanChangedEventOutboxMessage> findByOutboxStatus(OutboxStatus outboxStatus) {
+    public List<PlanOutboxMessage> findByOutboxStatus(OutboxStatus outboxStatus) {
         return planChangedEventOutboxJpaRepository.findAllByOutboxStatus(outboxStatus)
                                                   .stream()
                                                   .map(mapper::outboxEntityToOutboxMessage)

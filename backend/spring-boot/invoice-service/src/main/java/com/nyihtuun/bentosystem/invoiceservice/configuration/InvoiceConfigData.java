@@ -10,5 +10,8 @@ public record InvoiceConfigData(
         String jobParamIssuedAt,
         String jobParamRunId,
         String schedulerCron,
-        String zone
+        String zone,
+        String userNotificationTopicName,
+        String outboxSchedulerFixedRate,
+        String outboxSchedulerInitialDelay
 ) { }

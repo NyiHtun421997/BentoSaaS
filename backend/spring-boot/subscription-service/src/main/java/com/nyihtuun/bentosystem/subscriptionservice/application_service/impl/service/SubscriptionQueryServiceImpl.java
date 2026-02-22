@@ -60,4 +60,13 @@ public class SubscriptionQueryServiceImpl implements SubscriptionQueryService {
                                      .map(subscriptionDataMapper::mapSubscriptionToSubscriptionDto)
                                      .toList();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SubscriptionResponseDto> getSubscriptionsByPlanId(UUID planId) {
+        return subscriptionRepository.findByPlanId(planId)
+                                     .stream()
+                                     .map(subscriptionDataMapper::mapSubscriptionToSubscriptionDto)
+                                     .toList();
+    }
 }

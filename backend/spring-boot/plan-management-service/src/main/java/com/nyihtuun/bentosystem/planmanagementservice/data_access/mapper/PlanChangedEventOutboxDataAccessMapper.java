@@ -3,35 +3,55 @@ package com.nyihtuun.bentosystem.planmanagementservice.data_access.mapper;
 import com.google.protobuf.Message;
 import com.google.protobuf.util.JsonFormat;
 import com.nyihtuun.bentosystem.planmanagementservice.data_access.jpa_entity.PlanChangedEventOutboxEntity;
-import com.nyihtuun.bentosystem.planmanagementservice.application_service.outbox.model.PlanChangedEventOutboxMessage;
+import com.nyihtuun.bentosystem.planmanagementservice.application_service.outbox.model.PlanOutboxMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import plan_management.events.PlanChangedEvent;
+
+import java.util.Map;
 
 @Slf4j
 @Component
 public class PlanChangedEventOutboxDataAccessMapper {
 
-    public PlanChangedEventOutboxEntity outboxMessageToOutboxEntity(PlanChangedEventOutboxMessage planChangedEventOutboxMessage) {
+    private final Map<String, OutboxPayloadReader> outboxPayloadReaderMap;
+
+    public PlanChangedEventOutboxDataAccessMapper(Map<String, OutboxPayloadReader> outboxPayloadReaderMap) {
+        this.outboxPayloadReaderMap = outboxPayloadReaderMap;
+    }
+
+    public PlanChangedEventOutboxEntity outboxMessageToOutboxEntity(PlanOutboxMessage planOutboxMessage) {
         return PlanChangedEventOutboxEntity.builder()
-                                           .id(planChangedEventOutboxMessage.getId())
-                                           .createdAt(planChangedEventOutboxMessage.getCreatedAt())
-                                           .processedAt(planChangedEventOutboxMessage.getProcessedAt())
-                                           .payload(writePayloadAsString(planChangedEventOutboxMessage.getPayload()))
-                                           .outboxStatus(planChangedEventOutboxMessage.getOutboxStatus())
-                                           .version(planChangedEventOutboxMessage.getVersion())
+                                           .id(planOutboxMessage.getId())
+                                           .userId(planOutboxMessage.getUserId())
+                                           .createdAt(planOutboxMessage.getCreatedAt())
+                                           .processedAt(planOutboxMessage.getProcessedAt())
+                                           .type(planOutboxMessage.getType())
+                                           .payload(writePayloadAsString(planOutboxMessage.getPayload()))
+                                           .topicName(planOutboxMessage.getTopicName())
+                                           .outboxStatus(planOutboxMessage.getOutboxStatus())
+                                           .version(planOutboxMessage.getVersion())
                                            .build();
     }
 
-    public PlanChangedEventOutboxMessage outboxEntityToOutboxMessage(PlanChangedEventOutboxEntity planChangedEventOutboxEntity) {
-        return PlanChangedEventOutboxMessage.builder()
-                                            .id(planChangedEventOutboxEntity.getId())
-                                            .createdAt(planChangedEventOutboxEntity.getCreatedAt())
-                                            .processedAt(planChangedEventOutboxEntity.getProcessedAt())
-                                            .payload(readPayloadFromString(planChangedEventOutboxEntity.getPayload()))
-                                            .outboxStatus(planChangedEventOutboxEntity.getOutboxStatus())
-                                            .version(planChangedEventOutboxEntity.getVersion())
-                                            .build();
+    public PlanOutboxMessage outboxEntityToOutboxMessage(PlanChangedEventOutboxEntity planChangedEventOutboxEntity) {
+        OutboxPayloadReader outboxPayloadReader = outboxPayloadReaderMap.get(planChangedEventOutboxEntity.getType());
+        if (outboxPayloadReader == null) {
+            throw new RuntimeException("No outbox payload reader found for type: " + planChangedEventOutboxEntity.getType());
+        }
+
+        Message payload = outboxPayloadReader.read(planChangedEventOutboxEntity.getPayload());
+
+        return PlanOutboxMessage.builder()
+                                .id(planChangedEventOutboxEntity.getId())
+                                .userId(planChangedEventOutboxEntity.getUserId())
+                                .createdAt(planChangedEventOutboxEntity.getCreatedAt())
+                                .processedAt(planChangedEventOutboxEntity.getProcessedAt())
+                                .topicName(planChangedEventOutboxEntity.getTopicName())
+                                .type(planChangedEventOutboxEntity.getType())
+                                .payload(payload)
+                                .outboxStatus(planChangedEventOutboxEntity.getOutboxStatus())
+                                .version(planChangedEventOutboxEntity.getVersion())
+                                .build();
     }
 
     private String writePayloadAsString(Message payload) {
@@ -43,19 +63,6 @@ public class PlanChangedEventOutboxDataAccessMapper {
         } catch (Exception e) {
             log.error("Could not write PlanChangedEvent as string!", e);
             throw new RuntimeException("Could not write PlanChangedEvent as string!", e);
-        }
-    }
-
-    private PlanChangedEvent readPayloadFromString(String payload) {
-        try {
-            PlanChangedEvent.Builder builder = PlanChangedEvent.newBuilder();
-            JsonFormat.parser()
-                      .ignoringUnknownFields()
-                      .merge(payload, builder);
-            return builder.build();
-        } catch (Exception e) {
-            log.error("Could not read PlanChangedEvent from string!", e);
-            throw new RuntimeException("Could not read PlanChangedEvent from string!", e);
         }
     }
 }
