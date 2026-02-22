@@ -1,10 +1,9 @@
 syntax = "proto3";
+package notification_event;
 
-package plan_management.notification_events;
+option go_package = "nyihtuun.com/bentosystem/protobuf/notification_event";
 
 import "google/protobuf/struct.proto";
-
-option java_multiple_files = true;
 
 message PlanManagementNotificationEvent {
   string user_id = 1;

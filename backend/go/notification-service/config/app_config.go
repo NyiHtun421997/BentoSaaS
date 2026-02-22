@@ -10,17 +10,18 @@ import (
 type Config struct {
 	DBParams struct {
 		Url string `mapstructure:"url"`
-	} `mapstructure:"db_params"`
+	} `mapstructure:"db-params"`
 
 	KafkaParams struct {
-		BootstrapServers []string `mapstructure:"bootstrap_servers"`
+		BootstrapServers []string `mapstructure:"bootstrap-servers"`
 		Partition        int      `mapstructure:"partition"`
-		TopicName        string   `mapstructure:"topic_name"`
-		GroupID          string   `mapstructure:"group_id"`
-	}
-	ServerAddress string `mapstructure:"server_address"`
-	ServerPort    int    `mapstructure:"server_port"`
-	JwtSecret     string `mapstructure:"jwt_secret"`
+		TopicName        string   `mapstructure:"topic-name"`
+		GroupID          string   `mapstructure:"group-id"`
+	} `mapstructure:"kafka-params"`
+	ServerAddress string `mapstructure:"server-address"`
+	ServerPort    int    `mapstructure:"server-port"`
+	JwtSecret     string `mapstructure:"jwt-secret"`
+	CleanupCron   string `mapstructure:"cleanup-cron"`
 }
 
 var Cfg Config
@@ -30,7 +31,7 @@ func LoadConfig() {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
 
-	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
 	viper.SetEnvPrefix("NOTI")
 	viper.AutomaticEnv()
 

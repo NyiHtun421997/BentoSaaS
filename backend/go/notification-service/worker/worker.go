@@ -3,12 +3,15 @@ package worker
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
 	"time"
 
 	"github.com/IBM/sarama"
+	"github.com/google/uuid"
+	"google.golang.org/protobuf/proto"
 	"nyihtuun.com/bentosystem/config"
+	"nyihtuun.com/bentosystem/models"
+	protobuf "nyihtuun.com/bentosystem/protobuf"
 )
 
 type notificationConsumerHandler struct{}
@@ -17,8 +20,28 @@ func (notificationConsumerHandler) Setup(sarama.ConsumerGroupSession) error   { 
 func (notificationConsumerHandler) Cleanup(sarama.ConsumerGroupSession) error { return nil }
 func (h notificationConsumerHandler) ConsumeClaim(sess sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
 	for msg := range claim.Messages() {
-		msg.Value
-		fmt.Printf("Message topic:%q partition:%d offset:%d\n", msg.Topic, msg.Partition, msg.Offset)
+		event := &protobuf.PlanManagementNotificationEvent{}
+		err := proto.Unmarshal(msg.Value, event)
+		if err != nil {
+			log.Println("Failed to unmarshal message:", err)
+			continue
+		}
+
+		log.Printf("Message topic:%q partition:%d offset:%d\n", msg.Topic, msg.Partition, msg.Offset)
+		log.Printf("Received notification event: %v\n", event)
+
+		var payloadBytes []byte
+		if event.GetPayload() != nil {
+			payloadBytes, _ = event.GetPayload().MarshalJSON()
+		}
+		newNotification := models.New(uuid.MustParse(event.UserId), uuid.MustParse(event.PlanId),
+			event.NotificationEventType, payloadBytes)
+
+		if err = newNotification.Save(); err != nil {
+			log.Println("Failed to save notification:", err)
+			continue
+		}
+
 		sess.MarkMessage(msg, "")
 	}
 	return nil
@@ -42,7 +65,7 @@ func StartConsumer(ctx context.Context) {
 	defer func(consumerGroup sarama.ConsumerGroup) {
 		err := consumerGroup.Close()
 		if err != nil {
-			log.Fatalf("Failed to close consumer group: %v", err)
+			log.Printf("Failed to close consumer group: %v", err)
 		}
 	}(consumerGroup)
 

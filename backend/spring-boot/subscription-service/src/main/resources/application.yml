@@ -24,7 +24,6 @@ grpc:
     port: 9001
 
 subscription:
-  listen-topic-names: plan-changed-topic,plan-changed-notification-topic
   plan-changed-topic-name: plan-changed-topic
   plan-changed-notification-topic-name: plan-changed-notification-topic
   user-subscription-topic-name: user-plan-subscription-topic

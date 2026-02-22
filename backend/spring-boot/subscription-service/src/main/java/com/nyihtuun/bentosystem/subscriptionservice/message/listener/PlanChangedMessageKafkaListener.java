@@ -16,8 +16,7 @@ import subscription.notification_events.PlanManagementNotificationEvent;
 
 import java.util.UUID;
 
-import static com.nyihtuun.bentosystem.subscriptionservice.SubscriptionConstants.SUBSCRIPTION_GROUP_ID;
-import static com.nyihtuun.bentosystem.subscriptionservice.SubscriptionConstants.SUBSCRIPTION_LISTEN_TOPIC_NAMES;
+import static com.nyihtuun.bentosystem.subscriptionservice.SubscriptionConstants.*;
 
 @Slf4j
 @AllArgsConstructor
@@ -27,7 +26,7 @@ public class PlanChangedMessageKafkaListener {
     private final PlanChangedMessageListener planChangedMessageListener;
     private final SubscriptionConfigData subscriptionConfigData;
 
-    @KafkaListener(topics = SUBSCRIPTION_LISTEN_TOPIC_NAMES, id = SUBSCRIPTION_GROUP_ID)
+    @KafkaListener(topics = {SUBSCRIPTION_PLAN_CHANGED_TOPIC_NAME, SUBSCRIPTION_PLAN_CHANGED_NOTIFICATION_TOPIC_NAME}, id = SUBSCRIPTION_GROUP_ID)
     public void consumeEvent(byte[] event, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
         try {
             log.info("Received PlanChangedEvent");

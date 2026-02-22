@@ -24,6 +24,14 @@ func InitNotificationDB() {
 	dbConfig.MaxConns = 10
 	dbConfig.MaxConnIdleTime = time.Minute * 3
 
+	// Ensure search_path is set even if the connection URL doesn't include it.
+	if dbConfig.ConnConfig.RuntimeParams == nil {
+		dbConfig.ConnConfig.RuntimeParams = map[string]string{}
+	}
+	if _, ok := dbConfig.ConnConfig.RuntimeParams["search_path"]; !ok {
+		dbConfig.ConnConfig.RuntimeParams["search_path"] = "notification"
+	}
+
 	dbConfig.AfterConnect = func(ctx context.Context, conn *pgx.Conn) error {
 		pgxuuid.Register(conn.TypeMap())
 		return nil
@@ -41,21 +49,21 @@ func createTable() {
 	createSchema := `CREATE SCHEMA IF NOT EXISTS notification`
 	_, err := DBpool.Exec(context.Background(), createSchema)
 	if err != nil {
-		log.Fatalf("unable to create schema: %v\n", err)
+		log.Printf("unable to create schema: %v\n", err)
 		return
 	}
 
 	createUUIDExtension := `CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`
 	_, err = DBpool.Exec(context.Background(), createUUIDExtension)
 	if err != nil {
-		log.Fatalf("unable to create uuid-ossp extension: %v\n", err)
-		return
+		log.Printf("warning: unable to create uuid-ossp extension (may require superuser): %v\n", err)
 	}
 
 	createNotificationTable := `
 	CREATE TABLE IF NOT EXISTS "notification".notification (
 	    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 	    user_id UUID NOT NULL,
+	    plan_id UUID NOT NULL,
 	    type VARCHAR(255) NOT NULL,
 	    payload JSONB,
 	    read BOOLEAN DEFAULT FALSE,
@@ -66,7 +74,7 @@ func createTable() {
 	`
 	_, err = DBpool.Exec(context.Background(), createNotificationTable)
 	if err != nil {
-		log.Fatalf("unable to create notifications table: %v\n", err)
+		log.Printf("unable to create notifications table: %v\n", err)
 	}
 }
 

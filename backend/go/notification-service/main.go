@@ -14,6 +14,7 @@ import (
 	"nyihtuun.com/bentosystem/config"
 	"nyihtuun.com/bentosystem/repository"
 	"nyihtuun.com/bentosystem/routes"
+	"nyihtuun.com/bentosystem/scheduler"
 	"nyihtuun.com/bentosystem/worker"
 )
 
@@ -26,6 +27,7 @@ func main() {
 	defer stop()
 
 	go worker.StartConsumer(ctx)
+	go scheduler.NotificationCleaner(ctx)
 
 	router := gin.Default()
 	routes.RegisterRoutes(router)
