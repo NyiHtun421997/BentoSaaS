@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"log"
 	"time"
@@ -11,14 +12,14 @@ import (
 )
 
 type Notification struct {
-	ID               int64     `json:"id"`
-	UserID           uuid.UUID `json:"userId"`
-	PlanID           uuid.UUID `json:"planId"`
-	NotificationType string    `json:"notificationType"`
-	Payload          json.RawMessage
-	Read             bool      `json:"read"`
-	CreatedAt        time.Time `json:"createdAt"`
-	ReadAt           time.Time `json:"readAt"`
+	ID               int64           `json:"id"`
+	UserID           uuid.UUID       `json:"userId"`
+	PlanID           uuid.UUID       `json:"planId"`
+	NotificationType string          `json:"notificationType"`
+	Payload          json.RawMessage `json:"payload"`
+	Read             bool            `json:"read"`
+	CreatedAt        time.Time       `json:"createdAt"`
+	ReadAt           sql.NullTime    `json:"readAt"`
 }
 
 func New(userId uuid.UUID, planId uuid.UUID, notificationType string, payload json.RawMessage) *Notification {
@@ -32,7 +33,7 @@ func New(userId uuid.UUID, planId uuid.UUID, notificationType string, payload js
 
 func GetNotificationsByUserId(userId uuid.UUID) ([]Notification, error) {
 	var notifications []Notification
-	query := `SELECT id, user_id, plan_id, type, payload, read, created_at, read_at FROM "notification".notification WHERE user_id = $1 AND read = false`
+	query := `SELECT id, user_id, plan_id, type, payload, read, created_at, read_at FROM "notification".notification WHERE user_id = $1`
 	rows, err := repository.DBpool.Query(context.Background(), query, userId)
 	if err != nil {
 		log.Printf("unable to query rows: %v\n", err)

@@ -7,6 +7,7 @@
 
 .app-nav {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
@@ -40,6 +41,7 @@
   gap: 12px;
   color: #64748b;
   font-size: 14px;
+  margin-left: auto;
 }
 
 .nav-signout:hover {
@@ -55,7 +57,7 @@
   }
 
   .app-nav-links {
-    gap: 8px;
+    gap: 4px;
     overflow-x: auto;
     white-space: nowrap;
     -webkit-overflow-scrolling: touch;
@@ -64,11 +66,10 @@
 
   .app-nav-links a {
     flex: 0 0 auto; /* keep each link as a chip */
-    padding: 6px 8px;
+    padding: 3px 4px;
     border-radius: 10px;
     font-size: 13px;
   }
-
   .app-nav-meta span {
     display: none; /* hide email on small */
   }

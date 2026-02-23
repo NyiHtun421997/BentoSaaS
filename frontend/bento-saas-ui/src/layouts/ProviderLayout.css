@@ -5,6 +5,7 @@
 
 .provider-nav {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
@@ -37,10 +38,22 @@
   gap: 12px;
   color: #64748b;
   font-size: 14px;
+  margin-left: auto;
 }
 
 .nav-signout:hover {
   border-color: #e2e8f0;
   color: #0f172a;
   background: rgba(15, 23, 42, 0.03);
+}
+
+@media (max-width: 640px) {
+  .provider-nav {
+    padding: 12px 12px;
+    gap: 8px;
+  }
+
+  .provider-nav-links {
+    gap: 4px;
+  }
 }

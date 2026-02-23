@@ -155,3 +155,18 @@ export type AuthenticatedUser = {
   effectiveRole: Role;
   email: string;
 };
+
+export type NotificationType =
+  | "PLAN_UPDATED_EVENT"
+  | "PLAN_DELETED_EVENT"
+  | "INVOICE_ISSUED_EVENT";
+
+export type NotificationDto = {
+  id: number;
+  userId: UUID;
+  planId: UUID;
+  notificationType: NotificationType;
+  payload: unknown;
+  read: boolean;
+  createdAt: string;
+};

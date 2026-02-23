@@ -861,7 +861,7 @@
               "formdata": [
                 {
                   "key": "username",
-                  "value": "test@gmail.com",
+                  "value": "test1@gmail.com",
                   "type": "text",
                   "uuid": "08df9975-664a-4461-983c-bbbed5aa9616"
                 },
@@ -1135,53 +1135,118 @@
         }
       ],
       "id": "9b228583-fdb5-4ed6-a279-be660872d3e3"
+    },
+    {
+      "name": "Notification",
+      "item": [
+        {
+          "name": "Get Notifications",
+          "id": "b73ce0fb-89ea-4966-90d6-bbb5e6babede",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzM4NCJ9.eyJyb2xlIjpbeyJhdXRob3JpdHkiOiJST0xFX1BST1ZJREVSIn0seyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sInN1YiI6IjdlZDg5MjBmLTVkZGMtNGM1NS05ZjhjLWI5MGU2ZDhlOTc4NSIsImVtYWlsIjoidGVzdEBnbWFpbC5jb20iLCJpYXQiOjE3NzE4Mjk2MTYsImV4cCI6MTc3MTgzNjgxNn0.BtOc5u_ljS6SCvK0UQSOib-3e8IidDLjslX66ZnNIlOYyXIKCPSwy1fgr398wxJJ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{notification_sub_path}}{{api_version}}",
+              "host": [
+                "{{base_url}}{{notification_sub_path}}{{api_version}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mark As Read",
+          "id": "77d4f452-ab5f-4f16-934d-bdd9f5c3f2e3",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzM4NCJ9.eyJyb2xlIjpbeyJhdXRob3JpdHkiOiJST0xFX1BST1ZJREVSIn0seyJhdXRob3JpdHkiOiJST0xFX1VTRVIifV0sInN1YiI6IjdlZDg5MjBmLTVkZGMtNGM1NS05ZjhjLWI5MGU2ZDhlOTc4NSIsImVtYWlsIjoidGVzdEBnbWFpbC5jb20iLCJpYXQiOjE3NzE4Mjk2MTYsImV4cCI6MTc3MTgzNjgxNn0.BtOc5u_ljS6SCvK0UQSOib-3e8IidDLjslX66ZnNIlOYyXIKCPSwy1fgr398wxJJ",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}{{notification_sub_path}}{{api_version}}/3",
+              "host": [
+                "{{base_url}}{{notification_sub_path}}{{api_version}}"
+              ],
+              "path": [
+                "3"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "a1579300-c8d3-49d2-8635-e219838283e7"
     }
   ],
   "variable": [
     {
-      "id": "a0e70cf0-297a-404d-8c1b-7958df0d5ebf",
+      "id": "55eccead-d189-4198-86a4-aed1c4eec495",
       "key": "base_url",
       "value": ""
     },
     {
-      "id": "edce14f8-07c1-4916-89a5-53c0bffef593",
+      "id": "3d2e743b-ab2f-4d50-9cae-bec47b059134",
       "key": "plan_management_sub_path",
       "value": ""
     },
     {
-      "id": "c0931211-0921-4a16-9df0-b157a9b40fe4",
+      "id": "69a2b8fc-c7b6-4318-8ef9-eefac71cd856",
       "key": "api_version",
       "value": ""
     },
     {
-      "id": "199d8fb7-78e7-4158-8596-4bc011e9c043",
+      "id": "a1dcd445-6094-4ac8-baa5-70fd9cf60c21",
       "key": "plan",
       "value": ""
     },
     {
-      "id": "d207ac28-b98d-4499-b5a0-b5420de563de",
+      "id": "39c69839-e2dd-4f3d-8da1-fc49d528db2e",
       "key": "provider_plan",
       "value": ""
     },
     {
-      "id": "edc92b3e-c8e1-43c6-9c35-fef7641dfc02",
+      "id": "4cc896e2-2bca-4949-a7d5-f5ba39287026",
       "key": "meal",
       "value": ""
     },
     {
-      "id": "56b7a9a1-ca7a-4743-a5e6-c6bc0edd9450",
+      "id": "289130bf-82d7-4462-8ed5-71580cf611b1",
       "key": "subscription_sub_path",
       "value": ""
     },
     {
-      "id": "5b2457fa-8298-40c9-abc7-7e08bd315002",
+      "id": "4b90656e-8a75-46b6-b01a-f2fa83c59514",
       "key": "inventory_sub_path",
       "value": ""
     },
     {
-      "id": "f3669a29-be60-4b8f-a2f5-e9554e38134f",
+      "id": "c47a24d1-693f-40d3-a042-389ede5447f1",
       "key": "user_sub_path",
       "value": ""
+    },
+    {
+      "id": "4a7e344b-7be7-4696-b6dc-7d49a4ee007e",
+      "key": "notification_sub_path",
+      "value": "",
+      "type": "default"
     }
   ]
 }

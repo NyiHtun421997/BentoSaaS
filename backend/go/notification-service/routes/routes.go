@@ -9,6 +9,6 @@ import (
 func RegisterRoutes(server *gin.Engine) {
 	authenticated := server.Group("/")
 	authenticated.Use(middlewares.Authenticate)
-	authenticated.GET("/notifications", handlers.GetNotificationsByUserId)
-	authenticated.PUT("/notifications/:id", handlers.MarkNotificationsAsRead)
+	authenticated.GET("/notification/v1", handlers.GetNotificationsByUserId)
+	authenticated.PUT("/notification/v1/:id", handlers.MarkNotificationsAsRead)
 }

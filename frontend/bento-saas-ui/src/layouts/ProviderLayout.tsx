@@ -1,5 +1,5 @@
 import { Link, Outlet, useNavigate } from "react-router-dom";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import AuthContext from "../state/createContext";
 import "./ProviderLayout.css";
 import {
@@ -10,6 +10,9 @@ import {
   FiUser,
   FiGrid,
 } from "react-icons/fi";
+import { apiGet, apiPut } from "../lib/api/http";
+import type { NotificationDto } from "../lib/api/types";
+import { buildNotificationView } from "../lib/services/notificationService";
 
 const ProviderLayout = () => {
   const authContext = useContext(AuthContext);
@@ -18,7 +21,38 @@ const ProviderLayout = () => {
   const navigate = useNavigate();
 
   const [menuOpen, setMenuOpen] = useState(false);
+  const [notiOpen, setNotiOpen] = useState(false);
+  const [notifications, setNotifications] = useState<NotificationDto[]>([]);
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const notiRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      const data = await apiGet<NotificationDto[]>(`/notification/api/v1`);
+      setNotifications(data);
+    };
+    fetchNotifications();
+  }, []);
+
+  const unreadCount = useMemo(
+    () => notifications.filter((n) => !n.read).length,
+    [notifications],
+  );
+
+  const sortedNotifications = useMemo(() => {
+    return [...notifications].sort((a, b) => {
+      const ta = a.createdAt ? Date.parse(a.createdAt) : 0;
+      const tb = b.createdAt ? Date.parse(b.createdAt) : 0;
+      return tb - ta;
+    });
+  }, [notifications]);
+
+  const markNotiAsRead = async (id: number) => {
+    await apiPut<NotificationDto>(`/notification/api/v1/${id}`);
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n)),
+    );
+  };
 
   useEffect(() => {
     const onDown = (e: MouseEvent) => {
@@ -137,13 +171,56 @@ const ProviderLayout = () => {
           ) : null}
 
           {/* Notification button (right side) */}
-          <button
-            type="button"
-            className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-            aria-label="Notifications"
-          >
-            <FiBell aria-hidden="true" />
-          </button>
+          <div className="relative" ref={notiRef}>
+            <button
+              onClick={() => {
+                setNotiOpen((v) => {
+                  const next = !v;
+                  return next;
+                });
+              }}
+            >
+              <FiBell />
+              {unreadCount > 0 && (
+                <span className="ml-1 text-xs font-bold text-red-600">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+
+            {notiOpen && (
+              <div className="absolute right-0 mt-2 w-80 rounded-xl border bg-white shadow-lg">
+                <div className="max-h-72 overflow-y-auto p-2">
+                  {sortedNotifications.length === 0 ? (
+                    <div>No notifications</div>
+                  ) : (
+                    sortedNotifications.map((noti) => {
+                      const view = buildNotificationView(noti, true);
+
+                      return (
+                        <button
+                          key={noti.id}
+                          className={`mb-2 w-full rounded-lg border p-3 text-left hover:bg-slate-100 ${
+                            noti.read ? "bg-white" : "bg-indigo-50"
+                          }`}
+                          onClick={() => {
+                            setNotiOpen(false);
+                            navigate(view.to);
+                            markNotiAsRead(noti.id);
+                          }}
+                        >
+                          <div className="font-semibold">{view.title}</div>
+                          <div className="text-sm text-slate-600">
+                            {view.subtitle}
+                          </div>
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </nav>
       <Outlet />

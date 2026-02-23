@@ -33,4 +33,10 @@ public class FallbackController {
         log.error("Resolved to fallback when connecting to invoice-service from api-gateway.");
         return ResponseEntity.status(500).body("Service Unavailable! Please try again later.");
     }
+
+    @RequestMapping("/notification")
+    public ResponseEntity<String> fallbackNotification() {
+        log.error("Resolved to fallback when connecting to notification-service from api-gateway.");
+        return ResponseEntity.status(500).body("Service Unavailable! Please try again later.");
+    }
 }

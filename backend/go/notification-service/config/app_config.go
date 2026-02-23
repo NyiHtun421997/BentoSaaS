@@ -14,7 +14,6 @@ type Config struct {
 
 	KafkaParams struct {
 		BootstrapServers []string `mapstructure:"bootstrap-servers"`
-		Partition        int      `mapstructure:"partition"`
 		TopicName        string   `mapstructure:"topic-name"`
 		GroupID          string   `mapstructure:"group-id"`
 	} `mapstructure:"kafka-params"`

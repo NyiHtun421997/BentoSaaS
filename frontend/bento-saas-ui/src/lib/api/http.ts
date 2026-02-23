@@ -168,7 +168,7 @@ export const apiPost = <T>(
 
 export const apiPut = <T>(
   path: string,
-  body: unknown,
+  body?: unknown,
   extraHeaders?: Record<string, string>,
 ) => apiRequest<T>("PUT", path, body, extraHeaders);
 
