@@ -1,5 +1,6 @@
 package com.nyihtuun.bentosystem.invoiceservice.application_service.impl.service;
 
+import com.nyihtuun.bentosystem.domain.valueobject.status.InvoiceStatus;
 import com.nyihtuun.bentosystem.invoiceservice.application_service.dto.response.InvoiceResponseDto;
 import com.nyihtuun.bentosystem.invoiceservice.application_service.mapper.InvoiceDataMapper;
 import com.nyihtuun.bentosystem.invoiceservice.application_service.ports.input.service.InvoiceService;
@@ -49,8 +50,6 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     @Transactional
-    @PostAuthorize("returnObject.userId.toString() == principal.toString()")
-    @HandleAuthorizationDenied(handlerClass = GenericAccessDeniedAuthorizationHandler.class)
     public InvoiceResponseDto makePayment(UUID invoiceId) {
         log.info("Making payment for invoice with id: {}", invoiceId);
         Invoice invoice = findInvoiceById(invoiceId);
@@ -62,31 +61,23 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
-    @Transactional
-    @PostAuthorize("returnObject.userId.toString() == principal.toString()")
-    @HandleAuthorizationDenied(handlerClass = GenericAccessDeniedAuthorizationHandler.class)
-    public InvoiceResponseDto cancelPayment(UUID invoiceId) {
-        log.info("Cancelling payment for invoice with id: {}", invoiceId);
+    public InvoiceResponseDto updateInvoiceStatus(UUID invoiceId, InvoiceStatus invoiceStatus) {
+        log.info("Updating invoice status for invoice with id: {}", invoiceId);
         Invoice invoice = findInvoiceById(invoiceId);
 
-        invoice.cancel();
-        log.info("Invoice with id: {} is cancelled", invoiceId);
-        Invoice saved = invoiceRepository.save(invoice);
-        return invoiceDataMapper.mapInvoiceToInvoiceResponseDto(saved);
-    }
+        if (invoiceStatus == InvoiceStatus.FAILED) {
+            invoice.markFailed();
+            log.info("Invoice with id: {} is marked as failed", invoiceId);
+        }
 
-    @Override
-    @Transactional
-    @PostAuthorize("returnObject.userId.toString() == principal.toString()")
-    @HandleAuthorizationDenied(handlerClass = GenericAccessDeniedAuthorizationHandler.class)
-    public InvoiceResponseDto markPaymentFailed(UUID invoiceId) {
-        log.info("Marking payment for invoice with id: {} as failed", invoiceId);
-        Invoice invoice = findInvoiceById(invoiceId);
+        if (invoiceStatus == InvoiceStatus.CANCELLED) {
+            invoice.cancel();
+            log.info("Invoice with id: {} is cancelled", invoiceId);
+        }
 
-        invoice.markFailed();
-        log.info("Invoice with id: {} is marked as failed", invoiceId);
-        Invoice saved = invoiceRepository.save(invoice);
-        return invoiceDataMapper.mapInvoiceToInvoiceResponseDto(saved);
+        invoiceRepository.save(invoice);
+        log.info("Invoice status updated successfully for invoice with id: {}", invoiceId);
+        return invoiceDataMapper.mapInvoiceToInvoiceResponseDto(invoice);
     }
 
     private Invoice findInvoiceById(UUID invoiceId) {

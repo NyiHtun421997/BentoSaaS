@@ -1,14 +1,20 @@
 package com.nyihtuun.bentosystem.invoiceservice.controller;
 
+import com.nyihtuun.bentosystem.domain.valueobject.status.InvoiceStatus;
 import com.nyihtuun.bentosystem.invoiceservice.application_service.dto.response.InvoiceResponseDto;
 import com.nyihtuun.bentosystem.invoiceservice.application_service.ports.input.service.InvoiceService;
+import com.nyihtuun.bentosystem.invoiceservice.application_service.ports.input.service.PaymentService;
 import com.nyihtuun.bentosystem.invoiceservice.domain.exception.InvoiceDomainException;
 import com.nyihtuun.bentosystem.invoiceservice.domain.exception.InvoiceErrorCode;
+import com.stripe.exception.SignatureVerificationException;
+import com.stripe.model.*;
+import com.stripe.net.Webhook;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +22,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import static com.nyihtuun.bentosystem.invoiceservice.InvoiceConstants.IDEMPOTENCY_KEY;
+import static com.nyihtuun.bentosystem.invoiceservice.InvoiceConstants.STRIPE_SIGNATURE;
 import static com.nyihtuun.bentosystem.invoiceservice.controller.ApiPaths.INVOICE_ID;
 import static com.nyihtuun.bentosystem.invoiceservice.controller.ApiPaths.VERSION1;
 
@@ -26,10 +34,16 @@ import static com.nyihtuun.bentosystem.invoiceservice.controller.ApiPaths.VERSIO
 public class InvoiceController {
 
     private final InvoiceService invoiceService;
+    private final PaymentService paymentService;
+    private final String webhookSecret;
 
     @Autowired
-    public InvoiceController(InvoiceService invoiceService) {
+    public InvoiceController(InvoiceService invoiceService,
+                             PaymentService paymentService,
+                             @Value("${stripe.webhook.secret}") String webhookSecret) {
         this.invoiceService = invoiceService;
+        this.paymentService = paymentService;
+        this.webhookSecret = webhookSecret;
     }
 
     @GetMapping(INVOICE_ID)
@@ -38,14 +52,14 @@ public class InvoiceController {
     public ResponseEntity<InvoiceResponseDto> findInvoiceById(@PathVariable UUID invoiceId) {
         log.info("Fetching invoice with id: {}", invoiceId);
         return invoiceService.getInvoiceById(invoiceId)
-                .map(invoice -> {
-                    log.info("Invoice with id: {} : {}", invoiceId, invoice);
-                    return ResponseEntity.ok(invoice);
-                })
-                .orElseThrow(() -> {
-                    log.error("Invoice with id: {} not found", invoiceId);
-                    return new InvoiceDomainException(InvoiceErrorCode.INVOICE_NOT_FOUND);
-                });
+                             .map(invoice -> {
+                                 log.info("Invoice with id: {} : {}", invoiceId, invoice);
+                                 return ResponseEntity.ok(invoice);
+                             })
+                             .orElseThrow(() -> {
+                                 log.error("Invoice with id: {} not found", invoiceId);
+                                 return new InvoiceDomainException(InvoiceErrorCode.INVOICE_NOT_FOUND);
+                             });
     }
 
     @GetMapping("byuseridanddate")
@@ -60,27 +74,95 @@ public class InvoiceController {
         return ResponseEntity.ok(invoices);
     }
 
-    @PutMapping("/pay" + INVOICE_ID)
+    @PostMapping(INVOICE_ID + "/pay")
     @Operation(summary = "Make payment", description = "Processes payment for an invoice.")
     @ApiResponse(responseCode = "200", description = "Payment processed successfully")
-    public ResponseEntity<InvoiceResponseDto> makePayment(@PathVariable UUID invoiceId) {
+    public ResponseEntity<String> makePayment(@PathVariable UUID invoiceId,
+                                              @RequestHeader(IDEMPOTENCY_KEY) String idempotencyKey) {
         log.info("Making payment for invoice with id: {}", invoiceId);
-        return ResponseEntity.ok(invoiceService.makePayment(invoiceId));
+
+        InvoiceResponseDto invoiceResponseDto = invoiceService.getInvoiceById(invoiceId).orElseThrow(() -> {
+            log.error("Invoice with id: {} not found. Can't continue payment.", invoiceId);
+            return new InvoiceDomainException(InvoiceErrorCode.INVOICE_NOT_FOUND);
+        });
+        // check invoice status, if PAID, return 400
+        if (invoiceResponseDto.getInvoiceStatus() == InvoiceStatus.PAID) {
+            log.error("Invoice with id: {} is already paid. Can't continue payment.", invoiceId);
+            return ResponseEntity.badRequest().build();
+        }
+        // create payment intent
+        return paymentService.createPayment(invoiceResponseDto, idempotencyKey)
+                             .map(clientSecret -> {
+                                 log.info("Payment intent created successfully. Client secret: {}", clientSecret);
+                                 return ResponseEntity.ok(clientSecret);
+                             })
+                             .orElseGet(() -> {
+                                 log.error("Payment intent creation failed. Can't continue payment.");
+                                 return ResponseEntity.internalServerError().build();
+                             });
     }
 
-    @PutMapping("/cancel" + INVOICE_ID)
+    @PostMapping("/webhook/stripe")
+    public ResponseEntity<String> handleStripeWebhook(
+            @RequestBody String payload,
+            @RequestHeader(STRIPE_SIGNATURE) String sigHeader) {
+        log.info("Received Stripe webhook with payload: {}", payload);
+        final Event event;
+
+        try {
+            event = Webhook.constructEvent(payload, sigHeader, webhookSecret);
+            log.info("Stripe webhook event constructed successfully.");
+        } catch (SignatureVerificationException e) {
+            log.warn("Stripe webhook signature verification failed: {}", e.getMessage());
+            return ResponseEntity.badRequest().body("");
+        } catch (Exception e) {
+            log.warn("Stripe webhook error: {}", e.getMessage());
+            return ResponseEntity.badRequest().body("");
+        }
+
+        switch (event.getType()) {
+            case "payment_intent.succeeded" -> {
+                PaymentIntent intent = (PaymentIntent) event.getDataObjectDeserializer().getObject().orElse(null);
+                if (intent != null) {
+                    log.info("Updating status of payment with id: {} to SUCCESS", intent.getId());
+                    return paymentService.updatePaymentStatus(intent.getId(), "SUCCESS")
+                            ? ResponseEntity.ok("")
+                            : ResponseEntity.internalServerError().build();
+                }
+            }
+            case "payment_intent.payment_failed" -> {
+                PaymentIntent intent = (PaymentIntent) event.getDataObjectDeserializer().getObject().orElse(null);
+                if (intent != null) {
+                    return paymentService.updatePaymentStatus(intent.getId(), "FAILED")
+                            ? ResponseEntity.ok("")
+                            : ResponseEntity.internalServerError().build();
+                }
+            }
+            case "charge.refund.updated" -> {
+                Refund refund = (Refund) event.getDataObjectDeserializer().getObject().orElse(null);
+                if (refund != null) {
+                    return paymentService.updatePaymentStatus(refund.getPaymentIntent(), "REFUNDED")
+                            ? ResponseEntity.ok("")
+                            : ResponseEntity.internalServerError().build();
+                }
+            }
+            case null, default ->
+                // add more events later as needed (refunds, disputes, etc.)
+                    log.debug("Unhandled Stripe event type: {}", event.getType());
+        }
+
+        // Always return 200 for successfully verified events (even if unhandled)
+        return ResponseEntity.ok("");
+    }
+
+    @PutMapping(INVOICE_ID + "/cancel")
     @Operation(summary = "Cancel payment", description = "Cancels a payment for an invoice.")
     @ApiResponse(responseCode = "200", description = "Payment cancelled successfully")
-    public ResponseEntity<InvoiceResponseDto> cancelPayment(@PathVariable UUID invoiceId) {
+    public ResponseEntity<Void> cancelPayment(@PathVariable UUID invoiceId) {
         log.info("Cancelling payment for invoice with id: {}", invoiceId);
-        return ResponseEntity.ok(invoiceService.cancelPayment(invoiceId));
-    }
 
-    @PutMapping("/fail" + INVOICE_ID)
-    @Operation(summary = "Mark payment failed", description = "Marks an invoice payment as failed.")
-    @ApiResponse(responseCode = "200", description = "Payment marked as failed successfully")
-    public ResponseEntity<InvoiceResponseDto> markPaymentFailed(@PathVariable UUID invoiceId) {
-        log.info("Marking payment for invoice with id: {} as failed", invoiceId);
-        return ResponseEntity.ok(invoiceService.markPaymentFailed(invoiceId));
+        return paymentService.cancelPayment(invoiceId)
+                ? ResponseEntity.ok().build()
+                : ResponseEntity.badRequest().build();
     }
 }

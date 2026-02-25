@@ -1,5 +1,6 @@
 package com.nyihtuun.bentosystem.invoiceservice.application_service.ports.input.service;
 
+import com.nyihtuun.bentosystem.domain.valueobject.status.InvoiceStatus;
 import com.nyihtuun.bentosystem.invoiceservice.application_service.dto.response.InvoiceResponseDto;
 
 import java.time.LocalDate;
@@ -11,6 +12,5 @@ public interface InvoiceService {
     Optional<InvoiceResponseDto> getInvoiceById(UUID invoiceId);
     List<InvoiceResponseDto> getMyInvoicesByDate(UUID userId, LocalDate date);
     InvoiceResponseDto makePayment(UUID invoiceId);
-    InvoiceResponseDto cancelPayment(UUID invoiceId);
-    InvoiceResponseDto markPaymentFailed(UUID invoiceId);
+    InvoiceResponseDto updateInvoiceStatus(UUID invoiceId, InvoiceStatus invoiceStatus);
 }

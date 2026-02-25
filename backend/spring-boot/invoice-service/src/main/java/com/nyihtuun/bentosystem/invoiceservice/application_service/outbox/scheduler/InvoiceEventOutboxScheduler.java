@@ -30,7 +30,7 @@ public class InvoiceEventOutboxScheduler {
     @Scheduled(fixedDelayString = SCHEDULER_FIXED_RATE, initialDelayString = SCHEDULER_INITIAL_DELAY)
     @Transactional
     public void processOutboxMessages() {
-        log.info("Processing invoice outbox messages.");
+        log.debug("Processing invoice outbox messages.");
         invoiceEventOutboxRepository.findByOutboxStatus(OutboxStatus.STARTED)
                                     .ifPresent(outboxMessages -> {
                                         log.info("Found {} invoice outbox messages to process.", outboxMessages.size());

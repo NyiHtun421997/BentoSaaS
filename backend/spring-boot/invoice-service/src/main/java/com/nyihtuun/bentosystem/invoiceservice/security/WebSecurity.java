@@ -38,7 +38,10 @@ public class WebSecurity {
         return http.csrf(AbstractHttpConfigurer::disable)
                    .authorizeHttpRequests(auth ->
                                                   auth.requestMatchers("/v3/api-docs")
-                                                      .permitAll().anyRequest()
+                                                      .permitAll()
+                                                          .requestMatchers("/v1/webhook/stripe")
+                                                          .permitAll()
+                                                      .anyRequest()
                                                       .authenticated())
                    .addFilterBefore(authorizationFilter, UsernamePasswordAuthenticationFilter.class)
                    .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

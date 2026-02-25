@@ -36,13 +36,7 @@ CREATE TABLE IF NOT EXISTS "invoice".invoice
     CONSTRAINT invoice_unique_subscription_period UNIQUE (subscription_id, period_start, period_end),
 
     -- Period sanity check
-    CONSTRAINT invoice_period_valid CHECK ( period_end >= period_start ),
-
-    -- paid_at should exist only when status is PAID (optional but useful)
-    CONSTRAINT invoice_paid_at_consistency CHECK (
-        (invoice_status = 'PAID' AND paid_at IS NOT NULL)
-            OR (invoice_status <> 'PAID' AND paid_at IS NULL)
-        )
+    CONSTRAINT invoice_period_valid CHECK ( period_end >= period_start )
 ) ^^
 
 -- ==========================================================
@@ -73,4 +67,19 @@ CREATE TABLE IF NOT EXISTS "invoice".invoice_event_outbox
     type          varchar(255)  NOT NULL,
     CONSTRAINT invoice_event_outbox_pkey PRIMARY KEY (id),
     CONSTRAINT type_allowed CHECK (type IN ('NOTIFICATION'))
+) ^^
+
+CREATE TABLE IF NOT EXISTS "invoice".payment
+(
+    id              varchar(255)   NOT NULL PRIMARY KEY,
+    invoice_id      uuid           NOT NULL,
+    idempotency_key uuid UNIQUE    NOT NULL,
+    payment_status  varchar(255)   NOT NULL,
+    created_at      TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMPTZ,
+    amount          NUMERIC(10, 2) NOT NULL CHECK ( amount > 0 ),
+    currency        varchar(3)     NOT NULL,
+    payment_ref     varchar(255),
+    CONSTRAINT status_allowed CHECK (payment_status IN ('PENDING', 'SUCCESS', 'FAILED', 'REFUNDED')),
+    CONSTRAINT invoice_id_payment_status_unique UNIQUE (invoice_id, payment_status)
 ) ^^

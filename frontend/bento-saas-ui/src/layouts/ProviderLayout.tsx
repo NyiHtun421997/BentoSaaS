@@ -48,7 +48,7 @@ const ProviderLayout = () => {
   }, [notifications]);
 
   const markNotiAsRead = async (id: number) => {
-    await apiPut<NotificationDto>(`/notification/api/v1/${id}`);
+    await apiPut<NotificationDto>(`/notification/api/v1/${id}/read`);
     setNotifications((prev) =>
       prev.map((n) => (n.id === id ? { ...n, read: true } : n)),
     );

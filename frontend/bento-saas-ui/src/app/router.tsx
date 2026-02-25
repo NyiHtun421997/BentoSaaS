@@ -22,6 +22,8 @@ import NotFoundPage from "../pages/NotFoundPage";
 import ProfileEditPage from "../pages/user/ProfilePage";
 import ProviderPlanCreatePage from "../pages/provider/ProviderPlanCreatePage";
 import ProviderPlanEditPage from "../pages/provider/ProviderPlanEditPage";
+import Payment from "../components/Payment";
+import Completion from "../components/Completion";
 
 export const router = createBrowserRouter([
   {
@@ -51,6 +53,11 @@ export const router = createBrowserRouter([
       { path: "app/subscriptions", element: <SubscriptionsPage /> },
       { path: "app/invoices", element: <InvoicesPage /> },
       { path: "app/profile", element: <ProfileEditPage /> },
+      { path: "app/pay/:invoiceId", element: <Payment /> },
+      {
+        path: "app/completion",
+        element: <Completion />,
+      },
     ],
   },
   {

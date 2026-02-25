@@ -1,6 +1,6 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import BaseModal from "./BaseModal";
-import { apiGet } from "../../src/lib/api/http";
+import { apiGet, apiPut } from "../../src/lib/api/http";
 import { isApiError } from "../../src/lib/api/http";
 
 import type {
@@ -16,6 +16,8 @@ import formatAddressJp from "../utilities/formatAddressJp";
 import { useQuery } from "@tanstack/react-query";
 import PageLoading from "./PageLoading";
 import formatYmdJp from "../utilities/formatYmdJp";
+import { useNavigate } from "react-router-dom";
+import LoadingSpinner from "./LoadingSpinner";
 
 type Props = {
   open: boolean;
@@ -36,6 +38,9 @@ const safeName = (u?: UserResponseDTO) => {
 };
 
 const InvoiceDetailsModal = ({ open, onClose, invoiceId }: Props) => {
+  const [cancelLoading, setCancelLoading] = useState(false);
+  const [cancelError, setCancelError] = useState<string | null>(null);
+
   const { data, isLoading, error } = useQuery({
     queryKey: ["invoiceDetails", invoiceId],
     enabled: open && !!invoiceId,
@@ -102,6 +107,36 @@ const InvoiceDetailsModal = ({ open, onClose, invoiceId }: Props) => {
         return "bg-rose-50 text-rose-700";
       default:
         return "bg-slate-100 text-slate-700";
+    }
+  };
+
+  const navigate = useNavigate();
+
+  const handlePayNow = () => {
+    if (invoiceId) {
+      navigate(`/app/pay/${invoiceId}`);
+    }
+  };
+
+  const handleCancel = async () => {
+    if (!invoiceId) return;
+
+    setCancelLoading(true);
+    setCancelError(null);
+
+    try {
+      await apiPut<void>(`/invoice/api/v1/${invoiceId}/cancel`);
+      // Success - close modal after brief delay to show success state
+      setTimeout(() => {
+        onClose();
+      }, 500);
+    } catch (err: unknown) {
+      const errorMsg = isApiError(err)
+        ? err.message
+        : "Failed to cancel invoice";
+      setCancelError(errorMsg);
+    } finally {
+      setCancelLoading(false);
     }
   };
 
@@ -388,13 +423,64 @@ const InvoiceDetailsModal = ({ open, onClose, invoiceId }: Props) => {
               </div>
 
               <div className="flex justify-end pt-1">
-                <button
-                  className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-                  onClick={close}
-                >
-                  Close
-                </button>
+                {(() => {
+                  const isPaid = data.invoice.invoiceStatus === "PAID";
+                  const showActionBtn =
+                    data.invoice.invoiceStatus === "ISSUED" ||
+                    data.invoice.invoiceStatus === "PAID" ||
+                    data.invoice.invoiceStatus === "FAILED";
+
+                  return (
+                    <>
+                      <button
+                        className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+                        onClick={() => {
+                          setCancelError(null);
+                          close();
+                        }}
+                        disabled={cancelLoading}
+                      >
+                        Close
+                      </button>
+
+                      {showActionBtn ? (
+                        <button
+                          className={`ml-3 rounded-xl px-4 py-2 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60 inline-flex items-center justify-center gap-2 ${
+                            isPaid
+                              ? "bg-red-600 hover:bg-red-700"
+                              : "bg-blue-600 hover:bg-blue-700"
+                          }`}
+                          onClick={() => {
+                            if (isPaid) {
+                              void handleCancel();
+                            } else {
+                              handlePayNow();
+                              close();
+                            }
+                          }}
+                          disabled={cancelLoading}
+                        >
+                          {cancelLoading ? (
+                            <>
+                              <LoadingSpinner size="md" />{" "}
+                              <span>Cancelling...</span>
+                            </>
+                          ) : isPaid ? (
+                            "Cancel"
+                          ) : (
+                            "Pay Now"
+                          )}
+                        </button>
+                      ) : null}
+                    </>
+                  );
+                })()}
               </div>
+              {cancelError ? (
+                <div className="mt-2 w-full rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-600">
+                  {cancelError}
+                </div>
+              ) : null}
             </>
           )}
         </div>

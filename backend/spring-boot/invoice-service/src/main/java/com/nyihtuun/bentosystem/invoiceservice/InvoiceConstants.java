@@ -12,6 +12,9 @@ public class InvoiceConstants {
     public static final String SUBSCRIPTION_SERVICE_PORT = "${subscription.service.port}";
     public static final String SCHEDULER_FIXED_RATE = "${invoice.outbox-scheduler-fixed-rate}";
     public static final String SCHEDULER_INITIAL_DELAY = "${invoice.outbox-scheduler-initial-delay}";
+    public static final String IDEMPOTENCY_KEY = "Idempotency-Key";
+    public static final String STRIPE_SIGNATURE = "Stripe-Signature";
+
     private InvoiceConstants() {
     }
 }
