@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -16,7 +17,11 @@ var DBpool *pgxpool.Pool
 func InitNotificationDB() {
 	var err error
 
-	dbConfig, err := pgxpool.ParseConfig(config.Cfg.DBParams.Url)
+	var dbUrl string
+	// postgres://postgres:admin@localhost:5432/bento_saas?sslmode=disable&search_path=notification
+	dbUrl = fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable&search_path=notification", config.Cfg.DBParams.User, config.Cfg.DBParams.Password, config.Cfg.DBParams.Address, config.Cfg.DBParams.Port, config.Cfg.DBParams.DbName)
+
+	dbConfig, err := pgxpool.ParseConfig(dbUrl)
 	if err != nil {
 		log.Fatalf("unable to parse database url: %v\n", err)
 		return

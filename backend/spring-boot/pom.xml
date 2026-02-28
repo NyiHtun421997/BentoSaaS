@@ -33,6 +33,8 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>23</java.version>
     <lombok.version>1.18.42</lombok.version>
+    <flyway.version>12.0.2</flyway.version>
+    <spring-flyway.version>4.0.2</spring-flyway.version>
   </properties>
 
   <dependencyManagement>
@@ -41,6 +43,23 @@
         <groupId>com.nyihtuun.bentosystem</groupId>
         <artifactId>common</artifactId>
         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-flyway</artifactId>
+        <version>${spring-flyway.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.flywaydb</groupId>
+        <artifactId>flyway-core</artifactId>
+        <version>${flyway.version}</version>
+        <scope>compile</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.flywaydb</groupId>
+        <artifactId>flyway-database-postgresql</artifactId>
+        <version>${flyway.version}</version>
+        <scope>runtime</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>

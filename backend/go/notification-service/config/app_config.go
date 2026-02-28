@@ -9,7 +9,11 @@ import (
 
 type Config struct {
 	DBParams struct {
-		Url string `mapstructure:"url"`
+		User     string `mapstructure:"user"`
+		Password string `mapstructure:"password"`
+		Address  string `mapstructure:"address"`
+		Port     int    `mapstructure:"port"`
+		DbName   string `mapstructure:"dbname"`
 	} `mapstructure:"db-params"`
 
 	KafkaParams struct {

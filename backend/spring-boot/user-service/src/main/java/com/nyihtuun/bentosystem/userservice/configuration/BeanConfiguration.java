@@ -22,8 +22,6 @@ public class BeanConfiguration {
         Region awsRegion = Region.of(awsConfigData.region());
         return S3Presigner.builder()
                           .region(awsRegion)
-                          .credentialsProvider(StaticCredentialsProvider.create(
-                                  AwsBasicCredentials.create(awsConfigData.accessKey(), awsConfigData.secretKey())))
                           .build();
     }
 }

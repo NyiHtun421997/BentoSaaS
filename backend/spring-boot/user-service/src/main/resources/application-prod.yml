@@ -8,14 +8,18 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
-    schemas: planmanagement
+    schemas: user
     create-schemas: true
   datasource:
     driver-class-name: org.postgresql.Driver
+#      data-locations: classpath:data-dev.sql
 
 logging:
   level:
-    com.nyihtuun.bentosystem.planmanagementservice: INFO
+    com.nyihtuun.bentosystem.userservice: INFO
 
-plan-management:
-  max-page-size: ${PLAN_MAX_PAGE_SIZE:8}
+aws:
+  region: ap-northeast-1
+  bucket-name: bento-saas-dev
+  user-image-folder: bento_images/user/
+  expiration-time-min: 60

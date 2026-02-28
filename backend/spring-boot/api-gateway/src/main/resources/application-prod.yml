@@ -1,0 +1,182 @@
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: plan-management-service
+              uri: http://plan-management-service.bento-saas.local:4000
+              predicates:
+                - Path=/plan-management/api/v1/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: defaultCircuitBreaker
+                    fallbackUri: forward:/fallback/plan-management
+                - JwtAuthenticationFilter
+                - RewritePath=/plan-management/api/(?<segment>.*),/plan-management/$\{segment}
+              ## INBOUND : https://api.bento.nyihtuun.com/plan-management/api/v1/
+              ## OUTBOUND : http://plan-management-service.bento-saas.local:4000/plan-management/v1/
+
+            - id: api-docs-plan-management-service
+              uri: http://plan-management-service.bento-saas.local:4000
+              predicates:
+                - Path=/plan-management/api-docs
+              filters:
+                - RewritePath=/plan-management/api-docs, /plan-management/v3/api-docs
+              ## INBOUND : https://api.bento.nyihtuun.com/plan-management/api-docs
+              ## OUTBOUND : http://plan-management-service.bento-saas.local:4000/plan-management/v3/api-docs
+
+            - id: subscription-service
+              uri: http://subscription-service.bento-saas.local:4001
+              predicates:
+                - Path=/subscription/api/v1/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: defaultCircuitBreaker
+                    fallbackUri: forward:/fallback/subscription
+                - JwtAuthenticationFilter
+                - RewritePath=/subscription/api/(?<segment>.*),/subscription/$\{segment}
+              ## INBOUND : https://api.bento.nyihtuun.com/subscription/api/v1/
+              ## OUTBOUND: http://subscription-service.bento-saas.local:4001/subscription/v1/
+
+            - id: api-docs-subscription-service
+              uri: http://subscription-service.bento-saas.local:4001
+              predicates:
+                - Path=/subscription/api-docs
+              filters:
+                - RewritePath=/subscription/api-docs, /subscription/v3/api-docs
+              ## INBOUND : https://api.bento.nyihtuun.com/subscription/api-docs
+              ## OUTBOUND : http://subscription-service.bento-saas.local:4001/subscription/v3/api-docs
+
+            - id: payment-webhook
+              uri: http://invoice-service.bento-saas.local:4002
+              predicates:
+                - Path=/invoice/api/v1/webhook/stripe
+              filters:
+                - RewritePath=/invoice/api/(?<segment>.*),/invoice/$\{segment}
+              ## INBOUND : https://api.bento.nyihtuun.com/invoice/api/v1/webhook/stripe
+              ## OUTBOUND: http://invoice-service.bento-saas.local:4002/invoice/v1/webhook/stripe
+
+            - id: invoice-service
+              uri: http://invoice-service.bento-saas.local:4002
+              predicates:
+                - Path=/invoice/api/v1/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: defaultCircuitBreaker
+                    fallbackUri: forward:/fallback/invoice
+                - JwtAuthenticationFilter
+                - RewritePath=/invoice/api/(?<segment>.*),/invoice/$\{segment}
+              ## INBOUND : https://api.bento.nyihtuun.com/invoice/api/v1/
+              ## OUTBOUND: http://invoice-service.bento-saas.local:4002/invoice/v1/
+
+            - id: api-docs-invoice-service
+              uri: http://invoice-service.bento-saas.local:4002
+              predicates:
+                - Path=/invoice/api-docs
+              filters:
+                - RewritePath=/invoice/api-docs, /invoice/v3/api-docs
+              ## INBOUND : https://api.bento.nyihtuun.com/invoice/api-docs
+              ## OUTBOUND : http://invoice-service.bento-saas.local:4002/invoice/v3/api-docs
+
+            - id: validate-token-filter
+              uri: http://user-service.bento-saas.local:4004
+              predicates:
+                - Path=/user/api/v1/validate-token
+              filters:
+                - RewritePath=/user/api/(?<segment>.*),/user/$\{segment}
+
+            - id: authentication
+              uri: http://user-service.bento-saas.local:4004
+              predicates:
+                - Path=/user/api/auth/login, /user/api/v1/signup/**
+              filters:
+                - RewritePath=/user/api/(?<segment>.*),/user/$\{segment}
+
+            - id: user-service
+              uri: http://user-service.bento-saas.local:4004
+              predicates:
+                - Path=/user/api/v1/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: defaultCircuitBreaker
+                    fallbackUri: forward:/fallback/users
+                - JwtAuthenticationFilter
+                - RewritePath=/user/api/(?<segment>.*),/user/$\{segment}
+              ## INBOUND : https://api.bento.nyihtuun.com/user/api/v1/
+              ## OUTBOUND: http://user-service.bento-saas.local:4004/user/v1/
+
+            - id: api-docs-user-service
+              uri: http://user-service.bento-saas.local:4004
+              predicates:
+                - Path=/user/api-docs
+              filters:
+                - RewritePath=/user/api-docs, /user/v3/api-docs
+              ## INBOUND : https://api.bento.nyihtuun.com/user/api-docs
+              ## OUTBOUND : http://user-service.bento-saas.local:4004/user/v3/api-docs
+
+            - id: notification-service
+              uri: http://notification-service.bento-saas.local:4005
+              predicates:
+                - Path=/notification/api/v1/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: defaultCircuitBreaker
+                    fallbackUri: forward:/fallback/notification
+                - JwtAuthenticationFilter
+                - RewritePath=/notification/api/(?<segment>.*),/notification/$\{segment}
+              ## INBOUND : https://api.bento.nyihtuun.com/notification/api/v1
+              ## OUTBOUND: http://notification-service.bento-saas.local:4005/notification/v1
+
+          httpclient:
+            response-timeout: 11s
+          globalcors:
+            cors-configurations:
+              '[/**]':
+                allowedOrigins:
+                  - "https://app.bento.nyihtuun.com"
+                  - "https://nyihtuun.com"
+                allowedMethods:
+                  - GET
+                  - POST
+                  - PUT
+                  - DELETE
+                  - OPTIONS
+                allowedHeaders:
+                  - "*"
+                exposedHeaders:
+                  - Authorization
+                  - X-USER-ID
+                allowCredentials: true
+                maxAge: 3600
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      defaultCircuitBreaker:
+        failureRateThreshold: 50
+        automatic-transition-from-open-to-half-open-enabled: true
+        sliding-window-type: COUNT_BASED
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 2
+  timelimiter:
+    instances:
+      defaultCircuitBreaker:
+        timeoutDuration: 10s
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.cloud.gateway.handler.RoutePredicateHandlerMapping: TRACE
+    org.springframework.web.server.adapter.HttpWebHandlerAdapter: TRACE
+    reactor.netty.http.client: DEBUG
+
+user-service:
+  url: ${USER_SERVICE_URL}

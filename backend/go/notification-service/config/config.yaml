@@ -1,5 +1,11 @@
+#db-params:
+#  url: postgres://postgres:admin@localhost:5432/bento_saas?sslmode=disable&search_path=notification
 db-params:
-  url: postgres://postgres:admin@localhost:5432/bento_saas?sslmode=disable&search_path=notification
+  user: postgres
+  password: admin
+  address: localhost
+  port: 5432
+  dbname: bento_saas
 kafka-params:
   bootstrap-servers:
     - localhost:9092

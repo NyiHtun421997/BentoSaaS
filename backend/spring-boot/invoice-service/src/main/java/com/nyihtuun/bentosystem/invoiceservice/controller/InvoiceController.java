@@ -4,6 +4,7 @@ import com.nyihtuun.bentosystem.domain.valueobject.status.InvoiceStatus;
 import com.nyihtuun.bentosystem.invoiceservice.application_service.dto.response.InvoiceResponseDto;
 import com.nyihtuun.bentosystem.invoiceservice.application_service.ports.input.service.InvoiceService;
 import com.nyihtuun.bentosystem.invoiceservice.application_service.ports.input.service.PaymentService;
+import com.nyihtuun.bentosystem.invoiceservice.application_service.scheduler.InvoiceGenerationScheduler;
 import com.nyihtuun.bentosystem.invoiceservice.domain.exception.InvoiceDomainException;
 import com.nyihtuun.bentosystem.invoiceservice.domain.exception.InvoiceErrorCode;
 import com.stripe.exception.SignatureVerificationException;
@@ -13,9 +14,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.core.job.parameters.InvalidJobParametersException;
+import org.springframework.batch.core.launch.JobExecutionAlreadyRunningException;
+import org.springframework.batch.core.launch.JobInstanceAlreadyCompleteException;
+import org.springframework.batch.core.launch.JobRestartException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -36,14 +42,16 @@ public class InvoiceController {
     private final InvoiceService invoiceService;
     private final PaymentService paymentService;
     private final String webhookSecret;
+    private final InvoiceGenerationScheduler scheduler;
 
     @Autowired
     public InvoiceController(InvoiceService invoiceService,
                              PaymentService paymentService,
-                             @Value("${stripe.webhook.secret}") String webhookSecret) {
+                             @Value("${stripe.webhook.secret}") String webhookSecret, InvoiceGenerationScheduler scheduler) {
         this.invoiceService = invoiceService;
         this.paymentService = paymentService;
         this.webhookSecret = webhookSecret;
+        this.scheduler = scheduler;
     }
 
     @GetMapping(INVOICE_ID)
@@ -164,5 +172,15 @@ public class InvoiceController {
         return paymentService.cancelPayment(invoiceId)
                 ? ResponseEntity.ok().build()
                 : ResponseEntity.badRequest().build();
+    }
+
+    @GetMapping("/generate")
+    @Operation(summary = "Generate invoice", description = "Generates invoices.")
+    @ApiResponse(responseCode = "200", description = "Invoices generated successfully")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> generateInvoice() throws JobInstanceAlreadyCompleteException, InvalidJobParametersException, JobExecutionAlreadyRunningException, JobRestartException {
+        log.info("Generating invoices...");
+        scheduler.process();
+        return ResponseEntity.ok().build();
     }
 }

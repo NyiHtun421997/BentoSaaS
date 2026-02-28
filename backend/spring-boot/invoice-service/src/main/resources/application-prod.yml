@@ -4,17 +4,14 @@ spring:
     show-sql: false
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: validate
+      ddl-auto: none
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    schemas: invoice
+    create-schemas: true
   datasource:
-    url: jdbc:postgresql://localhost:5432/bento_saas?currentSchema=invoice,public
-    username: postgres
-    password: admin
     driver-class-name: org.postgresql.Driver
-  sql:
-    init:
-      mode: always
-      separator: ^^
-      schema-locations: classpath:init-schema.sql
 
 logging:
   level:
@@ -29,10 +26,10 @@ invoice:
 
 plan-management:
   service:
-    address: localhost
-    port: 9000
+    address: ${PLAN_MANAGEMENT_SERVICE_ADDRESS}
+    port: ${PLAN_MANAGEMENT_SERVICE_PORT}
 
 subscription:
   service:
-    address: localhost
-    port: 9001
+    address: ${SUBSCRIPTION_SERVICE_ADDRESS}
+    port: ${SUBSCRIPTION_SERVICE_PORT}

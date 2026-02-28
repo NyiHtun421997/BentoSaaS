@@ -6,8 +6,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public record AwsConfigData (
         String region,
         String bucketName,
-        String accessKey,
-        String secretKey,
         String userImageFolder,
         Long expirationTimeMin
 ) {}
