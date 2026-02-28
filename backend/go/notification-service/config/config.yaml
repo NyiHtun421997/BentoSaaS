@@ -1,17 +1,17 @@
 #db-params:
 #  url: postgres://postgres:admin@localhost:5432/bento_saas?sslmode=disable&search_path=notification
 db-params:
-  user: postgres
-  password: admin
-  address: localhost
-  port: 5432
-  dbname: bento_saas
+  user: ${NOTI_DB_PARAMS_USER}
+  password: ${NOTI_DB_PARAMS_PASSWORD}
+  address: ${NOTI_DB_PARAMS_ADDRESS}
+  port: ${NOTI_DB_PARAMS_PORT}
+  dbname: ${NOTI_DB_PARAMS_DBNAME}
 kafka-params:
   bootstrap-servers:
-    - localhost:9092
+    - ${NOTI_KAFKA_PARAMS_BOOTSTRAP_SERVERS}
   topic-name: user-notification-topic
   group-id: notification-service
-server-address: localhost
+server-address: ${NOTI_SERVER_ADDRESS}
 server-port: 4005
-jwt-secret: 3419307D818FD3B5F382094D0598DC6F83C4E969268F0B412542B01DF3847A46
+jwt-secret: ${JWT_SECRET}
 cleanup-cron: "0 0 * * SUN"

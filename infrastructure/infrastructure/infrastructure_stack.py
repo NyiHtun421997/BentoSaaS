@@ -7,7 +7,6 @@ from aws_cdk import (
     aws_rds as rds,
     aws_route53 as route53,
     aws_msk as msk,
-    aws_ecr as ecr,
     aws_ecs as ecs,
     aws_logs as logs,
     aws_ecs_patterns as ecs_patterns,
@@ -183,14 +182,13 @@ class InfrastructureStack(Stack):
         self.ecs_cluster = self.create_ecs_cluster()
 
         # UserService ECS
-        user_repo = self.create_ecr_repository(
-            "UserRepository",
-            "user-repo"
-        )
         user_service = self.create_fargate_service(
             "UserService",
             "user-service",
-            user_repo,
+            ecs.ContainerImage.from_asset(
+                "../backend/spring-boot",
+                file="user-service/Dockerfile",
+            ),
             [4004],
             bento_saas_db,
             {
@@ -217,14 +215,13 @@ class InfrastructureStack(Stack):
         )
 
         # PlanManagementService ECS
-        plan_management_repo = self.create_ecr_repository(
-            "PlanManagementRepository",
-            "plan-management-repo"
-        )
         plan_management_service = self.create_fargate_service(
             "PlanManagementService",
             "plan-management-service",
-            plan_management_repo,
+            ecs.ContainerImage.from_asset(
+                "../backend/spring-boot",
+                file="plan-management-service/Dockerfile",
+            ),
             [4000, 9000],
             bento_saas_db,
             {
@@ -253,14 +250,13 @@ class InfrastructureStack(Stack):
         )
 
         # SubscriptionService ECS
-        subscription_repo = self.create_ecr_repository(
-            "SubscriptionRepository",
-            "subscription-repo"
-        )
         subscription_service = self.create_fargate_service(
             "SubscriptionService",
             "subscription-service",
-            subscription_repo,
+            ecs.ContainerImage.from_asset(
+                "../backend/spring-boot",
+                file="subscription-service/Dockerfile",
+            ),
             [4001, 9001],
             bento_saas_db,
             {
@@ -279,14 +275,13 @@ class InfrastructureStack(Stack):
         subscription_service.node.add_dependency(user_service)
 
         # InvoiceService ECS
-        invoice_repo = self.create_ecr_repository(
-            "InvoiceRepository",
-            "invoice-repo"
-        )
         invoice_service = self.create_fargate_service(
             "InvoiceService",
             "invoice-service",
-            invoice_repo,
+            ecs.ContainerImage.from_asset(
+                "../backend/spring-boot",
+                file="invoice-service/Dockerfile",
+            ),
             [4002, 9002],
             bento_saas_db,
             {
@@ -312,14 +307,13 @@ class InfrastructureStack(Stack):
         invoice_service.node.add_dependency(subscription_service)
 
         # NotificationService ECS
-        notification_repo = self.create_ecr_repository(
-            "NotificationRepository",
-            "notification-repo"
-        )
         notification_service = self.create_fargate_service(
             "NotificationService",
             "notification-service",
-            notification_repo,
+            ecs.ContainerImage.from_asset(
+                "../backend/go/notification-service",
+                file="Dockerfile",
+            ),
             [4005],
             bento_saas_db,
             {
@@ -340,11 +334,12 @@ class InfrastructureStack(Stack):
         notification_service.node.add_dependency(user_service)
 
         # ApiGateway ECS
-        api_gateway_repo = self.create_ecr_repository(
-            "ApiGatewayRepository",
-            "api_gateway_repo"
+        self.create_api_gateway_service(
+            ecs.ContainerImage.from_asset(
+                "../backend/spring-boot",
+                file="api-gateway/Dockerfile",
+            )
         )
-        self.create_api_gateway_service(api_gateway_repo)
         self.create_frontend_infra()
 
         user_service.node.add_dependency(db_init_resource)
@@ -418,16 +413,10 @@ class InfrastructureStack(Stack):
             )
         )
 
-    def create_ecr_repository(self, construct_id: str, repo_name: str) -> ecr.Repository:
-        return ecr.Repository(
-            self,
-            construct_id,
-            repository_name=repo_name,
-        )
 
     def create_fargate_service(self, construct_id: str,
                                image_name: str,
-                               repo: ecr.Repository,
+                               image: ecs.ContainerImage,
                                ports: list[int],
                                db: rds.DatabaseInstance,
                                additional_env_vars: dict[str, str],
@@ -460,7 +449,7 @@ class InfrastructureStack(Stack):
 
         task_definition.add_container(
             f"{image_name}Container",
-            image=ecs.ContainerImage.from_ecr_repository(repo),
+            image=image,
             environment=env_vars,
             secrets=(
                     {
@@ -497,7 +486,7 @@ class InfrastructureStack(Stack):
             )
         )
 
-    def create_api_gateway_service(self, repo: ecr.Repository):
+    def create_api_gateway_service(self, image: ecs.ContainerImage):
         construct_id = "ApiGateway"
         image_name = "api-gateway"
 
@@ -510,7 +499,7 @@ class InfrastructureStack(Stack):
 
         task_definition.add_container(
             f"{construct_id}Container",
-            image=ecs.ContainerImage.from_ecr_repository(repo),
+            image=image,
             environment={"SPRING_PROFILES_ACTIVE": "prod"},
             port_mappings=[ecs.PortMapping(container_port=4003)],
             logging=ecs.LogDrivers.aws_logs(
