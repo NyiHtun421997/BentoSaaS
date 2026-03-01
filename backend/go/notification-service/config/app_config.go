@@ -14,6 +14,7 @@ type Config struct {
 		Address  string `mapstructure:"address"`
 		Port     int    `mapstructure:"port"`
 		DbName   string `mapstructure:"dbname"`
+		SSLMode  string `mapstructure:"sslmode"`
 	} `mapstructure:"db-params"`
 
 	KafkaParams struct {
@@ -23,7 +24,7 @@ type Config struct {
 	} `mapstructure:"kafka-params"`
 	ServerAddress string `mapstructure:"server-address"`
 	ServerPort    int    `mapstructure:"server-port"`
-	JwtSecret     string `mapstructure:"jwt-secret"`
+	JwtSecretKey  string `mapstructure:"jwt-secret-key"`
 	CleanupCron   string `mapstructure:"cleanup-cron"`
 }
 

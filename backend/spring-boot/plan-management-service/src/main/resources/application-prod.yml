@@ -19,3 +19,14 @@ logging:
 
 plan-management:
   max-page-size: ${PLAN_MAX_PAGE_SIZE:8}
+
+jwt:
+  secret-key: ${JWT_SECRET_KEY}
+  expiration-time: ${JWT_EXPIRATION_TIME}
+
+aws:
+  region: ${AWS_REGION}
+  bucket-name: ${AWS_BUCKET_NAME}
+  plan-image-folder: bento_images/plan/
+  plan-meal-image-folder: bento_images/meal/
+  expiration-time-min: ${AWS_EXPIRATION_TIME_MIN}

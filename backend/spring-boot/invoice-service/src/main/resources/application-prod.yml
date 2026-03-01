@@ -33,3 +33,13 @@ subscription:
   service:
     address: ${SUBSCRIPTION_SERVICE_ADDRESS}
     port: ${SUBSCRIPTION_SERVICE_PORT}
+
+jwt:
+  secret-key: ${JWT_SECRET_KEY}
+  expiration-time: ${JWT_EXPIRATION_TIME}
+
+stripe:
+  secret:
+    key: ${STRIPE_SECRET_KEY}
+  webhook:
+    secret: ${STRIPE_WEBHOOK_SECRET}

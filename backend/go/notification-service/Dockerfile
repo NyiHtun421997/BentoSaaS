@@ -4,7 +4,7 @@ FROM golang:1.25-alpine AS builder
 # Set environment variables
 ENV CGO_ENABLED=0 \
     GOOS=linux \
-    GOARCH=amd64
+    GOARCH=arm64
 
 # Set working directory inside the container
 WORKDIR /build

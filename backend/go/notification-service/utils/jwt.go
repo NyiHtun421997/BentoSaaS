@@ -10,7 +10,7 @@ import (
 )
 
 func VerifyToken(tokenString string) (string, error) {
-	secret := strings.TrimSpace(config.Cfg.JwtSecret)
+	secret := strings.TrimSpace(config.Cfg.JwtSecretKey)
 	if secret == "" {
 		return "", jwt.ErrSignatureInvalid
 	}

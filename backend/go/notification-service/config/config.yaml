@@ -6,6 +6,7 @@ db-params:
   address: ${NOTI_DB_PARAMS_ADDRESS}
   port: ${NOTI_DB_PARAMS_PORT}
   dbname: ${NOTI_DB_PARAMS_DBNAME}
+  sslmode: ${NOTI_DB_PARAMS_SSLMODE:require}
 kafka-params:
   bootstrap-servers:
     - ${NOTI_KAFKA_PARAMS_BOOTSTRAP_SERVERS}
@@ -13,5 +14,5 @@ kafka-params:
   group-id: notification-service
 server-address: ${NOTI_SERVER_ADDRESS}
 server-port: 4005
-jwt-secret: ${JWT_SECRET}
+jwt-secret-key: ${NOTI_JWT_SECRET_KEY}
 cleanup-cron: "0 0 * * SUN"

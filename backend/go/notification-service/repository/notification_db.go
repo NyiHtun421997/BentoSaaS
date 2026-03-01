@@ -17,15 +17,20 @@ var DBpool *pgxpool.Pool
 func InitNotificationDB() {
 	var err error
 
-	var dbUrl string
-	// postgres://postgres:admin@localhost:5432/bento_saas?sslmode=disable&search_path=notification
-	dbUrl = fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable&search_path=notification", config.Cfg.DBParams.User, config.Cfg.DBParams.Password, config.Cfg.DBParams.Address, config.Cfg.DBParams.Port, config.Cfg.DBParams.DbName)
+	// Construct the base URL without credentials to avoid parsing issues with special characters.
+	connString := fmt.Sprintf("postgres://%s:%d/%s?sslmode=%s&search_path=notification",
+		config.Cfg.DBParams.Address, config.Cfg.DBParams.Port, config.Cfg.DBParams.DbName, config.Cfg.DBParams.SSLMode)
 
-	dbConfig, err := pgxpool.ParseConfig(dbUrl)
+	dbConfig, err := pgxpool.ParseConfig(connString)
 	if err != nil {
-		log.Fatalf("unable to parse database url: %v\n", err)
+		log.Fatalf("unable to parse base url: %v\n", err)
 		return
 	}
+
+	// Set credentials directly on the config object
+	dbConfig.ConnConfig.User = config.Cfg.DBParams.User
+	dbConfig.ConnConfig.Password = config.Cfg.DBParams.Password
+
 	dbConfig.MaxConns = 10
 	dbConfig.MaxConnIdleTime = time.Minute * 3
 

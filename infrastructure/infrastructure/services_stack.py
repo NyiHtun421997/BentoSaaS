@@ -1,53 +1,77 @@
 import aws_cdk as cdk
 from aws_cdk import (
-    # Duration,
     Stack,
-    # aws_sqs as sqs,
     aws_ec2 as ec2,
     aws_rds as rds,
-    aws_route53 as route53,
-    aws_msk as msk,
     aws_ecs as ecs,
     aws_logs as logs,
-    aws_ecs_patterns as ecs_patterns,
     aws_certificatemanager as acm,
-    aws_elasticloadbalancingv2 as elbv2,
     aws_secretsmanager as secretsmanager,
     aws_iam as iam,
     aws_lambda as _lambda,
     aws_s3 as s3,
-    aws_s3_deployment as s3_deployment,
     aws_cloudfront as cloudfront,
     aws_cloudfront_origins as origins,
-    custom_resources as cr
+    custom_resources as cr,
+    aws_elasticloadbalancingv2 as elbv2,
+    aws_ecs_patterns as ecs_patterns,
 )
 from aws_cdk.aws_lambda_python_alpha import PythonFunction
-
 from constructs import Construct
 
 
-class InfrastructureStack(Stack):
-    vpc: ec2.Vpc
+class ServicesStack(Stack):
+    vpc: ec2.IVpc
     ecs_cluster: ecs.Cluster
     db_name = "bento_saas"
     db_user_name = "postgres"
     ecs_sg: ec2.SecurityGroup
     rds_sg: ec2.SecurityGroup
-    msk_sg: ec2.SecurityGroup
     kafka_bootstrap_servers: str
     jwt_secret: secretsmanager.ISecret
     stripe_secret_key: secretsmanager.ISecret
     stripe_webhook_secret: secretsmanager.ISecret
     media_bucket: s3.Bucket
 
-    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str, vpc_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        # VPC configs
-        self.vpc = self.create_vpc()
+        # 1. Import VPC
+        self.vpc = ec2.Vpc.from_lookup(self, "BentoSaaSVpc", vpc_id=vpc_id)
 
-        # Security Group configs
+        # 2. Security Groups
         self.ecs_sg = ec2.SecurityGroup(self, "EcsServicesSG", vpc=self.vpc, allow_all_outbound=True)
+        # Allow ECS services to communicate with each other (HTTP ports)
+        self.ecs_sg.add_ingress_rule(
+            self.ecs_sg,
+            ec2.Port.tcp_range(4000, 4005),
+            "Allow ECS service-to-service HTTP communication"
+        )
+
+        # Allow ECS services to communicate with each other (gRPC ports)
+        self.ecs_sg.add_ingress_rule(
+            self.ecs_sg,
+            ec2.Port.tcp_range(9000, 9002),
+            "Allow ECS service-to-service gRPC communication"
+        )
+        msk_sg_id = cdk.CfnParameter(
+            self,
+            "MskSecurityGroupId",
+            type="String",
+            description="Security Group ID of MSK brokers"
+        )
+
+        msk_sg = ec2.SecurityGroup.from_security_group_id(
+            self,
+            "ImportedMskSG",
+            msk_sg_id.value_as_string
+        )
+
+        msk_sg.add_ingress_rule(
+            self.ecs_sg,
+            ec2.Port.tcp(9092),
+            "Allow ECS services to connect to MSK"
+        )
 
         self.rds_sg = ec2.SecurityGroup(self, "RdsSG", vpc=self.vpc, allow_all_outbound=True)
         self.rds_sg.add_ingress_rule(
@@ -56,12 +80,20 @@ class InfrastructureStack(Stack):
             "Allow ECS to Postgres"
         )
 
-        # DB configs
+        # 3. Kafka Bootstrap Parameter
+        kafka_bootstrap_param = cdk.CfnParameter(
+            self,
+            "KafkaBootstrapServers",
+            type="String",
+            description="MSK Bootstrap Broker string"
+        )
+        self.kafka_bootstrap_servers = kafka_bootstrap_param.value_as_string
+
+        # 4. DB configs
         bento_saas_db = self.create_database_instance("BentoSaaSDB")
-        bento_saas_db_health_check = self.cfn_health_check(bento_saas_db, "BentoSaaSDBHealthCheck")
         bento_saas_db.connections.allow_default_port_from(self.ecs_sg)
 
-        # DB init lambda
+        # 5. DB init lambda
         db_init_lambda = PythonFunction(
             self,
             "DBInitLambda",
@@ -69,7 +101,12 @@ class InfrastructureStack(Stack):
             index="handler.py",
             handler="handler",
             runtime=_lambda.Runtime.PYTHON_3_12,
+            timeout=cdk.Duration.minutes(5),
+            memory_size=1024,
             vpc=self.vpc,
+            vpc_subnets=ec2.SubnetSelection(
+                subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS
+            ),
             environment={
                 "DB_SECRET_ARN": bento_saas_db.secret.secret_arn,
                 "DB_HOST": bento_saas_db.db_instance_endpoint_address,
@@ -78,6 +115,11 @@ class InfrastructureStack(Stack):
         )
         bento_saas_db.secret.grant_read(db_init_lambda)
         bento_saas_db.connections.allow_default_port_from(db_init_lambda)
+        self.rds_sg.add_ingress_rule(
+            db_init_lambda.connections.security_groups[0],
+            ec2.Port.tcp(5432),
+            "Allow DBInitLambda to Postgres"
+        )
 
         provider = cr.Provider(
             self,
@@ -90,155 +132,99 @@ class InfrastructureStack(Stack):
             "DbInitCustomResource",
             service_token=provider.service_token,
         )
+        db_init_resource.node.add_dependency(bento_saas_db)
+        db_init_resource.node.add_dependency(bento_saas_db.secret)
 
-        # Secrets (import existing Secrets Manager secrets by ARN)
+        # 6. Secrets
         jwt_secret_arn = cdk.CfnParameter(
             self,
             "JwtSecretArn",
             type="String",
-            description="Secrets Manager ARN for shared JWT secret (used by Spring services)"
+            description="Secrets Manager ARN for shared JWT secret"
         )
         stripe_secret_key_arn = cdk.CfnParameter(
             self,
             "StripeSecretKeyArn",
             type="String",
-            description="Secrets Manager ARN for Stripe secret key (invoice-service)"
+            description="Secrets Manager ARN for Stripe secret key"
         )
         stripe_webhook_secret_arn = cdk.CfnParameter(
             self,
             "StripeWebhookSecretArn",
             type="String",
-            description="Secrets Manager ARN for Stripe webhook secret (invoice-service)"
+            description="Secrets Manager ARN for Stripe webhook secret"
         )
 
         self.jwt_secret = secretsmanager.Secret.from_secret_complete_arn(
-            self,
-            "JwtSecret",
-            jwt_secret_arn.value_as_string,
+            self, "JwtSecret", jwt_secret_arn.value_as_string
         )
         self.stripe_secret_key = secretsmanager.Secret.from_secret_complete_arn(
-            self,
-            "StripeSecretKey",
-            stripe_secret_key_arn.value_as_string,
+            self, "StripeSecretKey", stripe_secret_key_arn.value_as_string
         )
         self.stripe_webhook_secret = secretsmanager.Secret.from_secret_complete_arn(
-            self,
-            "StripeWebhookSecret",
-            stripe_webhook_secret_arn.value_as_string,
+            self, "StripeWebhookSecret", stripe_webhook_secret_arn.value_as_string
         )
 
-        # S3 (shared bucket for presigned URL generation)
-        plan_images_prefix = cdk.CfnParameter(
-            self,
-            "PlanImagesPrefix",
-            type="String",
-            default="plan/",
-            description="Key prefix for plan images"
-        )
-        meal_images_prefix = cdk.CfnParameter(
-            self,
-            "MealImagesPrefix",
-            type="String",
-            default="meal/",
-            description="Key prefix for meal images"
-        )
-        user_images_prefix = cdk.CfnParameter(
-            self,
-            "UserImagesPrefix",
-            type="String",
-            default="user/",
-            description="Key prefix for user images"
-        )
+        # 7. S3 & CloudFront
+        plan_images_prefix = cdk.CfnParameter(self, "PlanImagesPrefix", type="String", default="bento_images/plan/")
+        meal_images_prefix = cdk.CfnParameter(self, "MealImagesPrefix", type="String", default="bento_images/meal/")
+        user_images_prefix = cdk.CfnParameter(self, "UserImagesPrefix", type="String", default="bento_images/user/")
 
-        # Create the shared media bucket (plan/meal/user images)
         self.media_bucket = self.create_private_bucket("MediaBucket")
+        cdk.CfnOutput(self, "MediaBucketName", value=self.media_bucket.bucket_name)
 
-        cdk.CfnOutput(
-            self,
-            "MediaBucketName",
-            value=self.media_bucket.bucket_name,
-        )
-
-        # Kafka configs
-        self.msk_sg = ec2.SecurityGroup(
-            self,
-            "MskSG",
-            vpc=self.vpc,
-            allow_all_outbound=True,
-            description="SG for MSK brokers"
-        )
-        # Allow ECS tasks to reach MSK brokers (PLAINTEXT 9092 inside VPC)
-        self.msk_sg.add_ingress_rule(
-            self.ecs_sg,
-            ec2.Port.tcp(9092),
-            "Allow ECS to MSK brokers (9092)"
-        )
-        msk_cluster = self.create_msk_cluster()
-        # Export bootstrap brokers so services can publish/consume
-        self.kafka_bootstrap_servers = msk_cluster.get_att("BootstrapBrokers").to_string()
-
-        # ECS configs
-        # Cluster
+        # 8. ECS Cluster
         self.ecs_cluster = self.create_ecs_cluster()
 
-        # UserService ECS
+        # 9. ECS Services
+        # UserService
         user_service = self.create_fargate_service(
             "UserService",
             "user-service",
-            ecs.ContainerImage.from_asset(
-                "../backend/spring-boot",
-                file="user-service/Dockerfile",
-            ),
+            ecs.ContainerImage.from_asset("../backend/spring-boot", file="user-service/Dockerfile"),
             [4004],
             bento_saas_db,
             {
                 "SPRING_PROFILES_ACTIVE": "prod",
-                "USER_SERVICE_URL": "http://user-service.bento-saas.local:4004/user/v1",
+                "JWT_EXPIRATION_TIME": "7200000",
+                "AWS_REGION": "ap-northeast-1",
+                "AWS_EXPIRATION_TIME_MIN": 60,
+                "AWS_BUCKET_NAME": self.media_bucket.bucket_name
             },
             "SPRING_DATASOURCE_PASSWORD",
-            {
-                "JWT_SECRET": ecs.Secret.from_secrets_manager(self.jwt_secret),
-            },
+            {"JWT_SECRET_KEY": ecs.Secret.from_secrets_manager(self.jwt_secret)},
             "user"
         )
-        user_service.node.add_dependency(bento_saas_db_health_check)
         user_service.node.add_dependency(bento_saas_db)
-
-        # Allow user-service to generate presigned URLs for user images
+        user_service.node.add_dependency(db_init_resource)
         user_service.task_definition.task_role.add_to_principal_policy(
             iam.PolicyStatement(
                 actions=["s3:GetObject", "s3:PutObject"],
-                resources=[
-                    self.media_bucket.arn_for_objects(f"{user_images_prefix.value_as_string}*")
-                ],
+                resources=[self.media_bucket.arn_for_objects(f"{user_images_prefix.value_as_string}*")],
             )
         )
 
-        # PlanManagementService ECS
+        # PlanManagementService
         plan_management_service = self.create_fargate_service(
             "PlanManagementService",
             "plan-management-service",
-            ecs.ContainerImage.from_asset(
-                "../backend/spring-boot",
-                file="plan-management-service/Dockerfile",
-            ),
+            ecs.ContainerImage.from_asset("../backend/spring-boot", file="plan-management-service/Dockerfile"),
             [4000, 9000],
             bento_saas_db,
             {
-                "SPRING_PROFILES_ACTIVE": "prod"
+                "SPRING_PROFILES_ACTIVE": "prod",
+                "JWT_EXPIRATION_TIME": "7200000",
+                "AWS_REGION": "ap-northeast-1",
+                "AWS_EXPIRATION_TIME_MIN": 60,
+                "AWS_BUCKET_NAME": self.media_bucket.bucket_name
             },
             "SPRING_DATASOURCE_PASSWORD",
-            {
-                "JWT_SECRET": ecs.Secret.from_secrets_manager(self.jwt_secret),
-            },
+            {"JWT_SECRET_KEY": ecs.Secret.from_secrets_manager(self.jwt_secret)},
             "planmanagement"
         )
-        plan_management_service.node.add_dependency(bento_saas_db_health_check)
         plan_management_service.node.add_dependency(bento_saas_db)
-        plan_management_service.node.add_dependency(msk_cluster)
+        plan_management_service.node.add_dependency(db_init_resource)
         plan_management_service.node.add_dependency(user_service)
-
-        # Allow plan-management-service to generate presigned URLs for plan and meal images
         plan_management_service.task_definition.task_role.add_to_principal_policy(
             iam.PolicyStatement(
                 actions=["s3:GetObject", "s3:PutObject"],
@@ -249,39 +235,31 @@ class InfrastructureStack(Stack):
             )
         )
 
-        # SubscriptionService ECS
+        # SubscriptionService
         subscription_service = self.create_fargate_service(
             "SubscriptionService",
             "subscription-service",
-            ecs.ContainerImage.from_asset(
-                "../backend/spring-boot",
-                file="subscription-service/Dockerfile",
-            ),
+            ecs.ContainerImage.from_asset("../backend/spring-boot", file="subscription-service/Dockerfile"),
             [4001, 9001],
             bento_saas_db,
             {
                 "SPRING_PROFILES_ACTIVE": "prod",
                 "PLAN_MANAGEMENT_SERVICE_URL": "http://plan-management-service.bento-saas.local:4000/plan-management",
+                "JWT_EXPIRATION_TIME": "7200000"
             },
             "SPRING_DATASOURCE_PASSWORD",
-            {
-                "JWT_SECRET": ecs.Secret.from_secrets_manager(self.jwt_secret),
-            },
+            {"JWT_SECRET_KEY": ecs.Secret.from_secrets_manager(self.jwt_secret)},
             "subscription"
         )
-        subscription_service.node.add_dependency(bento_saas_db_health_check)
         subscription_service.node.add_dependency(bento_saas_db)
-        subscription_service.node.add_dependency(msk_cluster)
+        subscription_service.node.add_dependency(db_init_resource)
         subscription_service.node.add_dependency(user_service)
 
-        # InvoiceService ECS
+        # InvoiceService
         invoice_service = self.create_fargate_service(
             "InvoiceService",
             "invoice-service",
-            ecs.ContainerImage.from_asset(
-                "../backend/spring-boot",
-                file="invoice-service/Dockerfile",
-            ),
+            ecs.ContainerImage.from_asset("../backend/spring-boot", file="invoice-service/Dockerfile"),
             [4002, 9002],
             bento_saas_db,
             {
@@ -290,69 +268,51 @@ class InfrastructureStack(Stack):
                 "PLAN_MANAGEMENT_SERVICE_PORT": "9000",
                 "SUBSCRIPTION_SERVICE_ADDRESS": "subscription-service.bento-saas.local",
                 "SUBSCRIPTION_SERVICE_PORT": "9001",
+                "JWT_EXPIRATION_TIME": "7200000"
             },
             "SPRING_DATASOURCE_PASSWORD",
             {
-                "JWT_SECRET": ecs.Secret.from_secrets_manager(self.jwt_secret),
+                "JWT_SECRET_KEY": ecs.Secret.from_secrets_manager(self.jwt_secret),
                 "STRIPE_SECRET_KEY": ecs.Secret.from_secrets_manager(self.stripe_secret_key),
                 "STRIPE_WEBHOOK_SECRET": ecs.Secret.from_secrets_manager(self.stripe_webhook_secret),
             },
             "invoice"
         )
-        invoice_service.node.add_dependency(bento_saas_db_health_check)
         invoice_service.node.add_dependency(bento_saas_db)
-        invoice_service.node.add_dependency(msk_cluster)
+        invoice_service.node.add_dependency(db_init_resource)
         invoice_service.node.add_dependency(user_service)
         invoice_service.node.add_dependency(plan_management_service)
         invoice_service.node.add_dependency(subscription_service)
 
-        # NotificationService ECS
+        # NotificationService
         notification_service = self.create_fargate_service(
             "NotificationService",
             "notification-service",
-            ecs.ContainerImage.from_asset(
-                "../backend/go/notification-service",
-                file="Dockerfile",
-            ),
+            ecs.ContainerImage.from_asset("../backend/go/notification-service", file="Dockerfile"),
             [4005],
             bento_saas_db,
             {
                 "NOTI_DB_PARAMS_ADDRESS": bento_saas_db.db_instance_endpoint_address,
                 "NOTI_DB_PARAMS_PORT": bento_saas_db.db_instance_endpoint_port,
-                "NOTI_DB_PARAMS_DBNAME": "notification-service-db",
+                "NOTI_DB_PARAMS_DBNAME": "notification-service",
                 'NOTI_DB_PARAMS_USER': self.db_user_name,
                 "NOTI_KAFKA_PARAMS_BOOTSTRAP_SERVERS": self.kafka_bootstrap_servers,
-                "NOTI_SERVER_ADDRESS": "0.0.0.0"
+                "NOTI_SERVER_ADDRESS": "0.0.0.0",
+                "NOTI_DB_PARAMS_SSLMODE": "require"
             },
             "NOTI_DB_PARAMS_PASSWORD",
-            None,
+            {"NOTI_JWT_SECRET_KEY": ecs.Secret.from_secrets_manager(self.jwt_secret)},
             "notification"
         )
-        notification_service.node.add_dependency(bento_saas_db_health_check)
         notification_service.node.add_dependency(bento_saas_db)
-        notification_service.node.add_dependency(msk_cluster)
+        notification_service.node.add_dependency(db_init_resource)
         notification_service.node.add_dependency(user_service)
 
         # ApiGateway ECS
         self.create_api_gateway_service(
-            ecs.ContainerImage.from_asset(
-                "../backend/spring-boot",
-                file="api-gateway/Dockerfile",
-            )
+            ecs.ContainerImage.from_asset("../backend/spring-boot", file="api-gateway/Dockerfile")
         )
         self.create_frontend_infra()
-
-        user_service.node.add_dependency(db_init_resource)
-        plan_management_service.node.add_dependency(db_init_resource)
-        subscription_service.node.add_dependency(db_init_resource)
-        invoice_service.node.add_dependency(db_init_resource)
-        notification_service.node.add_dependency(db_init_resource)
-
-    def create_vpc(self) -> ec2.Vpc:
-        return ec2.Vpc(
-            self,
-            "BentoSaaSVpc",
-            max_azs=2)
 
     def create_database_instance(self, construct_id: str) -> rds.DatabaseInstance:
         return rds.DatabaseInstance(
@@ -360,47 +320,11 @@ class InfrastructureStack(Stack):
             construct_id,
             engine=rds.DatabaseInstanceEngine.postgres(version=rds.PostgresEngineVersion.VER_17_2),
             vpc=self.vpc,
-            instance_type=ec2.InstanceType.of(
-                ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.MEDIUM
-            ),
+            instance_type=ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE3, ec2.InstanceSize.MEDIUM),
             allocated_storage=20,
             credentials=rds.Credentials.from_generated_secret(self.db_user_name),
             removal_policy=cdk.RemovalPolicy.DESTROY,
             security_groups=[self.rds_sg]
-        )
-
-    def cfn_health_check(self, database_instance: rds.DatabaseInstance, construct_id: str) -> route53.CfnHealthCheck:
-        return route53.CfnHealthCheck(
-            self,
-            construct_id,
-            health_check_config=route53.CfnHealthCheck.HealthCheckConfigProperty(
-                type="TCP",
-                port=cdk.Token.as_number(database_instance.db_instance_endpoint_port),
-                ip_address=database_instance.db_instance_endpoint_address,
-                request_interval=30,
-                failure_threshold=3
-            )
-        )
-
-    def create_msk_cluster(self) -> msk.CfnCluster:
-        return msk.CfnCluster(
-            self,
-            "BentoSaaSMskCluster",
-            cluster_name="bento-saas-kafka-cluster",
-            kafka_version="4.2.0",
-            number_of_broker_nodes=2,
-            broker_node_group_info=msk.CfnCluster.BrokerNodeGroupInfoProperty(
-                instance_type="kafka.m5.large",
-                client_subnets=self.vpc.select_subnets(subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS).subnet_ids,
-                broker_az_distribution="DEFAULT",
-                security_groups=[self.msk_sg.security_group_id]
-            ),
-            encryption_info=msk.CfnCluster.EncryptionInfoProperty(
-                encryption_in_transit=msk.CfnCluster.EncryptionInTransitProperty(
-                    client_broker="PLAINTEXT",
-                    in_cluster=True,
-                )
-            ),
         )
 
     def create_ecs_cluster(self) -> ecs.Cluster:
@@ -408,26 +332,22 @@ class InfrastructureStack(Stack):
             self,
             "BentoSaaSEcsCluster",
             vpc=self.vpc,
-            default_cloud_map_namespace=ecs.CloudMapNamespaceOptions(
-                name="bento-saas.local",
-            )
+            default_cloud_map_namespace=ecs.CloudMapNamespaceOptions(name="bento-saas.local")
         )
 
-
-    def create_fargate_service(self, construct_id: str,
-                               image_name: str,
-                               image: ecs.ContainerImage,
-                               ports: list[int],
-                               db: rds.DatabaseInstance,
-                               additional_env_vars: dict[str, str],
-                               db_pswd_prop_key: str,
+    def create_fargate_service(self, construct_id: str, image_name: str, image: ecs.ContainerImage, ports: list[int],
+                               db: rds.DatabaseInstance, additional_env_vars: dict[str, str], db_pswd_prop_key: str,
                                additional_secrets: dict[str, ecs.Secret] | None,
                                schema_name: str) -> ecs.FargateService:
         task_definition = ecs.FargateTaskDefinition(
             self,
             construct_id + "Task",
             cpu=256,
-            memory_limit_mib=512
+            memory_limit_mib=512,
+            runtime_platform=ecs.RuntimePlatform(
+                operating_system_family=ecs.OperatingSystemFamily.LINUX,
+                cpu_architecture=ecs.CpuArchitecture.ARM64,
+            ),
         )
 
         env_vars = {
@@ -437,15 +357,14 @@ class InfrastructureStack(Stack):
         if additional_env_vars is not None:
             env_vars.update(additional_env_vars)
 
-        if db is not None:
+        if db is not None and image_name != "notification-service":
             env_vars[
                 "SPRING_DATASOURCE_URL"] = f"jdbc:postgresql://{db.db_instance_endpoint_address}:{db.db_instance_endpoint_port}/{image_name}?currentSchema={schema_name}"
 
-        env_vars["SPRING_DATASOURCE_USERNAME"] = self.db_user_name
-        env_vars["SPRING_JPA_HIBERNATE_DDL_AUTO"] = "update"
-        env_vars["SPRING_SQL_INIT_MODE"] = "always"
-        env_vars["SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT"] = "org.hibernate.dialect.PostgreSQLDialect"
-        env_vars["SPRING_DATASOURCE_HIKARI_INITIALIZATION_FAIL_TIMEOUT"] = "60000"
+        if image_name != "notification-service":
+            env_vars["SPRING_DATASOURCE_USERNAME"] = self.db_user_name
+            env_vars["SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT"] = "org.hibernate.dialect.PostgreSQLDialect"
+            env_vars["SPRING_DATASOURCE_HIKARI_INITIALIZATION_FAIL_TIMEOUT"] = "60000"
 
         task_definition.add_container(
             f"{image_name}Container",
@@ -494,13 +413,19 @@ class InfrastructureStack(Stack):
             self,
             f"{construct_id}Task",
             cpu=256,
-            memory_limit_mib=512
+            memory_limit_mib=512,
+            runtime_platform=ecs.RuntimePlatform(
+                operating_system_family=ecs.OperatingSystemFamily.LINUX,
+                cpu_architecture=ecs.CpuArchitecture.ARM64,
+            ),
         )
 
         task_definition.add_container(
             f"{construct_id}Container",
             image=image,
-            environment={"SPRING_PROFILES_ACTIVE": "prod"},
+            environment={"SPRING_PROFILES_ACTIVE": "prod",
+                         "USER_SERVICE_URL": "http://user-service.bento-saas.local:4004/user/v1",
+                         "JWT_EXPIRATION_TIME": "7200000"},
             port_mappings=[ecs.PortMapping(container_port=4003)],
             logging=ecs.LogDrivers.aws_logs(
                 log_group=logs.LogGroup(self, construct_id + "LogGroup",
@@ -543,6 +468,11 @@ class InfrastructureStack(Stack):
             health_check_grace_period=cdk.Duration.seconds(60),
             open_listener=False,
             security_groups=[api_gateway_sg],
+        )
+
+        api_gateway_with_alb.target_group.configure_health_check(
+            path="/actuator/health",
+            healthy_http_codes="200"
         )
 
         # Add HTTPS listener (443) with ACM cert and forward to the same target group
@@ -596,31 +526,31 @@ class InfrastructureStack(Stack):
         self.add_api_gateway_sg_to_ecs_service(
             api_gateway_sg,
             4004,
-            "Allow Api Gateway's HTTP To User Service"
+            "Allow Api Gateway HTTP To User Service"
         )
 
         self.add_api_gateway_sg_to_ecs_service(
             api_gateway_sg,
             4000,
-            "Allow Api Gateway's HTTP To Plan Management Service"
+            "Allow Api Gateway HTTP To Plan Management Service"
         )
 
         self.add_api_gateway_sg_to_ecs_service(
             api_gateway_sg,
             4001,
-            "Allow Api Gateway's HTTP To Subscription Service"
+            "Allow Api Gateway HTTP To Subscription Service"
         )
 
         self.add_api_gateway_sg_to_ecs_service(
             api_gateway_sg,
             4002,
-            "Allow Api Gateway's HTTP To Invoice Service"
+            "Allow Api Gateway HTTP To Invoice Service"
         )
 
         self.add_api_gateway_sg_to_ecs_service(
             api_gateway_sg,
             4005,
-            "Allow Api Gateway's HTTP To Notification Service"
+            "Allow Api Gateway HTTP To Notification Service"
         )
 
     def add_api_gateway_sg_to_ecs_service(self, api_gateway_sg: ec2.SecurityGroup, port: int, description: str):

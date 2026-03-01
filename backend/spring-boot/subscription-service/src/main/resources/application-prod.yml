@@ -42,3 +42,7 @@ resilience4j:
       plan-management-service:
         maxAttempts: 3
         waitDuration: 300ms
+
+jwt:
+  secret-key: ${JWT_SECRET_KEY}
+  expiration-time: ${JWT_EXPIRATION_TIME}

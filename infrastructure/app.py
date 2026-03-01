@@ -3,26 +3,43 @@ import os
 
 import aws_cdk as cdk
 
-from infrastructure.infrastructure_stack import InfrastructureStack
-
+from infrastructure.network_msk_stack import NetworkMskStack
+from infrastructure.services_stack import ServicesStack
 
 app = cdk.App()
-InfrastructureStack(app, "InfrastructureStack",
-    # If you don't specify 'env', this stack will be environment-agnostic.
-    # Account/Region-dependent features and context lookups will not work,
-    # but a single synthesized template can be deployed anywhere.
 
-    # Uncomment the next line to specialize this stack for the AWS Account
-    # and Region that are implied by the current CLI configuration.
+# Shared environment
+env = cdk.Environment(
+    account=os.getenv('CDK_DEFAULT_ACCOUNT'), 
+    region=os.getenv('CDK_DEFAULT_REGION')
+)
 
-    #env=cdk.Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION')),
+# 1. Network and MSK Stack
+NetworkMskStack(app, "NetworkMskStack", env=env)
 
-    # Uncomment the next line if you know exactly what Account and Region you
-    # want to deploy the stack to. */
+# 2. Services Stack
+# Requires vpc_id passed via context: -c vpc_id=vpc-xxxxxx
+vpc_id = app.node.try_get_context("vpc_id")
 
-    #env=cdk.Environment(account='123456789012', region='us-east-1'),
+if not vpc_id:
+    # We only raise error if we are specifically trying to synthesize/deploy ServicesStack
+    # In a real CI/CD, we might want to be more selective.
+    # But for CLI usage as requested:
+    import sys
+    if "ServicesStack" in sys.argv:
+        raise ValueError("Missing context variable 'vpc_id'. Use: -c vpc_id=<VpcId>")
 
-    # For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html
-    )
+ServicesStack(app, "ServicesStack", vpc_id=vpc_id, env=env)
 
 app.synth()
+
+# Commands to deploy:
+# 1. cdk deploy NetworkMskStack
+# 2. aws kafka get-bootstrap-brokers --cluster-arn <MskClusterArn from Output>
+# 3. cdk deploy ServicesStack -c vpc_id=<VpcId from Output> \
+#    --parameters KafkaBootstrapServers="<brokers>" \
+#    --parameters JwtSecretArn="..." \
+#    --parameters StripeSecretKeyArn="..." \
+#    --parameters StripeWebhookSecretArn="..." \
+#    --parameters FrontendAcmCertArn="..." \
+#    --parameters FrontendDomainName="..."

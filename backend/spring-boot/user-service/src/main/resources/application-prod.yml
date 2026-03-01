@@ -19,7 +19,11 @@ logging:
     com.nyihtuun.bentosystem.userservice: INFO
 
 aws:
-  region: ap-northeast-1
-  bucket-name: bento-saas-dev
+  region: ${AWS_REGION}
+  bucket-name: ${AWS_BUCKET_NAME}
   user-image-folder: bento_images/user/
-  expiration-time-min: 60
+  expiration-time-min: ${AWS_EXPIRATION_TIME_MIN}
+
+jwt:
+  secret-key: ${JWT_SECRET_KEY}
+  expiration-time: ${JWT_EXPIRATION_TIME}

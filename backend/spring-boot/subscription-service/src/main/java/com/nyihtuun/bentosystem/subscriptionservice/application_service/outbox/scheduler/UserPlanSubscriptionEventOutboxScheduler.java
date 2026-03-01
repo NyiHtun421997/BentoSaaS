@@ -31,7 +31,7 @@ public class UserPlanSubscriptionEventOutboxScheduler {
 
     @Scheduled(fixedDelayString = SCHEDULER_FIXED_RATE, initialDelayString = SCHEDULER_INITIAL_DELAY)
     public void processOutboxMessages() {
-        log.info("Processing outbox messages.");
+        log.debug("Processing outbox messages.");
         List<UserPlanSubscriptionEventOutboxMessage> userPlanSubscriptionEventOutboxMessages = userPlanSubscriptionEventOutboxRepository.findByOutboxStatus(
                 OutboxStatus.STARTED);
         userPlanSubscriptionEventOutboxMessages.forEach(userPlanSubscriptionEventOutboxMessage ->
