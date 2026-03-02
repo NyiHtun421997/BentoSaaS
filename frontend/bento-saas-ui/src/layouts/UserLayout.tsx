@@ -31,24 +31,35 @@ const UserLayout = () => {
 
   useEffect(() => {
     const fetchNotifications = async () => {
-      const data = await apiGet<NotificationDto[]>(`/notification/api/v1`);
-      setNotifications(data);
+      try {
+        const data = await apiGet<NotificationDto[] | null>(
+          `/notification/api/v1`,
+        );
+        setNotifications(Array.isArray(data) ? data : []);
+      } catch {
+        setNotifications([]);
+      }
     };
     fetchNotifications();
   }, []);
 
-  const unreadCount = useMemo(
-    () => notifications.filter((n) => !n.read).length,
+  const safeNotifications = useMemo(
+    () => (Array.isArray(notifications) ? notifications : []),
     [notifications],
   );
 
+  const unreadCount = useMemo(
+    () => safeNotifications.filter((n) => !n.read).length,
+    [safeNotifications],
+  );
+
   const sortedNotifications = useMemo(() => {
-    return [...notifications].sort((a, b) => {
+    return [...safeNotifications].sort((a, b) => {
       const ta = a.createdAt ? Date.parse(a.createdAt) : 0;
       const tb = b.createdAt ? Date.parse(b.createdAt) : 0;
       return tb - ta;
     });
-  }, [notifications]);
+  }, [safeNotifications]);
 
   const markNotiAsRead = async (id: number) => {
     await apiPut<NotificationDto>(`/notification/api/v1/${id}/read`);

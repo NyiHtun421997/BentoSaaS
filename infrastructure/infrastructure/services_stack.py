@@ -15,6 +15,7 @@ from aws_cdk import (
     custom_resources as cr,
     aws_elasticloadbalancingv2 as elbv2,
     aws_ecs_patterns as ecs_patterns,
+    aws_ecr as ecr,
 )
 from aws_cdk.aws_lambda_python_alpha import PythonFunction
 from constructs import Construct
@@ -165,6 +166,22 @@ class ServicesStack(Stack):
             self, "StripeWebhookSecret", stripe_webhook_secret_arn.value_as_string
         )
 
+        # ECR Repository Name Parameters
+        user_service_repo_name = cdk.CfnParameter(self, "UserServiceEcrRepoName", type="String")
+        plan_service_repo_name = cdk.CfnParameter(self, "PlanServiceEcrRepoName", type="String")
+        subscription_service_repo_name = cdk.CfnParameter(self, "SubscriptionServiceEcrRepoName", type="String")
+        invoice_service_repo_name = cdk.CfnParameter(self, "InvoiceServiceEcrRepoName", type="String")
+        notification_service_repo_name = cdk.CfnParameter(self, "NotificationServiceEcrRepoName", type="String")
+        spring_cloud_gateway_repo_name = cdk.CfnParameter(self, "SpringCloudGatewayEcrRepoName", type="String")
+
+        # Import ECR repositories
+        user_repo = ecr.Repository.from_repository_name(self, "UserRepo", user_service_repo_name.value_as_string)
+        plan_repo = ecr.Repository.from_repository_name(self, "PlanRepo", plan_service_repo_name.value_as_string)
+        subscription_repo = ecr.Repository.from_repository_name(self, "SubscriptionRepo", subscription_service_repo_name.value_as_string)
+        invoice_repo = ecr.Repository.from_repository_name(self, "InvoiceRepo", invoice_service_repo_name.value_as_string)
+        notification_repo = ecr.Repository.from_repository_name(self, "NotificationRepo", notification_service_repo_name.value_as_string)
+        spring_cloud_gateway_repo = ecr.Repository.from_repository_name(self, "SpringCloudGatewayRepo", spring_cloud_gateway_repo_name.value_as_string)
+
         # 7. S3 & CloudFront
         plan_images_prefix = cdk.CfnParameter(self, "PlanImagesPrefix", type="String", default="bento_images/plan/")
         meal_images_prefix = cdk.CfnParameter(self, "MealImagesPrefix", type="String", default="bento_images/meal/")
@@ -181,14 +198,14 @@ class ServicesStack(Stack):
         user_service = self.create_fargate_service(
             "UserService",
             "user-service",
-            ecs.ContainerImage.from_asset("../backend/spring-boot", file="user-service/Dockerfile"),
+            ecs.ContainerImage.from_ecr_repository(user_repo, tag="latest"),
             [4004],
             bento_saas_db,
             {
                 "SPRING_PROFILES_ACTIVE": "prod",
                 "JWT_EXPIRATION_TIME": "7200000",
                 "AWS_REGION": "ap-northeast-1",
-                "AWS_EXPIRATION_TIME_MIN": 60,
+                "AWS_EXPIRATION_TIME_MIN": "60",
                 "AWS_BUCKET_NAME": self.media_bucket.bucket_name
             },
             "SPRING_DATASOURCE_PASSWORD",
@@ -208,14 +225,14 @@ class ServicesStack(Stack):
         plan_management_service = self.create_fargate_service(
             "PlanManagementService",
             "plan-management-service",
-            ecs.ContainerImage.from_asset("../backend/spring-boot", file="plan-management-service/Dockerfile"),
+            ecs.ContainerImage.from_ecr_repository(plan_repo, tag="latest"),
             [4000, 9000],
             bento_saas_db,
             {
                 "SPRING_PROFILES_ACTIVE": "prod",
                 "JWT_EXPIRATION_TIME": "7200000",
                 "AWS_REGION": "ap-northeast-1",
-                "AWS_EXPIRATION_TIME_MIN": 60,
+                "AWS_EXPIRATION_TIME_MIN": "60",
                 "AWS_BUCKET_NAME": self.media_bucket.bucket_name
             },
             "SPRING_DATASOURCE_PASSWORD",
@@ -239,7 +256,7 @@ class ServicesStack(Stack):
         subscription_service = self.create_fargate_service(
             "SubscriptionService",
             "subscription-service",
-            ecs.ContainerImage.from_asset("../backend/spring-boot", file="subscription-service/Dockerfile"),
+            ecs.ContainerImage.from_ecr_repository(subscription_repo, tag="latest"),
             [4001, 9001],
             bento_saas_db,
             {
@@ -259,7 +276,7 @@ class ServicesStack(Stack):
         invoice_service = self.create_fargate_service(
             "InvoiceService",
             "invoice-service",
-            ecs.ContainerImage.from_asset("../backend/spring-boot", file="invoice-service/Dockerfile"),
+            ecs.ContainerImage.from_ecr_repository(invoice_repo, tag="latest"),
             [4002, 9002],
             bento_saas_db,
             {
@@ -288,7 +305,7 @@ class ServicesStack(Stack):
         notification_service = self.create_fargate_service(
             "NotificationService",
             "notification-service",
-            ecs.ContainerImage.from_asset("../backend/go/notification-service", file="Dockerfile"),
+            ecs.ContainerImage.from_ecr_repository(notification_repo, tag="latest"),
             [4005],
             bento_saas_db,
             {
@@ -310,7 +327,7 @@ class ServicesStack(Stack):
 
         # ApiGateway ECS
         self.create_api_gateway_service(
-            ecs.ContainerImage.from_asset("../backend/spring-boot", file="api-gateway/Dockerfile")
+            ecs.ContainerImage.from_ecr_repository(spring_cloud_gateway_repo, tag="latest")
         )
         self.create_frontend_infra()
 
@@ -320,7 +337,7 @@ class ServicesStack(Stack):
             construct_id,
             engine=rds.DatabaseInstanceEngine.postgres(version=rds.PostgresEngineVersion.VER_17_2),
             vpc=self.vpc,
-            instance_type=ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE3, ec2.InstanceSize.MEDIUM),
+            instance_type=ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE3, ec2.InstanceSize.MICRO),
             allocated_storage=20,
             credentials=rds.Credentials.from_generated_secret(self.db_user_name),
             removal_policy=cdk.RemovalPolicy.DESTROY,

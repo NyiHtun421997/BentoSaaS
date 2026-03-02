@@ -1,5 +1,11 @@
 # Bento SaaS（ポートフォリオプロジェクト）
 
+公開URL：[https://app.bento.nyihtuun.com](https://app.bento.nyihtuun.com)
+
+ID : firstuser@gmail.com
+
+password : passwordx
+
 ## 概要
 
 本プロジェクトは、お弁当サブスクリプション型SaaS を題材としたポートフォリオ用システムです。
