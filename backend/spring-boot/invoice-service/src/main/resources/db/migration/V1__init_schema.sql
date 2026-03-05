@@ -4,8 +4,12 @@ CREATE SCHEMA IF NOT EXISTS "invoice";
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- DROP TYPE IF EXISTS invoice_status;
-CREATE TYPE invoice_status AS ENUM ('ISSUED', 'PAID', 'CANCELLED', 'FAILED');
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'invoice_status') THEN
+        CREATE TYPE invoice_status AS ENUM ('ISSUED', 'PAID', 'CANCELLED', 'FAILED');
+    END IF;
+END $$;
 
 -- DROP TABLE IF EXISTS "invoice".invoice;
 CREATE TABLE IF NOT EXISTS "invoice".invoice
@@ -36,8 +40,12 @@ CREATE TABLE IF NOT EXISTS "invoice".invoice
 -- Invoice BC: Outbox Table
 -- ==========================================================
 
--- DROP TYPE IF EXISTS outbox_status;;
-CREATE TYPE outbox_status AS ENUM ('STARTED', 'COMPLETED', 'FAILED');
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'outbox_status') THEN
+        CREATE TYPE outbox_status AS ENUM ('STARTED', 'COMPLETED', 'FAILED');
+    END IF;
+END $$;
 
 -- DROP TABLE IF EXISTS "invoice".invoice_event_outbox CASCADE;;
 CREATE TABLE IF NOT EXISTS "invoice".invoice_event_outbox

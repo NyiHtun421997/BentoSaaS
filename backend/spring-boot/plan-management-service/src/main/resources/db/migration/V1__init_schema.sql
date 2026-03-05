@@ -8,8 +8,12 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS postgis;
 ;
 
--- DROP TYPE IF EXISTS plan_status;;
-CREATE TYPE plan_status AS ENUM ('RECRUITING', 'ACTIVE', 'SUSPENDED', 'CANCELLED', 'PLANS_ADDED', 'PLANS_REMOVED');
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'plan_status') THEN
+        CREATE TYPE plan_status AS ENUM ('RECRUITING', 'ACTIVE', 'SUSPENDED', 'CANCELLED', 'PLANS_ADDED', 'PLANS_REMOVED');
+    END IF;
+END $$;
 
 -- DROP TABLE IF EXISTS "planmanagement".address CASCADE;;
 
@@ -146,8 +150,12 @@ CREATE TABLE IF NOT EXISTS "planmanagement".delivery_schedule_detail
 -- ==========================================================
 -- Plan Management BC: Cron job execution results (job_run)
 -- ==========================================================
--- DROP TYPE IF EXISTS job_run_status;;
-CREATE TYPE job_run_status AS ENUM ('SUCCESS', 'PARTIAL_SUCCESS', 'FAILED');
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'job_run_status') THEN
+        CREATE TYPE job_run_status AS ENUM ('SUCCESS', 'PARTIAL_SUCCESS', 'FAILED');
+    END IF;
+END $$;
 
 -- DROP TABLE IF EXISTS "planmanagement".job_run CASCADE;;
 CREATE TABLE IF NOT EXISTS "planmanagement".job_run
@@ -187,8 +195,12 @@ CREATE INDEX IF NOT EXISTS ix_pm_job_run_job_type_status
 -- Plan Management BC: Outbox Table
 -- ==========================================================
 
--- DROP TYPE IF EXISTS outbox_status;;
-CREATE TYPE outbox_status AS ENUM ('STARTED', 'COMPLETED', 'FAILED');
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'outbox_status') THEN
+        CREATE TYPE outbox_status AS ENUM ('STARTED', 'COMPLETED', 'FAILED');
+    END IF;
+END $$;
 
 -- DROP TABLE IF EXISTS "planmanagement".plan_changed_event_outbox CASCADE;;
 CREATE TABLE IF NOT EXISTS "planmanagement".plan_changed_event_outbox

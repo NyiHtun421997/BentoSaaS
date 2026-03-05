@@ -4,8 +4,12 @@ CREATE SCHEMA IF NOT EXISTS "subscription";;
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";;
 
--- DROP TYPE IF EXISTS subscription_status;;
-CREATE TYPE subscription_status AS ENUM ('APPLIED', 'SUBSCRIBED', 'CANCELLED', 'SUSPENDED');
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'subscription_status') THEN
+        CREATE TYPE subscription_status AS ENUM ('APPLIED', 'SUBSCRIBED', 'CANCELLED', 'SUSPENDED');
+    END IF;
+END $$;
 
 -- DROP TABLE IF EXISTS "subscription".subscription;;
 CREATE TABLE IF NOT EXISTS "subscription".subscription
@@ -42,8 +46,12 @@ CREATE TABLE IF NOT EXISTS "subscription".meal_selection
 -- Subscription BC: Outbox Table
 -- ==========================================================
 
--- DROP TYPE IF EXISTS outbox_status;;
-CREATE TYPE outbox_status AS ENUM ('STARTED', 'COMPLETED', 'FAILED');
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'outbox_status') THEN
+        CREATE TYPE outbox_status AS ENUM ('STARTED', 'COMPLETED', 'FAILED');
+    END IF;
+END $$;
 
 -- DROP TABLE IF EXISTS "subscription".user_plan_subscription_event_outbox CASCADE;;
 CREATE TABLE IF NOT EXISTS "subscription".user_plan_subscription_event_outbox

@@ -210,7 +210,7 @@ class ServicesStack(Stack):
             },
             "SPRING_DATASOURCE_PASSWORD",
             {"JWT_SECRET_KEY": ecs.Secret.from_secrets_manager(self.jwt_secret)},
-            "user"
+            "userinfo"
         )
         user_service.node.add_dependency(bento_saas_db)
         user_service.node.add_dependency(db_init_resource)

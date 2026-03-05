@@ -8,11 +8,10 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
-    schemas: user
+    schemas: userinfo
     create-schemas: true
   datasource:
     driver-class-name: org.postgresql.Driver
-#      data-locations: classpath:data-dev.sql
 
 logging:
   level:
