@@ -59,19 +59,22 @@ class ServicesStack(Stack):
             removal_policy=cdk.RemovalPolicy.DESTROY,
         )
 
-        repo_parameter_names = {
-            "user": "UserServiceEcrRepoName",
-            "plan": "PlanServiceEcrRepoName",
-            "subscription": "SubscriptionServiceEcrRepoName",
-            "invoice": "InvoiceServiceEcrRepoName",
-            "notification": "NotificationServiceEcrRepoName",
-            "gateway": "SpringCloudGatewayEcrRepoName",
+        repo_names = {
+            "user": "bento/user-service",
+            "plan": "bento/plan-management-service",
+            "subscription": "bento/subscription-service",
+            "invoice": "bento/invoice-service",
+            "notification": "bento/notification-service",
+            "gateway": "bento/spring-cloud-gateway",
         }
+
         repositories: dict[str, ecr.IRepository] = {}
-        for key, parameter_name in repo_parameter_names.items():
-            repo_name = cdk.CfnParameter(self, parameter_name, type="String")
+
+        for key, repo_name in repo_names.items():
             repositories[key] = ecr.Repository.from_repository_name(
-                self, f"{key.title()}Repo", repo_name.value_as_string
+                self,
+                f"{key.title()}Repo",
+                repo_name,
             )
 
         plan_prefix = cdk.CfnParameter(
