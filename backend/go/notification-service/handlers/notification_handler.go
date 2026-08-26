@@ -41,6 +41,12 @@ func GetNotificationsByUserId(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Failed to retrieve notifications"})
 		return
 	}
+
+	if notifications == nil {
+		notifications = []models.Notification{}
+	}
+
+	context.JSON(http.StatusOK, notifications)
 	context.JSON(http.StatusOK, notifications)
 }
 

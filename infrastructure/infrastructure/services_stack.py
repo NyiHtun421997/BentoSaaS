@@ -234,26 +234,43 @@ class ServicesStack(Stack):
             dnf update -y
             dnf install -y docker awscli
             systemctl enable --now docker
-            mkdir -p /usr/local/lib/docker/cli-plugins /opt/bento/postgres-init
-            curl -fL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-aarch64 \\
-              -o /usr/local/lib/docker/cli-plugins/docker-compose
+
+            mkdir -p \
+            /usr/local/lib/docker/cli-plugins \
+            /opt/bento/postgres-init
+
+            curl -fL \
+            https://github.com/docker/compose/releases/latest/download/docker-compose-linux-aarch64 \
+            -o /usr/local/lib/docker/cli-plugins/docker-compose
+
             chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
 
-            aws ecr get-login-password --region {region} | \\
-              docker login --username AWS --password-stdin {account}.dkr.ecr.{region}.amazonaws.com
+            aws ecr get-login-password --region {region} | \
+            docker login \
+                --username AWS \
+                --password-stdin \
+                {account}.dkr.ecr.{region}.amazonaws.com
 
             get_secret() {{
-              aws secretsmanager get-secret-value --region {region} \\
-                --secret-id "$1" --query SecretString --output text
+            aws secretsmanager get-secret-value \
+                --region {region} \
+                --secret-id "$1" \
+                --query SecretString \
+                --output text
             }}
 
             umask 077
+
             cat > /opt/bento/.env <<EOF
             POSTGRES_PASSWORD=$(get_secret '{db_password_arn}')
             JWT_SECRET_KEY=$(get_secret '{jwt_secret_arn}')
             STRIPE_SECRET_KEY=$(get_secret '{stripe_key_arn}')
             STRIPE_WEBHOOK_SECRET=$(get_secret '{stripe_webhook_arn}')
+            AWS_BUCKET_NAME={media_bucket_name}
             EOF
+
+            chmod 600 /opt/bento/.env
+            umask 022
 
             cat > /opt/bento/postgres-init/01-create-databases.sql <<'SQL'
             CREATE DATABASE "user-service";
@@ -261,174 +278,209 @@ class ServicesStack(Stack):
             CREATE DATABASE "subscription-service";
             CREATE DATABASE "invoice-service";
             CREATE DATABASE "notification-service";
+
             \\connect "user-service"
             CREATE SCHEMA IF NOT EXISTS userinfo;
+
             \\connect "plan-management-service"
             CREATE SCHEMA IF NOT EXISTS planmanagement;
+
             \\connect "subscription-service"
             CREATE SCHEMA IF NOT EXISTS subscription;
+
             \\connect "invoice-service"
             CREATE SCHEMA IF NOT EXISTS invoice;
+
             \\connect "notification-service"
             CREATE SCHEMA IF NOT EXISTS notification;
             SQL
 
+            chmod 644 /opt/bento/postgres-init/01-create-databases.sql
+
             cat > /opt/bento/compose.yaml <<'YAML'
             name: bento-saas
+
             services:
-              postgres:
-                image: postgres:17-alpine
+            postgres:
+                image: imresamu/postgis:17-3.6-bookworm
                 restart: unless-stopped
                 environment:
-                  POSTGRES_USER: postgres
-                  POSTGRES_PASSWORD: ${{POSTGRES_PASSWORD}}
-                  POSTGRES_DB: postgres
+                POSTGRES_USER: postgres
+                POSTGRES_PASSWORD: ${{POSTGRES_PASSWORD}}
+                POSTGRES_DB: postgres
                 volumes:
-                  - postgres-data:/var/lib/postgresql/data
-                  - ./postgres-init:/docker-entrypoint-initdb.d:ro
+                - postgres-data:/var/lib/postgresql/data
+                - ./postgres-init:/docker-entrypoint-initdb.d:ro
                 healthcheck:
-                  test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
-                  interval: 10s
-                  timeout: 5s
-                  retries: 12
+                test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+                interval: 10s
+                timeout: 5s
+                retries: 12
 
-              kafka:
+            kafka:
                 image: apache/kafka:3.7.0
                 restart: unless-stopped
                 environment:
-                  KAFKA_NODE_ID: 1
-                  KAFKA_PROCESS_ROLES: broker,controller
-                  KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
-                  KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
-                  KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-                  KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
-                  KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
-                  KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-                  KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-                  KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-                  KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-                  KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-                  KAFKA_NUM_PARTITIONS: 1
-                  KAFKA_HEAP_OPTS: -Xms256m -Xmx512m
+                KAFKA_NODE_ID: 1
+                KAFKA_PROCESS_ROLES: broker,controller
+                KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+                KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+                KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+                KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+                KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+                KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+                KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+                KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+                KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+                KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+                KAFKA_NUM_PARTITIONS: 1
+                KAFKA_HEAP_OPTS: -Xms256m -Xmx512m
                 volumes:
-                  - kafka-data:/var/lib/kafka/data
+                - kafka-data:/var/lib/kafka/data
 
-              user-service:
+            user-service:
                 image: {repositories['user'].repository_uri}:latest
                 restart: unless-stopped
                 depends_on:
-                  postgres: {{condition: service_healthy}}
+                postgres:
+                    condition: service_healthy
                 environment:
-                  SPRING_PROFILES_ACTIVE: prod
-                  SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/user-service?currentSchema=userinfo
-                  SPRING_DATASOURCE_USERNAME: postgres
-                  SPRING_DATASOURCE_PASSWORD: ${{POSTGRES_PASSWORD}}
-                  SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
-                  SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-                  JWT_SECRET_KEY: ${{JWT_SECRET_KEY}}
-                  JWT_EXPIRATION_TIME: "7200000"
-                  AWS_REGION: {region}
-                  AWS_EXPIRATION_TIME_MIN: "60"
-                  AWS_BUCKET_NAME: {media_bucket_name}
-                  JAVA_TOOL_OPTIONS: -Xms128m -Xmx512m
+                SPRING_PROFILES_ACTIVE: prod
+                SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/user-service?currentSchema=userinfo
+                SPRING_DATASOURCE_USERNAME: postgres
+                SPRING_DATASOURCE_PASSWORD: ${{POSTGRES_PASSWORD}}
+                SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
+                SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+                JWT_SECRET_KEY: ${{JWT_SECRET_KEY}}
+                JWT_EXPIRATION_TIME: "7200000"
+                AWS_REGION: {region}
+                AWS_EXPIRATION_TIME_MIN: "60"
+                AWS_BUCKET_NAME: ${{AWS_BUCKET_NAME}}
+                JAVA_TOOL_OPTIONS: -Xms128m -Xmx512m
+                networks:
+                default:
+                    aliases:
+                    - user-service.bento-saas.local
 
-              plan-management-service:
+            plan-management-service:
                 image: {repositories['plan'].repository_uri}:latest
                 restart: unless-stopped
                 depends_on:
-                  postgres: {{condition: service_healthy}}
-                  kafka: {{condition: service_started}}
+                postgres:
+                    condition: service_healthy
+                kafka:
+                    condition: service_started
                 environment:
-                  SPRING_PROFILES_ACTIVE: prod
-                  SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/plan-management-service?currentSchema=planmanagement
-                  SPRING_DATASOURCE_USERNAME: postgres
-                  SPRING_DATASOURCE_PASSWORD: ${{POSTGRES_PASSWORD}}
-                  SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
-                  SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-                  JWT_SECRET_KEY: ${{JWT_SECRET_KEY}}
-                  JWT_EXPIRATION_TIME: "7200000"
-                  AWS_REGION: {region}
-                  AWS_EXPIRATION_TIME_MIN: "60"
-                  AWS_BUCKET_NAME: {media_bucket_name}
-                  JAVA_TOOL_OPTIONS: -Xms128m -Xmx512m
+                SPRING_PROFILES_ACTIVE: prod
+                SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/plan-management-service?currentSchema=planmanagement
+                SPRING_DATASOURCE_USERNAME: postgres
+                SPRING_DATASOURCE_PASSWORD: ${{POSTGRES_PASSWORD}}
+                SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
+                SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+                JWT_SECRET_KEY: ${{JWT_SECRET_KEY}}
+                JWT_EXPIRATION_TIME: "7200000"
+                AWS_REGION: {region}
+                AWS_EXPIRATION_TIME_MIN: "60"
+                AWS_BUCKET_NAME: ${{AWS_BUCKET_NAME}}
+                JAVA_TOOL_OPTIONS: -Xms128m -Xmx512m
+                networks:
+                default:
+                    aliases:
+                    - plan-management-service.bento-saas.local
 
-              subscription-service:
+            subscription-service:
                 image: {repositories['subscription'].repository_uri}:latest
                 restart: unless-stopped
                 depends_on:
-                  postgres: {{condition: service_healthy}}
+                postgres:
+                    condition: service_healthy
                 environment:
-                  SPRING_PROFILES_ACTIVE: prod
-                  SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/subscription-service?currentSchema=subscription
-                  SPRING_DATASOURCE_USERNAME: postgres
-                  SPRING_DATASOURCE_PASSWORD: ${{POSTGRES_PASSWORD}}
-                  SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
-                  SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-                  PLAN_MANAGEMENT_SERVICE_URL: http://plan-management-service:4000/plan-management
-                  JWT_SECRET_KEY: ${{JWT_SECRET_KEY}}
-                  JWT_EXPIRATION_TIME: "7200000"
-                  JAVA_TOOL_OPTIONS: -Xms128m -Xmx512m
+                SPRING_PROFILES_ACTIVE: prod
+                SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/subscription-service?currentSchema=subscription
+                SPRING_DATASOURCE_USERNAME: postgres
+                SPRING_DATASOURCE_PASSWORD: ${{POSTGRES_PASSWORD}}
+                SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
+                SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+                PLAN_MANAGEMENT_SERVICE_URL: http://plan-management-service.bento-saas.local:4000/plan-management
+                JWT_SECRET_KEY: ${{JWT_SECRET_KEY}}
+                JWT_EXPIRATION_TIME: "7200000"
+                JAVA_TOOL_OPTIONS: -Xms128m -Xmx512m
+                networks:
+                default:
+                    aliases:
+                    - subscription-service.bento-saas.local
 
-              invoice-service:
+            invoice-service:
                 image: {repositories['invoice'].repository_uri}:latest
                 restart: unless-stopped
                 depends_on:
-                  postgres: {{condition: service_healthy}}
+                postgres:
+                    condition: service_healthy
                 environment:
-                  SPRING_PROFILES_ACTIVE: prod
-                  SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/invoice-service?currentSchema=invoice
-                  SPRING_DATASOURCE_USERNAME: postgres
-                  SPRING_DATASOURCE_PASSWORD: ${{POSTGRES_PASSWORD}}
-                  SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
-                  SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-                  PLAN_MANAGEMENT_SERVICE_ADDRESS: plan-management-service
-                  PLAN_MANAGEMENT_SERVICE_PORT: "9000"
-                  SUBSCRIPTION_SERVICE_ADDRESS: subscription-service
-                  SUBSCRIPTION_SERVICE_PORT: "9001"
-                  JWT_SECRET_KEY: ${{JWT_SECRET_KEY}}
-                  JWT_EXPIRATION_TIME: "7200000"
-                  STRIPE_SECRET_KEY: ${{STRIPE_SECRET_KEY}}
-                  STRIPE_WEBHOOK_SECRET: ${{STRIPE_WEBHOOK_SECRET}}
-                  JAVA_TOOL_OPTIONS: -Xms128m -Xmx512m
+                SPRING_PROFILES_ACTIVE: prod
+                SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/invoice-service?currentSchema=invoice
+                SPRING_DATASOURCE_USERNAME: postgres
+                SPRING_DATASOURCE_PASSWORD: ${{POSTGRES_PASSWORD}}
+                SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
+                SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+                PLAN_MANAGEMENT_SERVICE_ADDRESS: plan-management-service.bento-saas.local
+                PLAN_MANAGEMENT_SERVICE_PORT: "9000"
+                SUBSCRIPTION_SERVICE_ADDRESS: subscription-service.bento-saas.local
+                SUBSCRIPTION_SERVICE_PORT: "9001"
+                JWT_SECRET_KEY: ${{JWT_SECRET_KEY}}
+                JWT_EXPIRATION_TIME: "7200000"
+                STRIPE_SECRET_KEY: ${{STRIPE_SECRET_KEY}}
+                STRIPE_WEBHOOK_SECRET: ${{STRIPE_WEBHOOK_SECRET}}
+                JAVA_TOOL_OPTIONS: -Xms128m -Xmx512m
+                networks:
+                default:
+                    aliases:
+                    - invoice-service.bento-saas.local
 
-              notification-service:
+            notification-service:
                 image: {repositories['notification'].repository_uri}:latest
                 restart: unless-stopped
                 depends_on:
-                  postgres: {{condition: service_healthy}}
-                  kafka: {{condition: service_started}}
+                postgres:
+                    condition: service_healthy
+                kafka:
+                    condition: service_started
                 environment:
-                  NOTI_DB_PARAMS_ADDRESS: postgres
-                  NOTI_DB_PARAMS_PORT: "5432"
-                  NOTI_DB_PARAMS_DBNAME: notification-service
-                  NOTI_DB_PARAMS_USER: postgres
-                  NOTI_DB_PARAMS_PASSWORD: ${{POSTGRES_PASSWORD}}
-                  NOTI_DB_PARAMS_SSLMODE: disable
-                  NOTI_KAFKA_PARAMS_BOOTSTRAP_SERVERS: kafka:9092
-                  NOTI_SERVER_ADDRESS: 0.0.0.0
-                  NOTI_JWT_SECRET_KEY: ${{JWT_SECRET_KEY}}
+                NOTI_DB_PARAMS_ADDRESS: postgres
+                NOTI_DB_PARAMS_PORT: "5432"
+                NOTI_DB_PARAMS_DBNAME: notification-service
+                NOTI_DB_PARAMS_USER: postgres
+                NOTI_DB_PARAMS_PASSWORD: ${{POSTGRES_PASSWORD}}
+                NOTI_DB_PARAMS_SSLMODE: disable
+                NOTI_KAFKA_PARAMS_BOOTSTRAP_SERVERS: kafka:9092
+                NOTI_SERVER_ADDRESS: 0.0.0.0
+                NOTI_JWT_SECRET_KEY: ${{JWT_SECRET_KEY}}
+                networks:
+                default:
+                    aliases:
+                    - notification-service.bento-saas.local
 
-              api-gateway:
+            api-gateway:
                 image: {repositories['gateway'].repository_uri}:latest
                 restart: unless-stopped
                 depends_on:
-                  - user-service
-                  - plan-management-service
-                  - subscription-service
-                  - invoice-service
-                  - notification-service
+                - user-service
+                - plan-management-service
+                - subscription-service
+                - invoice-service
+                - notification-service
                 ports:
-                  - "4003:4003"
+                - "4003:4003"
                 environment:
-                  SPRING_PROFILES_ACTIVE: prod
-                  USER_SERVICE_URL: http://user-service:4004/user/v1
-                  JWT_SECRET_KEY: ${{JWT_SECRET_KEY}}
-                  JWT_EXPIRATION_TIME: "7200000"
-                  JAVA_TOOL_OPTIONS: -Xms128m -Xmx512m
+                SPRING_PROFILES_ACTIVE: prod
+                USER_SERVICE_URL: http://user-service.bento-saas.local:4004/user/v1
+                JWT_SECRET_KEY: ${{JWT_SECRET_KEY}}
+                JWT_EXPIRATION_TIME: "7200000"
+                JAVA_TOOL_OPTIONS: -Xms128m -Xmx512m
 
             volumes:
-              postgres-data:
-              kafka-data:
+            postgres-data:
+            kafka-data:
             YAML
 
             cd /opt/bento
