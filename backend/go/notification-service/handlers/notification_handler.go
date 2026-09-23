@@ -47,7 +47,6 @@ func GetNotificationsByUserId(context *gin.Context) {
 	}
 
 	context.JSON(http.StatusOK, notifications)
-	context.JSON(http.StatusOK, notifications)
 }
 
 func MarkNotificationsAsRead(context *gin.Context) {
